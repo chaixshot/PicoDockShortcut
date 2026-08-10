@@ -1,0 +1,33 @@
+[
+  {
+    "packageName": "com.pvr.home",
+    "className": "com.pvr.home.RecActivity",
+    "actionName":"pvr.intent.action.HOME_REC",
+    "iconUrl":"Image/ic_home.png"
+  },
+  {
+    "packageName": "com.picovr.store",
+    "className":"com.picovr.store.MainActivity",
+    "iconUrl":"Image/ic_appstore.png"
+  },
+  {
+    "packageName": "com.pico.browser",
+    "iconUrl": "Image/ic_browser.png"
+  },
+  {
+    "packageName": "com.picopui.im",
+    "className": "com.bytedance.pico.im.MainActivity",
+    "actionName": "android.intent.action.MAIN",
+    "iconUrl": "Image/ic_im.png"
+  },
+  {
+    "packageName": "com.pvr.filemanager",
+    "className": "com.pvr.filemanager.refactor.view.activity.MainActivity",
+    "iconUrl": "Image/ic_filemanager.png"
+  },
+  {
+    "packageName": "com.pvr.appmanager",
+    "className": "com.pvr.appmanager.AllAppActivity",
+    "iconUrl": "Image/ic_appmanager.png"
+  }
+]
