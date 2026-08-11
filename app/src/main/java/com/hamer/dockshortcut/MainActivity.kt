@@ -75,8 +75,9 @@ private object Shell {
             os.flush()
         }
         val output = process.inputStream.bufferedReader().readText()
+        val error = process.errorStream.bufferedReader().readText()
         process.waitFor()
-        output
+        output + error
     } catch (e: Exception) {
         ""
     }
@@ -101,21 +102,40 @@ class MainViewModel : ViewModel() {
     var isRetrying by mutableStateOf(false)
     var isModuleActive by mutableStateOf(true)
     var isTargetHooked by mutableStateOf(true)
+    var isTargetRunning by mutableStateOf(true)
     var hasRoot by mutableStateOf(true)
 
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val isActive = XposedStatus.isActive()
-            // Batch root and hooked check to save su process spawns
-            val cmd = "id; for pid in $(pidof $TARGET_PACKAGE); do grep -q \"com.hamer.dockshortcut\" /proc/\"\$pid\"/maps && echo \"HOOKED_OK\" && break; done"
+            val cmd = """
+                id
+                RUNNING=0
+                HOOKED=0
+                for p in /proc/[0-9]*; do
+                    [ -d "${'$'}p" ] || continue
+                    if grep -aq "$TARGET_PACKAGE" "${'$'}p/cmdline" 2>/dev/null; then
+                        RUNNING=1
+                        if grep -q "com.hamer.dockshortcut" "${'$'}p/maps" 2>/dev/null; then
+                            HOOKED=1
+                            break
+                        fi
+                    fi
+                done
+                [ "${'$'}RUNNING" -eq 1 ] && echo "TARGET_RUNNING"
+                [ "${'$'}HOOKED" -eq 1 ] && echo "HOOKED_OK"
+            """.trimIndent()
+            
             val result = Shell.exec(cmd)
             
             val rootOk = result.contains("uid=0")
+            val runningOk = result.contains("TARGET_RUNNING")
             val hookedOk = result.contains("HOOKED_OK")
 
             withContext(Dispatchers.Main) {
                 isModuleActive = isActive
                 hasRoot = rootOk
+                isTargetRunning = runningOk
                 isTargetHooked = hookedOk
             }
         }
@@ -914,7 +934,7 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
-    } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
+    } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked || !viewModel.isTargetRunning) {
         AlertDialog(
             onDismissRequest = {},
             title = { Text("System Warning", color = MaterialTheme.colorScheme.error) },
@@ -922,34 +942,30 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                 Column {
                     if (!viewModel.isModuleActive) {
                         Text("• LSPosed module is not active.")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Please enable it in LSPosed Manager.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    } else if (!viewModel.isTargetHooked) {
-                        Text("• Target App (com.pvr.shortcut) not hooked.")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Select Dock (com.pvr.shortcut) in scope.",
-                            style = MaterialTheme.typography.bodySmall
-                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Please enable it in LSPosed Manager.", style = MaterialTheme.typography.bodySmall)
                     }
+                    if (!viewModel.isTargetRunning) {
+                        Text("• Target App (Dock) is not running.")
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Click Restart below to start the service.", style = MaterialTheme.typography.bodySmall)
+                    } else if (!viewModel.isTargetHooked) {
+                        Text("• Target App is running but NOT hooked.")
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text("Ensure 'Dock' is checked in LSPosed scope.", style = MaterialTheme.typography.bodySmall)
+                    }
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Root: ${if (viewModel.hasRoot) "OK" else "FAIL"}", style = MaterialTheme.typography.labelSmall)
                 }
             },
             confirmButton = {
-                if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
-                    TextButton(
-                        onClick = { viewModel.restartAndRetry(context) },
-                        enabled = !viewModel.isRetrying
-                    ) {
-                        if (viewModel.isRetrying) CircularProgressIndicator(
-                            modifier = Modifier.size(
-                                18.dp
-                            ), strokeWidth = 2.dp
-                        )
-                        else Text("Restart & Retry")
-                    }
+                TextButton(
+                    onClick = { viewModel.restartAndRetry(context) },
+                    enabled = !viewModel.isRetrying
+                ) {
+                    if (viewModel.isRetrying) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                    else Text("Restart & Retry")
                 }
                 TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
             },
