@@ -369,7 +369,41 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         viewModel.checkStatus()
     }
 
-    if (!viewModel.isModuleActive || !viewModel.isTargetAppHooked) {
+    if (!viewModel.hasRootAccess) {
+        AlertDialog(
+            onDismissRequest = { },
+            title = {
+                Text(
+                    text = "Root Access Required",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
+            text = {
+                Text("This app requires Root Access (su) to apply dock changes and verify system status. Please grant root permissions.")
+            },
+            confirmButton = {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = { viewModel.checkStatus() }) {
+                        Text("Retry")
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = {
+                        (context as? android.app.Activity)?.finishAffinity()
+                        android.os.Process.killProcess(android.os.Process.myPid())
+                    }) {
+                        Text("Exit")
+                    }
+                }
+            },
+            containerColor = Color(0xFF333333),
+            textContentColor = Color.White
+        )
+    } else if (!viewModel.isModuleActive || !viewModel.isTargetAppHooked) {
         AlertDialog(
             onDismissRequest = { },
             title = {
@@ -394,6 +428,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(color = Color.Gray, thickness = 0.5.dp)
                     Spacer(modifier = Modifier.height(8.dp))
+                    Text("Root Access: ${if (viewModel.hasRootAccess) "Yes" else "No"}",
+                        color = if (viewModel.hasRootAccess) Color.Green else Color.Red)
                     Text("Module Active: ${if (viewModel.isModuleActive) "Yes" else "No"}",
                         color = if (viewModel.isModuleActive) Color.Green else Color.Red)
                     Text("Target Hooked: ${if (viewModel.isTargetAppHooked) "Yes" else "No"}",
