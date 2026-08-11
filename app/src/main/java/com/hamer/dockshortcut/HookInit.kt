@@ -17,6 +17,7 @@ import java.io.File
 
 class HookInit : IXposedHookLoadPackage {
     private val jsonPath = "/data/user/0/com.hamer.dockshortcut/dock_fix_apps.json"
+    private val imagePath = "/data/user/0/com.hamer.dockshortcut/Image"
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == "com.hamer.dockshortcut") {
@@ -65,6 +66,15 @@ class HookInit : IXposedHookLoadPackage {
                     XposedBridge.log("PicoDockShortcut: Providing custom icon for $pkgName")
 
                     try {
+                        // Try loading from cache first
+                        val cacheFile = File(imagePath, "custom_icon_$pkgName.png")
+                        if (cacheFile.exists() && cacheFile.canRead()) {
+                            XposedBridge.log("PicoDockShortcut: Loading icon from cache for $pkgName")
+                            param.result = ByteArrayInputStream(cacheFile.readBytes())
+                            return
+                        }
+
+                        // Fallback to generating if cache doesn't exist
                         val context = AndroidAppHelper.currentApplication()
                         val pm = context.packageManager
                         val icon = pm.getApplicationIcon(pkgName)

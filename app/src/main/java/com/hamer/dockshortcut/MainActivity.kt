@@ -3,6 +3,9 @@ package com.hamer.dockshortcut
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -227,6 +230,7 @@ class MainViewModel : ViewModel() {
 
     fun reload(context: Context) {
         viewModelScope.launch {
+            clearIconCache(context)
             val file = getJsonFile(context)
             if (file.exists()) parseApps(context, file.readText(), updateSaved = true)
         }
@@ -234,12 +238,20 @@ class MainViewModel : ViewModel() {
 
     fun restoreDefault(context: Context) {
         viewModelScope.launch {
+            clearIconCache(context)
             val default = try {
                 context.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
             } catch (e: Exception) {
                 "[]"
             }
             parseApps(context, default, updateSaved = false)
+        }
+    }
+
+    private fun clearIconCache(context: Context) {
+        val imageDir = File(context.filesDir.parentFile, "Image")
+        if (imageDir.exists()) {
+            imageDir.listFiles()?.forEach { it.delete() }
         }
     }
 
@@ -277,6 +289,54 @@ class MainViewModel : ViewModel() {
             writeText(jsonArray.toString(2))
             setReadable(true, false)
         }
+        
+        saveIconsToDisk(context)
+    }
+
+    private fun saveIconsToDisk(context: Context) {
+        val imageDir = File(context.filesDir.parentFile, "Image")
+        if (!imageDir.exists()) {
+            imageDir.mkdirs()
+        }
+        imageDir.setReadable(true, false)
+        imageDir.setExecutable(true, false)
+
+        selectedApps.forEach { app ->
+            val iconFile = File(imageDir, "custom_icon_${app.packageName}.png")
+            if (!iconFile.exists()) {
+                val drawable = AppManager.getAppIcon(context, app.packageName) ?: return@forEach
+                val bitmap = drawableToBitmap(drawable)
+                iconFile.outputStream().use { 
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
+                iconFile.setReadable(true, false)
+            }
+        }
+    }
+
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        val srcW = drawable.intrinsicWidth.coerceAtLeast(1)
+        val srcH = drawable.intrinsicHeight.coerceAtLeast(1)
+        val targetRatio = 152f / 128f
+        val srcRatio = srcW.toFloat() / srcH.toFloat()
+
+        val bitmapW: Int
+        val bitmapH: Int
+        if (srcRatio < targetRatio) {
+            bitmapH = srcH
+            bitmapW = (srcH * 152) / 128
+        } else {
+            bitmapW = srcW
+            bitmapH = (srcW * 128) / 152
+        }
+
+        val bitmap = Bitmap.createBitmap(bitmapW, bitmapH, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val left = (bitmapW - srcW) / 2
+        val top = (bitmapH - srcH) / 2
+        drawable.setBounds(left, top, left + srcW, top + srcH)
+        drawable.draw(canvas)
+        return bitmap
     }
 
     fun applyChanges(context: Context, checkStatus: Boolean) {
