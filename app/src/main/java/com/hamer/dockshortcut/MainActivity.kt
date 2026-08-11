@@ -845,24 +845,28 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                 label = "deleteHover"
             )
 
-            IconButton(
-                onClick = onDelete,
+            Box(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(4.dp)
-                    .size(20.dp)
+                    .size(40.dp)
                     .background(
                         deleteBgColor,
-                        RoundedCornerShape(6.dp)
+                        RoundedCornerShape(bottomStart = 16.dp)
+                    )
+                    .hoverable(deleteInteractionSource)
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null,
+                        onClick = onDelete
                     ),
-                interactionSource = deleteInteractionSource
+                contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Default.Delete,
                     contentDescription = "Remove",
                     modifier = Modifier
-                        .size(16.dp)
-                        .offset(x = (-3).dp, y = 1.dp),
+                        .size(20.dp)
+                        .graphicsLayer(clip = false),
                     tint = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
