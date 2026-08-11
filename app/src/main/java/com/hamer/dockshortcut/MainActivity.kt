@@ -192,12 +192,15 @@ class MainViewModel : ViewModel() {
                 val pkg = obj.optString("packageName")
                 if (pkg == "com.pvr.appmanager") continue
 
-                val appInfo = AppManager.getAppInfo(context, pkg)
+                val isFitCenterJson = obj.optBoolean("fitCenter", false)
+                val appInfo = AppManager.getAppInfo(context, if (isFitCenterJson) FIT_CENTER_PACKAGE else pkg)
+
                 if (appInfo != null) {
                     tempApps.add(
                         appInfo.copy(
                             actionName = if (obj.has("actionName")) obj.getString("actionName") else null,
-                            className = if (obj.has("className")) obj.getString("className") else appInfo.className
+                            className = if (obj.has("className")) obj.getString("className") else appInfo.className,
+                            fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE
                         )
                     )
                 } else if (pkg == "com.hamer.debug") {
@@ -273,10 +276,16 @@ class MainViewModel : ViewModel() {
         val jsonArray = JSONArray().apply {
             selectedApps.forEach { app ->
                 put(JSONObject().apply {
-                    put("packageName", app.packageName)
-                    app.className?.let { put("className", it) }
-                    app.actionName?.let { put("actionName", it) }
-                    put("iconUrl", "Image/custom_icon_${app.packageName}.png")
+                    if (isFitCenter(app)) {
+                        put("packageName", FIT_CENTER_PACKAGE)
+                        put("className", FIT_CENTER_CLASS)
+                        put("fitCenter", true)
+                    } else {
+                        put("packageName", app.packageName)
+                        app.className?.let { put("className", it) }
+                        app.actionName?.let { put("actionName", it) }
+                        put("iconUrl", "Image/custom_icon_${app.packageName}.png")
+                    }
                 })
             }
             put(JSONObject().apply {
@@ -302,14 +311,17 @@ class MainViewModel : ViewModel() {
         imageDir.setExecutable(true, false)
 
         selectedApps.forEach { app ->
+            if (isFitCenter(app)) return@forEach
             val iconFile = File(imageDir, "custom_icon_${app.packageName}.png")
             if (!iconFile.exists()) {
-                val drawable = AppManager.getAppIcon(context, app.packageName) ?: return@forEach
-                val bitmap = drawableToBitmap(drawable)
-                iconFile.outputStream().use { 
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                val drawable = AppManager.getAppIcon(context, app.packageName)
+                if (drawable != null) {
+                    val bitmap = drawableToBitmap(drawable)
+                    iconFile.outputStream().use {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    iconFile.setReadable(true, false)
                 }
-                iconFile.setReadable(true, false)
             }
         }
     }
@@ -922,7 +934,7 @@ fun FixedSlot(app: AppInfo?) {
 @Composable
 fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
     val context = LocalContext.current
-    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName) {
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName, app.fitCenter) {
         value = withContext(Dispatchers.IO) {
             val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
             drawable?.toBitmap()?.asImageBitmap()
@@ -948,7 +960,7 @@ fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Default.Apps,
+                if (isFitCenter(app)) Icons.Default.FitnessCenter else Icons.Default.Apps,
                 contentDescription = null,
                 modifier = Modifier.size(size * 0.64f),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -967,7 +979,9 @@ fun AppPicker(
     val context = LocalContext.current
     val apps by produceState<List<AppInfo>>(emptyList()) {
         value = withContext(Dispatchers.IO) {
-            AppManager.getInstalledApps(context).filter { it.packageName !in excludedPackages }
+            AppManager.getInstalledApps(context).filter { 
+                it.packageName !in excludedPackages && it.packageName != FIT_CENTER_PACKAGE 
+            }
         }
     }
     var query by remember { mutableStateOf("") }
@@ -1002,34 +1016,54 @@ fun AppPicker(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
-                    items(filtered) { app ->
-                        val interaction = remember { MutableInteractionSource() }
-                        val isHovered by interaction.collectIsHoveredAsState()
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(
-                                    if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
-                                        alpha = 0.2f
-                                    ) else Color.Transparent
-                                )
-                                .hoverable(interaction)
-                                .clickable { onAppSelected(app) }
-                                .padding(horizontal = 24.dp, vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            AppIcon(app, 48.dp)
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Text(
-                                app.label,
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = Color.White
+                    // Only show Fit Center option if the package exists on the system
+                    val fitCenterInfo = if (AppManager.isPackageInstalled(context, FIT_CENTER_PACKAGE)) {
+                        AppManager.getAppInfo(context, FIT_CENTER_PACKAGE)
+                    } else null
+
+                    if (fitCenterInfo != null &&
+                        fitCenterInfo.label.contains(query, true) &&
+                        excludedPackages.none { it == FIT_CENTER_PACKAGE }) {
+                        item {
+                            AppPickerItem(
+                                app = fitCenterInfo,
+                                onAppSelected = onAppSelected
                             )
                         }
+                    }
+                    items(filtered) { app ->
+                        AppPickerItem(app = app, onAppSelected = onAppSelected)
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val isHovered by interaction.collectIsHoveredAsState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
+                    alpha = 0.2f
+                ) else Color.Transparent
+            )
+            .hoverable(interaction)
+            .clickable { onAppSelected(app) }
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIcon(app, 48.dp)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            app.label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White
+        )
     }
 }
 
