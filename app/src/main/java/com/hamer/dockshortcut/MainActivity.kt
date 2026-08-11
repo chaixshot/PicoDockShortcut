@@ -103,14 +103,14 @@ private object Shell {
         ""
     }
 
-    fun isProcessRunning(packageName: String): Boolean {
-        return exec("ps -A | grep $packageName").contains(packageName)
+    fun isProcessRunning(): Boolean {
+        return exec("ps -A | grep $TARGET_PACKAGE").contains(TARGET_PACKAGE)
     }
 
-    fun isServiceRunning(serviceName: String): Boolean {
+    fun isServiceRunning(): Boolean {
         // Dumpsys output for services usually uses format: packageName/.service.ClassName
         // We check for the class name part specifically
-        val shortName = if (serviceName.contains(".")) serviceName.substringAfterLast(".") else serviceName
+        val shortName = if (TARGET_SERVICE.contains(".")) TARGET_SERVICE.substringAfterLast(".") else TARGET_SERVICE
         return exec("dumpsys activity services").contains(shortName)
     }
 }
@@ -386,7 +386,7 @@ class MainViewModel : ViewModel() {
             
             // Wait for package process first
             repeat(10) {
-                if (Shell.isProcessRunning(TARGET_PACKAGE)) {
+                if (Shell.isProcessRunning()) {
                     processStarted = true
                     return@repeat
                 }
@@ -396,7 +396,7 @@ class MainViewModel : ViewModel() {
             // Wait for specific service
             if (processStarted) {
                 repeat(10) {
-                    if (Shell.isServiceRunning(TARGET_SERVICE)) {
+                    if (Shell.isServiceRunning()) {
                         serviceStarted = true
                         return@repeat
                     }
