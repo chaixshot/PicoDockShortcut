@@ -70,6 +70,7 @@ class MainViewModel : ViewModel() {
         AppInfo("com.hamer.debug", null, "Debug App", null)
     )
     var isApplying by mutableStateOf(false)
+    var isCheckTargetAppRetrying by mutableStateOf(false)
     var isModuleActive by mutableStateOf(true)
     var isTargetAppHooked by mutableStateOf(true)
     var hasRootAccess by mutableStateOf(true)
@@ -244,8 +245,10 @@ class MainViewModel : ViewModel() {
 
     fun restartAndRetry(context: Context) {
         viewModelScope.launch {
+            isCheckTargetAppRetrying = true
             restartTargetApp(context)
             checkStatus()
+            isCheckTargetAppRetrying = false
         }
     }
 
@@ -422,7 +425,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     if (!viewModel.isTargetAppHooked) {
                         Text("• App Dock (com.pvr.shortcut) is not selected in scope or not running.")
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Please ensure the target app is checked in LSPosed Manager and then click 'Restart Dock & Retry'.")
+                        Text("Please ensure the target app is checked in LSPosed Manager.")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -443,8 +446,17 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (viewModel.isModuleActive && !viewModel.isTargetAppHooked) {
-                        TextButton(onClick = { viewModel.restartAndRetry(context) }) {
-                            Text("Restart Dock & Retry")
+                        TextButton(
+                            onClick = { viewModel.restartAndRetry(context) },
+                            enabled = !viewModel.isCheckTargetAppRetrying
+                        ) {
+                            if (viewModel.isCheckTargetAppRetrying) {
+                                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Restarting...")
+                            } else {
+                                Text("Restart Dock & Retry")
+                            }
                         }
                         Spacer(modifier = Modifier.width(8.dp))
                     }
