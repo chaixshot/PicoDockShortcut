@@ -318,6 +318,7 @@ fun hoverButtonColors(
 fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
+    var editingIndex by remember { mutableStateOf<Int?>(null) }
 
     LaunchedEffect(Unit) {
         viewModel.loadApps(context)
@@ -349,9 +350,9 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(color = Color.Gray, thickness = 0.5.dp)
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("Module Active: ${if (viewModel.isModuleActive) "Yes" else "No"}", 
+                    Text("Module Active: ${if (viewModel.isModuleActive) "Yes" else "No"}",
                         color = if (viewModel.isModuleActive) Color.Green else Color.Red)
-                    Text("Target Hooked: ${if (viewModel.isTargetAppHooked) "Yes" else "No"}", 
+                    Text("Target Hooked: ${if (viewModel.isTargetAppHooked) "Yes" else "No"}",
                         color = if (viewModel.isTargetAppHooked) Color.Green else Color.Red)
                 }
             },
@@ -525,7 +526,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 var touchPosition by remember { mutableStateOf(Offset.Zero) }
                 var touchOffsetWithinItem by remember { mutableStateOf(Offset.Zero) }
                 var slotSize by remember { mutableStateOf(Offset.Zero) }
-                
+
                 var gridCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
                 var draggedItemCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
                 val density = LocalDensity.current
@@ -571,7 +572,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                                             onDragStart = { offset ->
                                                 val gridCoords = gridCoordinates ?: return@detectDragGesturesAfterLongPress
                                                 val itemCoords = itemCoordinates ?: return@detectDragGesturesAfterLongPress
-                                                
+
                                                 draggedIndex = currentDraggingIndex
                                                 draggedItemCoordinates = itemCoords
                                                 touchOffsetWithinItem = offset
@@ -613,6 +614,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                             ) {
                                 DockSlot(
                                     app = app,
+                                    onClick = {
+                                        editingIndex = index
+                                        showPicker = true
+                                    },
                                     onDelete = { viewModel.removeApp(index) }
                                 )
                             }
@@ -621,7 +626,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         // Add Button (if less than 11)
                         if (viewModel.selectedApps.size < 11) {
                             item {
-                                AddSlot(onAdd = { showPicker = true })
+                                AddSlot(onAdd = {
+                                    editingIndex = null
+                                    showPicker = true
+                                })
                             }
                         }
 
@@ -658,7 +666,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                                         clip = false
                                     }
                             ) {
-                                DockSlot(app = app, onDelete = {})
+                                DockSlot(app = app, onClick = {}, onDelete = {})
                             }
                         }
                     }
@@ -670,25 +678,43 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     if (showPicker) {
         val selectedPackages = viewModel.selectedApps.map { it.packageName }.toSet() + "com.pvr.appmanager"
         AppPicker(
-            onDismiss = { showPicker = false },
+            onDismiss = {
+                showPicker = false
+                editingIndex = null
+            },
             excludedPackages = selectedPackages,
             onAppSelected = { app ->
-                viewModel.addApp(app)
+                val index = editingIndex
+                if (index != null && index in viewModel.selectedApps.indices) {
+                    viewModel.selectedApps[index] = app
+                } else {
+                    viewModel.addApp(app)
+                }
                 showPicker = false
+                editingIndex = null
             }
         )
     }
 }
 
 @Composable
-fun DockSlot(app: AppInfo, onDelete: () -> Unit) {
+fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val cardBgColor by animateColorAsState(
+        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        label = "dockHover"
+    )
+
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
             .height(200.dp),
+        interactionSource = interactionSource,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+            containerColor = cardBgColor
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
