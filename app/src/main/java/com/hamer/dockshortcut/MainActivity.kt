@@ -119,7 +119,7 @@ private object Shell {
 
 class MainViewModel : ViewModel() {
     val selectedApps = mutableStateListOf<AppInfo>()
-    private val savedApps = mutableListOf<AppInfo>()
+    private val savedApps = mutableStateListOf<AppInfo>()
     
     val isModified by derivedStateOf {
         selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
