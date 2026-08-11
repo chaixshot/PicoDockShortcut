@@ -46,7 +46,7 @@ object AppManager {
                 packageName = packageName,
                 className = null,
                 label = pm.getApplicationLabel(appInfo)?.toString() ?: packageName,
-                icon = pm.getApplicationIcon(appInfo)
+                icon = null // Do not load icon here to speed up startup
             )
         } catch (e: PackageManager.NameNotFoundException) {
             null

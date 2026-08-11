@@ -82,14 +82,6 @@ private object Shell {
         ""
     }
 
-    fun checkRoot(): Boolean = exec("id").contains("uid=0")
-
-    fun checkIfHooked(myPackage: String): Boolean {
-        val cmd =
-            "for pid in $(pidof $TARGET_PACKAGE); do grep -q \"$myPackage\" /proc/\"\$pid\"/maps && echo \"HOOKED_OK\" && break; done"
-        return exec(cmd).contains("HOOKED_OK")
-    }
-
     fun isServiceRunning(): Boolean =
         exec("dumpsys activity services | grep $TARGET_SERVICE").contains(TARGET_SERVICE)
 }
@@ -107,8 +99,12 @@ class MainViewModel : ViewModel() {
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val isActive = XposedStatus.isActive()
-            val rootOk = Shell.checkRoot()
-            val hookedOk = if (rootOk) Shell.checkIfHooked("com.hamer.dockshortcut") else false
+            // Batch root and hooked check to save su process spawns
+            val cmd = "id; for pid in $(pidof $TARGET_PACKAGE); do grep -q \"com.hamer.dockshortcut\" /proc/\"\$pid\"/maps && echo \"HOOKED_OK\" && break; done"
+            val result = Shell.exec(cmd)
+            
+            val rootOk = result.contains("uid=0")
+            val hookedOk = result.contains("HOOKED_OK")
 
             withContext(Dispatchers.Main) {
                 isModuleActive = isActive
