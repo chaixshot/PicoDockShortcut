@@ -111,21 +111,23 @@ class MainViewModel : ViewModel() {
     }
 
     fun loadApps(context: Context) {
-        val file = getJsonFile(context)
-        val content = if (file.exists()) {
-            file.readText()
-        } else {
-            val defaultContent = try {
-                context.assets.open(jsonFileName).bufferedReader().use { it.readText() }
-            } catch (e: Exception) {
-                "[]"
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = getJsonFile(context)
+            val content = if (file.exists()) {
+                file.readText()
+            } else {
+                val defaultContent = try {
+                    context.assets.open(jsonFileName).bufferedReader().use { it.readText() }
+                } catch (e: Exception) {
+                    "[]"
+                }
+                file.writeText(defaultContent)
+                file.setReadable(true, false)
+                context.filesDir.parentFile?.setExecutable(true, false)
+                defaultContent
             }
-            file.writeText(defaultContent)
-            file.setReadable(true, false)
-            context.filesDir.parentFile?.setExecutable(true, false)
-            defaultContent
+            parseApps(context, content)
         }
-        parseApps(context, content)
     }
 
     private fun parseApps(context: Context, content: String) {
