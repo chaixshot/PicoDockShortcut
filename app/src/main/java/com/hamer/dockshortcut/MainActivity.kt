@@ -724,7 +724,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         // Add Button (if less than 11)
                         if (viewModel.selectedApps.size < 11) {
                             item {
-                                AddSlot(onAdd = {
+                                AddSlot(onClick = {
                                     editingIndex = null
                                     showPicker = true
                                 })
@@ -875,24 +875,19 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
 }
 
 @Composable
-fun AddSlot(onAdd: () -> Unit) {
+fun AddSlot(onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
     val cardBgColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        targetValue = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
         label = "addHover"
     )
 
     Card(
+        onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp)
-            .hoverable(interactionSource)
-            .clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = ripple(),
-                onClick = onAdd
-            ),
+            .height(200.dp),
+        interactionSource = interactionSource,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = cardBgColor
