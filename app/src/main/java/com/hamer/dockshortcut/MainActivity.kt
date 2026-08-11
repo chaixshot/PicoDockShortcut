@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
@@ -576,7 +577,7 @@ private fun DockGrid(
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(
@@ -712,11 +713,12 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     app.label,
-                    modifier = Modifier.basicMarquee(),
+                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    textAlign = TextAlign.Center
                 )
             }
 
@@ -796,10 +798,12 @@ fun FixedSlot(app: AppInfo?) {
                 Spacer(modifier = Modifier.height(20.dp))
                 Text(
                     app.label,
-                    modifier = Modifier.basicMarquee(),
+                    modifier = Modifier.basicMarquee(iterations = Int.MAX_VALUE),
                     style = MaterialTheme.typography.bodyMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1
                 )
             } else {
                 Icon(
