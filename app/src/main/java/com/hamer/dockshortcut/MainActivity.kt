@@ -75,15 +75,41 @@ private object Shell {
             os.writeBytes("exit\n")
             os.flush()
         }
-        val output = process.inputStream.bufferedReader().readText()
+        
+        val output = StringBuilder()
+        val outThread = Thread {
+            try {
+                process.inputStream.bufferedReader().use { output.append(it.readText()) }
+            } catch (e: Exception) {}
+        }
+        val errThread = Thread {
+            try {
+                process.errorStream.bufferedReader().use { it.readText() } // Drain
+            } catch (e: Exception) {}
+        }
+        
+        outThread.start()
+        errThread.start()
+        
         process.waitFor()
-        output
+        outThread.join(1000)
+        errThread.join(1000)
+        
+        output.toString()
     } catch (e: Exception) {
         ""
     }
 
-    fun isServiceRunning(): Boolean =
-        exec("dumpsys activity services | grep $TARGET_SERVICE").contains(TARGET_SERVICE)
+    fun isProcessRunning(packageName: String): Boolean {
+        return exec("ps -A | grep $packageName").contains(packageName)
+    }
+
+    fun isServiceRunning(serviceName: String): Boolean {
+        // Dumpsys output for services usually uses format: packageName/.service.ClassName
+        // We check for the class name part specifically
+        val shortName = if (serviceName.contains(".")) serviceName.substringAfterLast(".") else serviceName
+        return exec("dumpsys activity services").contains(shortName)
+    }
 }
 
 // --- ViewModel ---
@@ -295,20 +321,36 @@ class MainViewModel : ViewModel() {
             Shell.exec("am force-stop $TARGET_PACKAGE")
             Shell.exec("am startservice -a $TARGET_ACTION -n $TARGET_PACKAGE/$TARGET_SERVICE")
 
-            var started = false
+            var processStarted = false
+            var serviceStarted = false
+            
+            // Wait for package process first
             repeat(10) {
-                if (Shell.isServiceRunning()) {
-                    started = true; return@repeat
+                if (Shell.isProcessRunning(TARGET_PACKAGE)) {
+                    processStarted = true
+                    return@repeat
                 }
                 delay(1000)
             }
+            
+            // Wait for specific service
+            if (processStarted) {
+                repeat(10) {
+                    if (Shell.isServiceRunning(TARGET_SERVICE)) {
+                        serviceStarted = true
+                        return@repeat
+                    }
+                    delay(1000)
+                }
+            }
 
             withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    context,
-                    if (started) "Applied & Service Started" else "Applied (Service timeout)",
-                    Toast.LENGTH_SHORT
-                ).show()
+                val msg = when {
+                    serviceStarted -> "Applied & Service Active"
+                    processStarted -> "Applied (Service slow to start)"
+                    else -> "Applied (Process check timeout)"
+                }
+                Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
         } catch (e: Exception) {
             val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
