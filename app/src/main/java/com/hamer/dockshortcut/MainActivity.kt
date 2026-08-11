@@ -249,8 +249,10 @@ class MainViewModel : ViewModel() {
             savedApps.clear()
             savedApps.addAll(selectedApps)
             restartTargetApp(context)
-            if(checkStatus)
+            if (checkStatus) {
+                delay(2000) // Give more time for the service to start and module to inject
                 checkStatus()
+            }
             isApplying = false
         }
     }
@@ -262,6 +264,7 @@ class MainViewModel : ViewModel() {
                 restartSelf(context)
             } else {
                 restartTargetApp(context)
+                delay(2000)
                 checkStatus()
             }
             isRetrying = false
@@ -954,18 +957,15 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                 }
             },
             confirmButton = {
-                if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
-                    TextButton(
-                        onClick = { viewModel.restartAndRetry(context) },
-                        enabled = !viewModel.isRetrying
-                    ) {
-                        if (viewModel.isRetrying) CircularProgressIndicator(
-                            modifier = Modifier.size(
-                                18.dp
-                            ), strokeWidth = 2.dp
-                        )
-                        else Text("Restart & Retry")
-                    }
+                TextButton(
+                    onClick = { viewModel.restartAndRetry(context) },
+                    enabled = !viewModel.isRetrying
+                ) {
+                    if (viewModel.isRetrying) CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    else Text("Restart & Retry")
                 }
                 TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
             },
