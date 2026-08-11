@@ -563,12 +563,14 @@ private fun DockGrid(
             itemsIndexed(
                 viewModel.selectedApps,
                 key = { _, app -> app.packageName }) { index, app ->
+                val currentItemIndex by rememberUpdatedState(index)
                 val isDragged = draggedIndex == index
                 var itemCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
                 Box(
                     modifier = Modifier
                         .animateItem()
+                        .padding(top = if (index >= 6) 24.dp else 0.dp)
                         .onGloballyPositioned {
                             itemCoords = it
                             if (slotSize == Offset.Zero) slotSize =
@@ -582,7 +584,7 @@ private fun DockGrid(
                                         gridCoords ?: return@detectDragGesturesAfterLongPress
                                     val iCoords =
                                         itemCoords ?: return@detectDragGesturesAfterLongPress
-                                    draggedIndex = index
+                                    draggedIndex = currentItemIndex
                                     touchOffsetWithinItem = offset
                                     touchPosition = gCoords.localPositionOf(iCoords, offset)
                                 },
@@ -619,9 +621,16 @@ private fun DockGrid(
             }
 
             if (viewModel.selectedApps.size < 11) {
-                item { AddSlot(onClick = onAddClick) }
+                val addIndex = viewModel.selectedApps.size
+                item {
+                    Box(modifier = Modifier.padding(top = if (addIndex >= 6) 24.dp else 0.dp)) {
+                        AddSlot(onClick = onAddClick)
+                    }
+                }
             }
 
+            val fixedIndex =
+                viewModel.selectedApps.size + (if (viewModel.selectedApps.size < 11) 1 else 0)
             item {
                 val context = LocalContext.current
                 val appMgr = remember {
@@ -630,7 +639,9 @@ private fun DockGrid(
                         className = "com.pvr.appmanager.AllAppActivity"
                     )
                 }
-                FixedSlot(appMgr)
+                Box(modifier = Modifier.padding(top = if (fixedIndex >= 6) 24.dp else 0.dp)) {
+                    FixedSlot(appMgr)
+                }
             }
         }
 
