@@ -138,15 +138,15 @@ class MainViewModel : ViewModel() {
             val isActive = XposedStatus.isActive()
             val cmd = """
                 id
-                for p in /proc/[0-9]*; do
-                    [ -d "${'$'}p" ] || continue
-                    if grep -aq "$TARGET_PACKAGE" "${'$'}p/cmdline" 2>/dev/null; then
-                        if grep -q "com.hamer.dockshortcut" "${'$'}p/maps" 2>/dev/null; then
-                            echo "HOOKED_OK"
-                            break
-                        fi
-                    fi
-                done
+                # running = target process alive
+                if ps -A -o NAME 2>/dev/null | grep -q "$TARGET_PACKAGE"; then
+                    echo "TARGET_RUNNING"
+                fi
+                # hooked = actual injection trace in newest verbose log
+                newest=${'$'}(ls -t /data/adb/lspd/log/verbose_*.log 2>/dev/null | head -1)
+                if [ -n "${'$'}newest" ] && grep -q "Hooking $TARGET_PACKAGE" "${'$'}newest" 2>/dev/null; then
+                    echo "HOOKED_OK"
+                fi
             """.trimIndent()
             
             val result = Shell.exec(cmd)
