@@ -256,10 +256,22 @@ class MainViewModel : ViewModel() {
     fun restartAndRetry(context: Context) {
         viewModelScope.launch {
             isRetrying = true
-            restartTargetApp(context)
-            checkStatus()
+            if (!isModuleActive) {
+                restartSelf(context)
+            } else {
+                restartTargetApp(context)
+                checkStatus()
+            }
             isRetrying = false
         }
+    }
+
+    private fun restartSelf(context: Context) {
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(intent)
+        // Ensure the process is killed as requested in MainActivity.kt
+        android.os.Process.killProcess(android.os.Process.myPid())
     }
 
     private suspend fun restartTargetApp(context: Context) = withContext(Dispatchers.IO) {
@@ -933,7 +945,7 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                 }
             },
             confirmButton = {
-                if (viewModel.isModuleActive && !viewModel.isTargetHooked) {
+                if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
                     TextButton(
                         onClick = { viewModel.restartAndRetry(context) },
                         enabled = !viewModel.isRetrying
@@ -943,7 +955,7 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                                 18.dp
                             ), strokeWidth = 2.dp
                         )
-                        else Text("Restart Dock & Retry")
+                        else Text("Restart & Retry")
                     }
                 }
                 TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
