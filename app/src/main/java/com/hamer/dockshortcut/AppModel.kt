@@ -11,7 +11,13 @@ data class AppInfo(
     val label: String,
     val icon: Drawable? = null,
     val actionName: String? = null
-)
+) {
+    fun isSameAs(other: AppInfo): Boolean {
+        return packageName == other.packageName &&
+                className == other.className &&
+                actionName == other.actionName
+    }
+}
 
 object AppManager {
     fun getInstalledApps(context: Context): List<AppInfo> {
