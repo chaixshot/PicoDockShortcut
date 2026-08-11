@@ -798,9 +798,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 @Composable
 fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
-    val isHovered by interactionSource.collectIsHoveredAsState()
     val cardBgColor by animateColorAsState(
-        targetValue = if (isHovered) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        targetValue = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
         label = "dockHover"
     )
 
@@ -839,6 +838,13 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                 )
             }
 
+            val deleteInteractionSource = remember { MutableInteractionSource() }
+            val isDeleteHovered by deleteInteractionSource.collectIsHoveredAsState()
+            val deleteBgColor by animateColorAsState(
+                targetValue = if (isDeleteHovered) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.errorContainer,
+                label = "deleteHover"
+            )
+
             IconButton(
                 onClick = onDelete,
                 modifier = Modifier
@@ -846,9 +852,10 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                     .padding(4.dp)
                     .size(20.dp)
                     .background(
-                        MaterialTheme.colorScheme.errorContainer,
+                        deleteBgColor,
                         RoundedCornerShape(6.dp)
-                    )
+                    ),
+                interactionSource = deleteInteractionSource
             ) {
                 Icon(
                     Icons.Default.Delete,
