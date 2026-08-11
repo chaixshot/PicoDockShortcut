@@ -58,7 +58,6 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.DataOutputStream
 import java.io.File
-import kotlin.math.roundToInt
 
 // --- Constants & Shell Utils ---
 
@@ -592,25 +591,19 @@ private fun DockGrid(
                                     change.consume()
                                     touchPosition += dragAmount
 
-                                    val gCoords =
-                                        gridCoords ?: return@detectDragGesturesAfterLongPress
-                                    val iCoords =
-                                        itemCoords ?: return@detectDragGesturesAfterLongPress
+                                    val currentIdx =
+                                        draggedIndex ?: return@detectDragGesturesAfterLongPress
 
                                     val spacing = with(density) { 8.dp.toPx() }
-                                    val currentTL = gCoords.localPositionOf(iCoords, Offset.Zero)
-                                    val diff = (touchPosition - touchOffsetWithinItem) - currentTL
+                                    
+                                    // Calculate target column and row based on touch position relative to grid
+                                    val col = (touchPosition.x / (slotSize.x + spacing)).toInt().coerceIn(0, 5)
+                                    val row = (touchPosition.y / (slotSize.y + spacing)).toInt().coerceIn(0, 1)
+                                    
+                                    val targetIdx = (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
 
-                                    val colOff = (diff.x / (slotSize.x + spacing)).roundToInt()
-                                    val rowOff = (diff.y / (slotSize.y + spacing)).roundToInt()
-
-                                    val targetIdx =
-                                        ((index / 6 + rowOff) * 6 + (index % 6 + colOff)).coerceIn(
-                                            0,
-                                            viewModel.selectedApps.size - 1
-                                        )
-                                    if (targetIdx != index) {
-                                        viewModel.moveApp(index, targetIdx)
+                                    if (targetIdx != currentIdx) {
+                                        viewModel.moveApp(currentIdx, targetIdx)
                                         draggedIndex = targetIdx
                                     }
                                 }
