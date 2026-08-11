@@ -41,8 +41,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -517,104 +520,145 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
                 // Dock Grid
                 var draggedIndex by remember { mutableStateOf<Int?>(null) }
-                var dragOffset by remember { mutableStateOf(Offset.Zero) }
+                var touchPosition by remember { mutableStateOf(Offset.Zero) }
+                var touchOffsetWithinItem by remember { mutableStateOf(Offset.Zero) }
                 var slotSize by remember { mutableStateOf(Offset.Zero) }
+                
+                var gridCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                var draggedItemCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
+                val density = LocalDensity.current
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(6),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth()
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .onGloballyPositioned { gridCoordinates = it }
                 ) {
-                    // Selected Apps
-                    itemsIndexed(
-                        items = viewModel.selectedApps,
-                        key = { _, app -> app.packageName }
-                    ) { index, app ->
-                        val isDragged = draggedIndex == index
-                        val currentDraggingIndex by rememberUpdatedState(index)
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(6),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        // Selected Apps
+                        itemsIndexed(
+                            items = viewModel.selectedApps,
+                            key = { _, app -> app.packageName }
+                        ) { index, app ->
+                            val isDragged = draggedIndex == index
+                            val currentDraggingIndex by rememberUpdatedState(index)
+                            var itemCoordinates by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-                        Box(
-                            modifier = Modifier
-                                .animateItem()
-                                .onGloballyPositioned {
-                                    if (slotSize == Offset.Zero) {
-                                        slotSize = Offset(it.size.width.toFloat(), it.size.height.toFloat())
+                            Box(
+                                modifier = Modifier
+                                    .animateItem()
+                                    .onGloballyPositioned { coordinates ->
+                                        itemCoordinates = coordinates
+                                        if (slotSize == Offset.Zero) {
+                                            slotSize = Offset(coordinates.size.width.toFloat(), coordinates.size.height.toFloat())
+                                        }
+                                        if (isDragged) {
+                                            draggedItemCoordinates = coordinates
+                                        }
                                     }
-                                }
-                                .zIndex(if (isDragged) 10f else 1f)
-                                .graphicsLayer {
-                                    if (isDragged) {
-                                        translationX = dragOffset.x
-                                        translationY = dragOffset.y
+                                    .graphicsLayer {
+                                        // Hide item in grid when dragging (it will be drawn in the Overlay Box instead)
+                                        alpha = if (isDragged) 0f else 1f
+                                    }
+                                    .pointerInput(Unit) {
+                                        detectDragGesturesAfterLongPress(
+                                            onDragStart = { offset ->
+                                                val gridCoords = gridCoordinates ?: return@detectDragGesturesAfterLongPress
+                                                val itemCoords = itemCoordinates ?: return@detectDragGesturesAfterLongPress
+                                                
+                                                draggedIndex = currentDraggingIndex
+                                                draggedItemCoordinates = itemCoords
+                                                touchOffsetWithinItem = offset
+                                                touchPosition = gridCoords.localPositionOf(itemCoords, offset)
+                                            },
+                                            onDragEnd = {
+                                                draggedIndex = null
+                                            },
+                                            onDragCancel = {
+                                                draggedIndex = null
+                                            },
+                                            onDrag = { change, dragAmount ->
+                                                change.consume()
+                                                touchPosition += dragAmount
+
+                                                val gridCoords = gridCoordinates ?: return@detectDragGesturesAfterLongPress
+                                                val itemCoords = draggedItemCoordinates ?: return@detectDragGesturesAfterLongPress
+                                                val currentItemTopLeft = gridCoords.localPositionOf(itemCoords, Offset.Zero)
+                                                val currentDragOffset = (touchPosition - touchOffsetWithinItem) - currentItemTopLeft
+
+                                                val spacing = with(density) { 8.dp.toPx() }
+                                                val colOffset = (currentDragOffset.x / (slotSize.x + spacing)).roundToInt()
+                                                val rowOffset = (currentDragOffset.y / (slotSize.y + spacing)).roundToInt()
+
+                                                val currentCol = currentDraggingIndex % 6
+                                                val currentRow = currentDraggingIndex / 6
+
+                                                val targetCol = (currentCol + colOffset).coerceIn(0, 5)
+                                                val targetRow = (currentRow + rowOffset).coerceIn(0, 1)
+                                                val targetIndex = (targetRow * 6 + targetCol).coerceIn(0, viewModel.selectedApps.size - 1)
+
+                                                if (targetIndex != currentDraggingIndex) {
+                                                    viewModel.moveApp(currentDraggingIndex, targetIndex)
+                                                    draggedIndex = targetIndex
+                                                }
+                                            }
+                                        )
+                                    }
+                            ) {
+                                DockSlot(
+                                    app = app,
+                                    onDelete = { viewModel.removeApp(index) }
+                                )
+                            }
+                        }
+
+                        // Add Button (if less than 11)
+                        if (viewModel.selectedApps.size < 11) {
+                            item {
+                                AddSlot(onAdd = { showPicker = true })
+                            }
+                        }
+
+                        // Fixed App Manager
+                        item {
+                            val appManagerInfo = remember {
+                                AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
+                                    label = "App Manager",
+                                    className = "com.pvr.appmanager.AllAppActivity"
+                                )
+                            }
+                            FixedSlot(app = appManagerInfo)
+                        }
+                    }
+
+                    // Floating Dragged Overlay Item
+                    draggedIndex?.let { index ->
+                        viewModel.selectedApps.getOrNull(index)?.let { app ->
+                            val xOffset = touchPosition.x - touchOffsetWithinItem.x
+                            val yOffset = touchPosition.y - touchOffsetWithinItem.y
+
+                            Box(
+                                modifier = Modifier
+                                    .size(
+                                        width = with(density) { slotSize.x.toDp() },
+                                        height = with(density) { slotSize.y.toDp() }
+                                    )
+                                    .graphicsLayer {
+                                        translationX = xOffset
+                                        translationY = yOffset
                                         scaleX = 1.05f
                                         scaleY = 1.05f
-                                        alpha = 0.9f
+                                        shadowElevation = 16.dp.toPx()
+                                        clip = false
                                     }
-                                }
-                                .pointerInput(Unit) {
-                                    detectDragGesturesAfterLongPress(
-                                        onDragStart = {
-                                            draggedIndex = currentDraggingIndex
-                                        },
-                                        onDragEnd = {
-                                            draggedIndex = null
-                                            dragOffset = Offset.Zero
-                                        },
-                                        onDragCancel = {
-                                            draggedIndex = null
-                                            dragOffset = Offset.Zero
-                                        },
-                                        onDrag = { change, dragAmount ->
-                                            change.consume()
-                                            dragOffset += dragAmount
-
-                                            val spacing = 8.dp.toPx()
-                                            val colOffset = (dragOffset.x / (slotSize.x + spacing)).roundToInt()
-                                            val rowOffset = (dragOffset.y / (slotSize.y + spacing)).roundToInt()
-
-                                            val currentCol = currentDraggingIndex % 6
-                                            val currentRow = currentDraggingIndex / 6
-
-                                            val targetCol = (currentCol + colOffset).coerceIn(0, 5)
-                                            val targetRow = (currentRow + rowOffset).coerceIn(0, 1)
-                                            val targetIndex = (targetRow * 6 + targetCol).coerceIn(0, viewModel.selectedApps.size - 1)
-
-                                            if (targetIndex != currentDraggingIndex) {
-                                                val diffX = (targetCol - currentCol) * (slotSize.x + spacing)
-                                                val diffY = (targetRow - currentRow) * (slotSize.y + spacing)
-
-                                                viewModel.moveApp(currentDraggingIndex, targetIndex)
-                                                draggedIndex = targetIndex
-                                                dragOffset = Offset(dragOffset.x - diffX, dragOffset.y - diffY)
-                                            }
-                                        }
-                                    )
-                                }
-                        ) {
-                            DockSlot(
-                                app = app,
-                                onDelete = { viewModel.removeApp(index) }
-                            )
+                            ) {
+                                DockSlot(app = app, onDelete = {})
+                            }
                         }
-                    }
-
-                    // Add Button (if less than 11)
-                    if (viewModel.selectedApps.size < 11) {
-                        item {
-                            AddSlot(onAdd = { showPicker = true })
-                        }
-                    }
-
-                    // Fixed App Manager
-                    item {
-                        val appManagerInfo = remember {
-                            AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
-                                label = "App Manager",
-                                className = "com.pvr.appmanager.AllAppActivity"
-                            )
-                        }
-                        FixedSlot(app = appManagerInfo)
                     }
                 }
             }
