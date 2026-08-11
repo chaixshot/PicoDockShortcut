@@ -107,8 +107,19 @@ class MainViewModel : ViewModel() {
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val isActive = XposedStatus.isActive()
-            // Batch root and hooked check to save su process spawns
-            val cmd = "id; for pid in $(pidof $TARGET_PACKAGE); do grep -q \"com.hamer.dockshortcut\" /proc/\"\$pid\"/maps && echo \"HOOKED_OK\" && break; done"
+            val cmd = """
+                id
+                for p in /proc/[0-9]*; do
+                    [ -d "${'$'}p" ] || continue
+                    if grep -aq "$TARGET_PACKAGE" "${'$'}p/cmdline" 2>/dev/null; then
+                        if grep -q "com.hamer.dockshortcut" "${'$'}p/maps" 2>/dev/null; then
+                            echo "HOOKED_OK"
+                            break
+                        fi
+                    fi
+                done
+            """.trimIndent()
+            
             val result = Shell.exec(cmd)
             
             val rootOk = result.contains("uid=0")
@@ -940,17 +951,21 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
             text = {
                 Column {
                     if (!viewModel.isModuleActive) {
-                        Text("• LSPosed module is not active.")
+                        Text("LSPosed module is not active.")
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Please enable it in LSPosed Manager.",
+                            "• Please enable it in LSPosed Manager.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     } else if (!viewModel.isTargetHooked) {
-                        Text("• Target App (com.pvr.shortcut) not hooked.")
+                        Text("Target App (com.pvr.shortcut) not hooked.")
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Select Dock (com.pvr.shortcut) in scope.",
+                            "• Select Dock (com.pvr.shortcut) in scope.",
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            "• Try to reboot the device if not working.",
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
