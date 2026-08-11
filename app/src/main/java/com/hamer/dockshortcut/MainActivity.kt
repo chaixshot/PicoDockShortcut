@@ -762,10 +762,17 @@ fun FixedSlot(app: AppInfo?) {
 
 @Composable
 fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
-    val bitmap = remember(app.packageName) { app.icon?.toBitmap()?.asImageBitmap() }
-    if (bitmap != null) {
+    val context = LocalContext.current
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName) {
+        value = withContext(Dispatchers.IO) {
+            val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
+            drawable?.toBitmap()?.asImageBitmap()
+        }
+    }
+
+    if (iconBitmap != null) {
         Image(
-            bitmap = bitmap,
+            bitmap = iconBitmap!!,
             contentDescription = null,
             modifier = Modifier
                 .size(size)
@@ -799,11 +806,13 @@ fun AppPicker(
     onAppSelected: (AppInfo) -> Unit
 ) {
     val context = LocalContext.current
-    val apps = remember {
-        AppManager.getInstalledApps(context).filter { it.packageName !in excludedPackages }
+    val apps by produceState<List<AppInfo>>(emptyList()) {
+        value = withContext(Dispatchers.IO) {
+            AppManager.getInstalledApps(context).filter { it.packageName !in excludedPackages }
+        }
     }
     var query by remember { mutableStateOf("") }
-    val filtered = remember(query) { apps.filter { it.label.contains(query, true) } }
+    val filtered = remember(query, apps) { apps.filter { it.label.contains(query, true) } }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -825,33 +834,39 @@ fun AppPicker(
                     unfocusedIndicatorColor = Color.Transparent
                 )
             )
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 32.dp)
-            ) {
-                items(filtered) { app ->
-                    val interaction = remember { MutableInteractionSource() }
-                    val isHovered by interaction.collectIsHoveredAsState()
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
-                                    alpha = 0.2f
-                                ) else Color.Transparent
+            if (apps.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 32.dp)
+                ) {
+                    items(filtered) { app ->
+                        val interaction = remember { MutableInteractionSource() }
+                        val isHovered by interaction.collectIsHoveredAsState()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(
+                                    if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
+                                        alpha = 0.2f
+                                    ) else Color.Transparent
+                                )
+                                .hoverable(interaction)
+                                .clickable { onAppSelected(app) }
+                                .padding(horizontal = 24.dp, vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            AppIcon(app, 48.dp)
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Text(
+                                app.label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.White
                             )
-                            .hoverable(interaction)
-                            .clickable { onAppSelected(app) }
-                            .padding(horizontal = 24.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AppIcon(app, 48.dp)
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            app.label,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.White
-                        )
+                        }
                     }
                 }
             }

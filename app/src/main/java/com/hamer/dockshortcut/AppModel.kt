@@ -25,9 +25,17 @@ object AppManager {
                 packageName = it.activityInfo.packageName,
                 className = it.activityInfo.name,
                 label = it.loadLabel(pm)?.toString() ?: it.activityInfo.packageName,
-                icon = it.loadIcon(pm)
+                icon = null // Don't load icons here, they are heavy
             )
         }.sortedBy { it.label.lowercase() }
+    }
+
+    fun getAppIcon(context: Context, packageName: String): Drawable? {
+        return try {
+            context.packageManager.getApplicationIcon(packageName)
+        } catch (e: Exception) {
+            null
+        }
     }
 
     fun getAppInfo(context: Context, packageName: String): AppInfo? {
