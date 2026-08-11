@@ -72,14 +72,29 @@ class MainViewModel : ViewModel() {
     var isApplying by mutableStateOf(false)
     var isModuleActive by mutableStateOf(true)
     var isTargetAppHooked by mutableStateOf(true)
+    var hasRootAccess by mutableStateOf(true)
     private val jsonFileName = "dock_fix_apps.json"
 
     fun checkStatus() {
         viewModelScope.launch {
             val isActive = XposedStatus.isActive()
-            val isHooked = withContext(Dispatchers.IO) { checkIfTargetIsHooked() }
+            val hasRoot = withContext(Dispatchers.IO) { checkRoot() }
+            val isHooked = if (hasRoot) withContext(Dispatchers.IO) { checkIfTargetIsHooked() } else false
+            
             isModuleActive = isActive
+            hasRootAccess = hasRoot
             isTargetAppHooked = isHooked
+        }
+    }
+
+    private fun checkRoot(): Boolean {
+        return try {
+            val process = Runtime.getRuntime().exec("su -c id")
+            val output = process.inputStream.bufferedReader().readText()
+            process.waitFor()
+            output.contains("uid=0")
+        } catch (e: Exception) {
+            false
         }
     }
 
@@ -371,9 +386,9 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
                     if (!viewModel.isTargetAppHooked) {
-                        Text("• Target Dock (com.pvr.shortcut) app is not selected in scope or not running.")
+                        Text("• App Dock (com.pvr.shortcut) is not selected in scope or not running.")
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Please ensure the target app is checked in LSPosed Manager and then click 'Restart' wait for Dock visible and 'Retry'.")
+                        Text("Please ensure the target app is checked in LSPosed Manager and then click 'Restart Dock & Retry'.")
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -391,15 +406,20 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { viewModel.restartAndRetry(context) }) {
-                        Text("Restart Dock & Retry")
+                    if (viewModel.isModuleActive && !viewModel.isTargetAppHooked) {
+                        TextButton(onClick = { viewModel.restartAndRetry(context) }) {
+                            Text("Restart Dock & Retry")
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = {
-                        (context as? android.app.Activity)?.finishAffinity()
-                        android.os.Process.killProcess(android.os.Process.myPid())
-                    }) {
-                        Text("Exit")
+                    else if (!viewModel.isModuleActive)
+                    {
+                        TextButton(onClick = {
+                            (context as? android.app.Activity)?.finishAffinity()
+                            android.os.Process.killProcess(android.os.Process.myPid())
+                        }) {
+                            Text("Exit")
+                        }
                     }
                 }
             },
