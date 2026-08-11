@@ -83,8 +83,11 @@ private object Shell {
         ""
     }
 
-    fun isServiceRunning(): Boolean =
-        exec("dumpsys activity services | grep $TARGET_SERVICE").contains(TARGET_SERVICE)
+    // ShortcutService is a bound service (only shows up in dumpsys when a client
+    // binds it), so it is NOT a reliable “app is running” signal. Instead, detect
+    // that the target Dock process is actually alive.
+    fun isTargetRunning(): Boolean =
+        exec("ps -A -o NAME | grep $TARGET_PACKAGE").contains(TARGET_PACKAGE)
 }
 
 // --- ViewModel ---
@@ -317,21 +320,25 @@ class MainViewModel : ViewModel() {
 
     private suspend fun restartTargetApp(context: Context) = withContext(Dispatchers.IO) {
         try {
+            // Reload the Dock so it re-reads dock_fix_apps.json. Launching the app
+            // reliably (re)starts the target process; do NOT rely on startservice for
+            // ShortcutService because it is a bound service that is not always bound.
             Shell.exec("am force-stop $TARGET_PACKAGE")
-            Shell.exec("am startservice -a $TARGET_ACTION -n $TARGET_PACKAGE/$TARGET_SERVICE")
+            Thread.sleep(400)
+            Shell.exec("am start -n $TARGET_PACKAGE/.MainActivity")
 
             var started = false
-            repeat(10) {
-                if (Shell.isServiceRunning()) {
+            repeat(15) {
+                if (Shell.isTargetRunning()) {
                     started = true; return@repeat
                 }
-                delay(1000)
+                Thread.sleep(1000)
             }
 
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    if (started) "Applied & Service Started" else "Applied (Service timeout)",
+                    if (started) "Applied & Dock Restarted" else "Applied (start timeout)",
                     Toast.LENGTH_SHORT
                 ).show()
             }
