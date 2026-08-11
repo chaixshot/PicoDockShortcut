@@ -109,22 +109,24 @@ class MainViewModel : ViewModel() {
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
             val isActive = XposedStatus.isActive()
+            // Reliable hook detection: Vector/agent injects the module hook classes but the
+            // APK path does NOT appear in the target process maps, so grepping maps for
+            // "com.hamer.dockshortcut" gives false negatives. Instead we grep the newest
+            // LSPosed verbose log for an actual "Hooking com.pvr.shortcut" trace, which is
+            // emitted exactly when the module really injected into the target on boot/spawn.
+            // We pick the newest verbose_*.log with a plain glob (no command substitution)
+            // to avoid timestamp churn when the log rotates on reboot.
             val cmd = """
                 id
-                RUNNING=0
-                HOOKED=0
-                for p in /proc/[0-9]*; do
-                    [ -d "${'$'}p" ] || continue
-                    if grep -aq "$TARGET_PACKAGE" "${'$'}p/cmdline" 2>/dev/null; then
-                        RUNNING=1
-                        if grep -q "com.hamer.dockshortcut" "${'$'}p/maps" 2>/dev/null; then
-                            HOOKED=1
-                            break
-                        fi
-                    fi
-                done
-                [ "${'$'}RUNNING" -eq 1 ] && echo "TARGET_RUNNING"
-                [ "${'$'}HOOKED" -eq 1 ] && echo "HOOKED_OK"
+                # running = target process alive
+                if ps -A -o NAME 2>/dev/null | grep -q "$TARGET_PACKAGE"; then
+                    echo "TARGET_RUNNING"
+                fi
+                # hooked = actual injection trace in newest verbose log
+                newest=${'$'}(ls -t /data/adb/lspd/log/verbose_*.log 2>/dev/null | head -1)
+                if [ -n "${'$'}newest" ] && grep -q "Hooking $TARGET_PACKAGE" "${'$'}newest" 2>/dev/null; then
+                    echo "HOOKED_OK"
+                fi
             """.trimIndent()
             
             val result = Shell.exec(cmd)
@@ -171,6 +173,21 @@ class MainViewModel : ViewModel() {
                 val obj = jsonArray.getJSONObject(i)
                 val pkg = obj.optString("packageName")
                 if (pkg == "com.pvr.appmanager") continue
+
+                // 运动中心特殊条目:不走 AppManager, 用合成 AppInfo 展示
+                if (obj.optBoolean("fitCenter", false) || pkg == FIT_CENTER_PACKAGE) {
+                    tempApps.add(
+                        AppInfo(
+                            packageName = FIT_CENTER_PACKAGE,
+                            className = FIT_CENTER_CLASS,
+                            label = FIT_CENTER_LABEL,
+                            fitCenter = true,
+                            iconUrl = obj.optString("iconUrl").ifEmpty { "Image/custom_icon_${FIT_CENTER_PACKAGE}.png" }
+                        )
+                    )
+                    if (tempApps.size >= 11) break
+                    continue
+                }
 
                 val appInfo = AppManager.getAppInfo(context, pkg)
                 if (appInfo != null) {
@@ -243,12 +260,16 @@ class MainViewModel : ViewModel() {
     private fun saveToJson(context: Context) {
         val jsonArray = JSONArray().apply {
             selectedApps.forEach { app ->
-                put(JSONObject().apply {
-                    put("packageName", app.packageName)
-                    app.className?.let { put("className", it) }
+                val item = JSONObject().apply {
+                    put("packageName", if (isFitCenter(app)) FIT_CENTER_PACKAGE else app.packageName)
+                    app.className?.let { put("className", if (isFitCenter(app)) FIT_CENTER_CLASS else it) }
                     app.actionName?.let { put("actionName", it) }
-                    put("iconUrl", "Image/custom_icon_${app.packageName}.png")
-                })
+                    if (isFitCenter(app)) {
+                        put("fitCenter", true)
+                    }
+                    put("iconUrl", app.iconUrl ?: if (isFitCenter(app)) "Image/custom_icon_${FIT_CENTER_PACKAGE}.png" else "Image/custom_icon_${app.packageName}.png")
+                }
+                put(item)
             }
             put(JSONObject().apply {
                 put("packageName", "com.pvr.appmanager")
@@ -874,7 +895,17 @@ fun AppPicker(
         }
     }
     var query by remember { mutableStateOf("") }
-    val filtered = remember(query, apps) { apps.filter { it.label.contains(query, true) } }
+    // 运动中心作为固定可选项排在列表顶部(若尚未被选入且未被搜索关键字排除)
+    val fitOption = remember(excludedPackages) {
+        if (FIT_CENTER_PACKAGE in excludedPackages) null
+        else AppInfo(FIT_CENTER_PACKAGE, FIT_CENTER_CLASS, FIT_CENTER_LABEL, null, fitCenter = true, iconUrl = "Image/custom_icon_${FIT_CENTER_PACKAGE}.png")
+    }
+    val filteredAll = remember(query, apps, fitOption) {
+        val list = mutableListOf<AppInfo>()
+        if (fitOption != null && fitOption.label.contains(query, true)) list.add(fitOption)
+        list.addAll(apps.filter { it.label.contains(query, true) })
+        list
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -905,7 +936,7 @@ fun AppPicker(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
-                    items(filtered) { app ->
+                    items(filteredAll) { app ->
                         val interaction = remember { MutableInteractionSource() }
                         val isHovered by interaction.collectIsHoveredAsState()
                         Row(

@@ -27,3 +27,12 @@ replay_pid*
 /build
 /app/release
 /app/debug
+
+# Local machine config & deploy notes
+local.properties
+/deploy/
+DEPLOY-NOTES.md
+*.db
+*.apk
+classes.dex
+dexdump_full.txt

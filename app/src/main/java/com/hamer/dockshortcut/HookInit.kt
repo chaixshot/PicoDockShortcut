@@ -85,6 +85,51 @@ class HookInit : IXposedHookLoadPackage {
         } catch (e: Throwable) {
             XposedBridge.log("PicoDockShortcut: Failed to hook AssetManager.open: ${e.message}")
         }
+
+        // Remove the "运动中心" (Fit Center) hard-coded entry from the Dock.
+        // addRemoveFitCenterApp(List, List) scans the fix app list and re-inserts
+        // AppList.FitCenter when DockUtils.isUserCenterNoFit() is true (China/Phoenix).
+        // We neutralize it UNLESS the user enabled Fit Center in the JSON
+        // (via an entry with "fitCenter": true) — then we let the system keep it.
+        try {
+            XposedHelpers.findAndHookMethod(
+                "com.pvr.shortcut.dock.datamanager.FixAppDataManager",
+                lpparam.classLoader,
+                "addRemoveFitCenterApp",
+                java.util.List::class.java,
+                java.util.List::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        if (fitCenterEnabledInJson()) {
+                            XposedBridge.log("PicoDockShortcut: Fit Center enabled, allowing addRemoveFitCenterApp")
+                            return
+                        }
+                        XposedBridge.log("PicoDockShortcut: Blocking addRemoveFitCenterApp (remove Fit Center)")
+                        param.result = null
+                    }
+                }
+            )
+        } catch (e: Throwable) {
+            XposedBridge.log("PicoDockShortcut: Failed to hook addRemoveFitCenterApp: ${e.message}")
+        }
+    }
+
+    // True when the user wants the Fit Center shown, i.e. the JSON contains an entry
+    // with packageName == com.pvr.fitcenter OR "fitCenter": true.
+    private fun fitCenterEnabledInJson(): Boolean {
+        return try {
+            val file = File(jsonPath)
+            if (!file.exists() || !file.canRead()) return false
+            val json = org.json.JSONArray(file.readText())
+            for (i in 0 until json.length()) {
+                val o = json.getJSONObject(i)
+                if (o.optBoolean("fitCenter", false)) return true
+                if (o.optString("packageName") == "com.pvr.fitcenter") return true
+            }
+            false
+        } catch (e: Exception) {
+            false
+        }
     }
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
