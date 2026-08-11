@@ -90,6 +90,14 @@ private object Shell {
 
 class MainViewModel : ViewModel() {
     val selectedApps = mutableStateListOf<AppInfo>()
+    private val savedApps = mutableListOf<AppInfo>()
+    
+    val isModified by derivedStateOf {
+        selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
+            !selectedApps[i].isSameAs(savedApps[i])
+        }
+    }
+
     var isApplying by mutableStateOf(false)
     var isRetrying by mutableStateOf(false)
     var isModuleActive by mutableStateOf(true)
@@ -130,11 +138,11 @@ class MainViewModel : ViewModel() {
                 context.filesDir.parentFile?.setExecutable(true, false)
                 default
             }
-            parseApps(context, content)
+            parseApps(context, content, updateSaved = true)
         }
     }
 
-    private suspend fun parseApps(context: Context, content: String) = withContext(Dispatchers.IO) {
+    private suspend fun parseApps(context: Context, content: String, updateSaved: Boolean) = withContext(Dispatchers.IO) {
         try {
             val jsonArray = JSONArray(content)
             val tempApps = mutableListOf<AppInfo>()
@@ -170,6 +178,10 @@ class MainViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 selectedApps.clear()
                 selectedApps.addAll(tempApps)
+                if (updateSaved) {
+                    savedApps.clear()
+                    savedApps.addAll(tempApps)
+                }
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -179,7 +191,7 @@ class MainViewModel : ViewModel() {
     fun reload(context: Context) {
         viewModelScope.launch {
             val file = getJsonFile(context)
-            if (file.exists()) parseApps(context, file.readText())
+            if (file.exists()) parseApps(context, file.readText(), updateSaved = true)
         }
     }
 
@@ -190,7 +202,7 @@ class MainViewModel : ViewModel() {
             } catch (e: Exception) {
                 "[]"
             }
-            parseApps(context, default)
+            parseApps(context, default, updateSaved = false)
         }
     }
 
@@ -234,8 +246,9 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             isApplying = true
             saveToJson(context)
+            savedApps.clear()
+            savedApps.addAll(selectedApps)
             restartTargetApp(context)
-            checkStatus()
             isApplying = false
         }
     }
@@ -382,6 +395,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
 @Composable
 private fun Header(viewModel: MainViewModel, context: Context) {
+    var iconTapCount by remember { mutableIntStateOf(0) }
+    
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -392,7 +407,18 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 modifier = Modifier
                     .size(70.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {
+                        iconTapCount++
+                        if (iconTapCount >= 3) {
+                            viewModel.applyChanges(context)
+                            viewModel.checkStatus()
+                            iconTapCount = 0
+                        }
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 Image(
@@ -450,8 +476,8 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 "Apply",
                 Icons.Default.Check,
                 MaterialTheme.colorScheme.primary,
-                viewModel.isApplying,
-                showLoading = true
+                viewModel.isApplying || !viewModel.isModified,
+                showLoading = viewModel.isApplying
             ) {
                 viewModel.applyChanges(context)
             }
