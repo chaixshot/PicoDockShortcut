@@ -9,6 +9,10 @@ android {
         version = release(37)
     }
 
+    androidResources {
+        localeFilters += "en"
+    }
+
     defaultConfig {
         applicationId = "com.hamer.dockshortcut"
         minSdk = 29
@@ -21,9 +25,12 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
