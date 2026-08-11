@@ -88,17 +88,34 @@ class HookInit : IXposedHookLoadPackage {
     }
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
-        if (drawable is android.graphics.drawable.BitmapDrawable) {
-            return drawable.bitmap
+        val srcW = drawable.intrinsicWidth.coerceAtLeast(1)
+        val srcH = drawable.intrinsicHeight.coerceAtLeast(1)
+
+        val targetRatio = 152f / 128f
+        val srcRatio = srcW.toFloat() / srcH.toFloat()
+
+        val bitmapW: Int
+        val bitmapH: Int
+
+        if (srcRatio < targetRatio) {
+            // Source is narrower (e.g. 1:1). Use height as anchor, expand width.
+            bitmapH = srcH
+            bitmapW = (srcH * 152) / 128
+        } else {
+            // Source is wider. Use width as anchor, expand height.
+            bitmapW = srcW
+            bitmapH = (srcW * 128) / 152
         }
-        val bitmap = Bitmap.createBitmap(
-            drawable.intrinsicWidth.coerceAtLeast(1),
-            drawable.intrinsicHeight.coerceAtLeast(1),
-            Bitmap.Config.ARGB_8888
-        )
+
+        val bitmap = Bitmap.createBitmap(bitmapW, bitmapH, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
+
+        // Center the icon in the resulting 152:128 bitmap
+        val left = (bitmapW - srcW) / 2
+        val top = (bitmapH - srcH) / 2
+        drawable.setBounds(left, top, left + srcW, top + srcH)
         drawable.draw(canvas)
+
         return bitmap
     }
 }
