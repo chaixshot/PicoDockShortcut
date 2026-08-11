@@ -64,8 +64,6 @@ import java.io.File
 
 private const val JSON_FILE_NAME = "dock_fix_apps.json"
 private const val TARGET_PACKAGE = "com.pvr.shortcut"
-private const val TARGET_SERVICE = "com.pvr.shortcut.service.ShortcutService"
-private const val TARGET_ACTION = "pvr.intent.shortcut"
 
 private object Shell {
     fun exec(command: String): String = try {
@@ -89,7 +87,6 @@ private object Shell {
     fun isTargetRunning(): Boolean =
         exec("ps -A -o NAME | grep $TARGET_PACKAGE").contains(TARGET_PACKAGE)
 }
-
 // --- ViewModel ---
 
 class MainViewModel : ViewModel() {
@@ -320,37 +317,27 @@ class MainViewModel : ViewModel() {
 
     private suspend fun restartTargetApp(context: Context) = withContext(Dispatchers.IO) {
         try {
-            // Reload the Dock so it re-reads dock_fix_apps.json. Launching the app
-            // reliably (re)starts the target process; do NOT rely on startservice for
-            // ShortcutService because it is a bound service that is not always bound.
+            // force-stop the Dock so it re-reads dock_fix_apps.json on its next launch.
+            // We deliberately do NOT am-start the target: the Dock bar is a system VR
+            // panel owned by com.picovr.systemext, force-starting its MainActivity steals
+            // the window focus and hides the manager GUI. The config already reloads the
+            // next time the Dock is invoked; the user just calls it up with the controller.
             Shell.exec("am force-stop $TARGET_PACKAGE")
-            Thread.sleep(400)
-            Shell.exec("am start -n $TARGET_PACKAGE/.MainActivity")
-
-            var started = false
-            repeat(15) {
-                if (Shell.isTargetRunning()) {
-                    started = true; return@repeat
-                }
-                Thread.sleep(1000)
-            }
 
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    if (started) "Applied & Dock Restarted" else "Applied (start timeout)",
+                    "应用成功，按右手柄O呼出dock",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         } catch (e: Exception) {
-            val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-            am.killBackgroundProcesses(TARGET_PACKAGE)
-            context.packageManager.getLaunchIntentForPackage(TARGET_PACKAGE)?.let { intent ->
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                withContext(Dispatchers.Main) {
-                    context.startActivity(intent)
-                    Toast.makeText(context, "Applied (Launch fallback)", Toast.LENGTH_SHORT).show()
-                }
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    context,
+                    "应用成功，按右手柄O呼出dock",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
