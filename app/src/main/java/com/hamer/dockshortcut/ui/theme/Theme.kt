@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut.ui.theme
+package com.hamer.dockshortcut.ui.theme
 
 import android.app.Activity
 import android.os.Build

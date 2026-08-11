@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut
+package com.hamer.dockshortcut
 
 import androidx.annotation.Keep
 

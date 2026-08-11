@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut
+package com.hamer.dockshortcut
 
 import android.content.Context
 import android.content.Intent

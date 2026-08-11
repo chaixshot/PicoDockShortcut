@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut
+package com.hamer.dockshortcut
 
 import android.annotation.SuppressLint
 import android.app.AndroidAppHelper
@@ -16,12 +16,12 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 class HookInit : IXposedHookLoadPackage {
-    private val jsonPath = "/data/user/0/com.hamer.picodockshortcut/dock_fix_apps.json"
+    private val jsonPath = "/data/user/0/com.hamer.dockshortcut/dock_fix_apps.json"
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
-        if (lpparam.packageName == "com.hamer.picodockshortcut") {
+        if (lpparam.packageName == "com.hamer.dockshortcut") {
             XposedHelpers.findAndHookMethod(
-                "com.hamer.picodockshortcut.XposedStatus",
+                "com.hamer.dockshortcut.XposedStatus",
                 lpparam.classLoader,
                 "isActive",
                 object : XC_MethodHook() {

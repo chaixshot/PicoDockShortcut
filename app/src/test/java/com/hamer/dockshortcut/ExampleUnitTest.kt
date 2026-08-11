@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut
+package com.hamer.dockshortcut
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.hamer.picodockshortcut
+package com.hamer.dockshortcut
 
 import android.app.ActivityManager
 import android.content.Context
@@ -56,7 +56,7 @@ import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.hamer.picodockshortcut.ui.theme.PicoDockShortcutTheme
+import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +87,7 @@ class MainViewModel : ViewModel() {
 
     private fun checkIfTargetIsHooked(): Boolean {
         val targetPackage = "com.pvr.shortcut"
-        val myPackage = "com.hamer.picodockshortcut"
+        val myPackage = "com.hamer.dockshortcut"
         return try {
             val process = Runtime.getRuntime().exec("su")
             val os = DataOutputStream(process.outputStream)

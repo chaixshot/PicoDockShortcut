@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.hamer.picodockshortcut"
+    namespace = "com.hamer.dockshortcut"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.hamer.picodockshortcut"
+        applicationId = "com.hamer.dockshortcut"
         minSdk = 29
         targetSdk = 37
         versionCode = 1
