@@ -413,7 +413,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(70.dp)
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                             contentAlignment = Alignment.Center
@@ -422,7 +422,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                                 painter = painterResource(id = R.mipmap.ic_launcher_foreground),
                                 contentDescription = "App Icon",
                                 modifier = Modifier
-                                    .size(50.dp)
+                                    .size(70.dp)
                                     .graphicsLayer(scaleX = 1.4f, scaleY = 1.4f)
                             )
                         }
@@ -431,18 +431,23 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 
                         Column {
                             Text(
-                                text = "Pico Dock Shortcut",
+                                text = "Dock Shortcut Manager",
                                 style = MaterialTheme.typography.headlineMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = Color.LightGray,
                             )
                             Text(
-                                text = "Manage your dock shortcuts.",
+                                text = "Manage your Pico 4 dock pinned shortcuts",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.LightGray,
                             )
                             Text(
-                                text = "Drag and drop the app to change position order.",
+                                text = "- Hold and drag the app to reorder",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.LightGray,
+                            )
+                            Text(
+                                text = "- Tab the existing app to change the app",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.LightGray,
                             )
@@ -466,7 +471,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         ) {
                             Icon(Icons.Default.SettingsBackupRestore, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Restore Default", style = MaterialTheme.typography.labelLarge)
+                            Text("Restore", style = MaterialTheme.typography.labelLarge)
                         }
 
                         val reloadInteraction = remember { MutableInteractionSource() }
