@@ -327,16 +327,16 @@ class MainViewModel : ViewModel() {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "应用成功，按右手柄O呼出dock",
-                    Toast.LENGTH_SHORT
+                    "应用成功，按右手柄O呼出dock（约5秒后生效）",
+                    Toast.LENGTH_LONG
                 ).show()
             }
         } catch (e: Exception) {
             withContext(Dispatchers.Main) {
                 Toast.makeText(
                     context,
-                    "应用成功，按右手柄O呼出dock",
-                    Toast.LENGTH_SHORT
+                    "应用成功，按右手柄O呼出dock（约5秒后生效）",
+                    Toast.LENGTH_LONG
                 ).show()
             }
         }
