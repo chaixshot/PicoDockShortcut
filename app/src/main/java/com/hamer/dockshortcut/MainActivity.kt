@@ -43,7 +43,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -51,7 +50,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 import androidx.core.graphics.drawable.toBitmap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -224,18 +222,19 @@ class MainViewModel : ViewModel() {
             isApplying = true
             saveToJson(context)
             restartTargetApp(context)
-            delay(3000) // Wait for restart process to settle
+            checkStatus()
             isApplying = false
         }
     }
 
-    fun restartDock(context: Context) {
+    fun restartAndRetry(context: Context) {
         viewModelScope.launch {
             restartTargetApp(context)
+            checkStatus()
         }
     }
 
-    private fun restartTargetApp(context: Context) {
+    private suspend fun restartTargetApp(context: Context) = withContext(Dispatchers.IO) {
         val packageName = "com.pvr.shortcut"
         val serviceName = "com.pvr.shortcut.service.ShortcutService"
         val action = "pvr.intent.shortcut"
@@ -248,16 +247,46 @@ class MainViewModel : ViewModel() {
             os.writeBytes("exit\n")
             os.flush()
             process.waitFor()
-            Toast.makeText(context, "Applied & Restarted Dock Service", Toast.LENGTH_SHORT).show()
+
+            // Wait for service to be started
+            var started = false
+            for (i in 0 until 10) {
+                if (isServiceStarted(serviceName)) {
+                    started = true
+                    break
+                }
+                delay(1000)
+            }
+
+            withContext(Dispatchers.Main) {
+                if (started) {
+                    Toast.makeText(context, "Applied & Service Started", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "Applied (Service check timed out)", Toast.LENGTH_SHORT).show()
+                }
+            }
         } catch (e: Exception) {
             val am = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
             am.killBackgroundProcesses(packageName)
             val intent = context.packageManager.getLaunchIntentForPackage(packageName)
             if (intent != null) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-                Toast.makeText(context, "Applied (Launch fallback)", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    context.startActivity(intent)
+                    Toast.makeText(context, "Applied (Launch fallback)", Toast.LENGTH_SHORT).show()
+                }
             }
+        }
+    }
+
+    private fun isServiceStarted(serviceName: String): Boolean {
+        return try {
+            val process = Runtime.getRuntime().exec("su -c \"dumpsys activity services | grep $serviceName\"")
+            val output = process.inputStream.bufferedReader().readText()
+            process.waitFor()
+            output.contains(serviceName)
+        } catch (e: Exception) {
+            false
         }
     }
 }
@@ -362,12 +391,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     horizontalArrangement = Arrangement.End,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    TextButton(onClick = { viewModel.restartDock(context) }) {
-                        Text("Restart Dock")
-                    }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = { viewModel.checkStatus() }) {
-                        Text("Retry")
+                    TextButton(onClick = { viewModel.restartAndRetry(context) }) {
+                        Text("Restart Dock & Retry")
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     TextButton(onClick = {
