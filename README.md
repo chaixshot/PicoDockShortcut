@@ -24,9 +24,9 @@ Dock 条本身在系统里是固定的纯色 `#FF1F1F1F`,本模块让你换成�
 - hook `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)`,拿到 Dock 根视图后替换背景。
 - 目标视图定位:取 `dock_container`(`0x7f09009c`)下第一个 `id != 0x7f09005b` 的 `LinearLayout` 子节点 = 可见的 Dock 条;Guide(新手引导)= `0x7f09005b`,两者共用同一张 Bitmap、各自保留自己的圆角。
   - **不能直接改 `dock_container` 本身**——它是透明容器,给它上背景会把 Dock 条与 Guide 之间的透明空隙填满。
-- 自定义 `RoundedBgDrawable : Drawable`,在 `onBoundsChange()` 里按真实 bounds 建 `BitmapShader`(Matrix center-crop,不变形)+ `Path.addRoundRect` 圆角。
-  - inflate 阶段 View 还没测量(`width/height == 0`),所以**不能**在 hook 里直接预渲染 Bitmap,必须等 bounds 回调。
-  - 圆角从原 `GradientDrawable` 提取(实测 38px),读不到时兜底 38f。
+- 自定义 **RoundedBgDrawable : Drawable**,在 **onBoundsChange()** 里按真实 bounds 建 **BitmapShader**(Matrix center-crop,不变形)+ **Path.addRoundRect** 圆角。
+  - inflate 阶段 View 还没测量(**width/height == 0**),所以**不能**在 hook 里直接预渲染 Bitmap,必须等 bounds 回调。
+  - 圆角从原 **GradientDrawable** 提取(实测 38px),读不到时兜底 38f。
 - 用户图片存 `/data/user/0/com.hamer.dockshortcut/dock_bg.png`,目录 755 + 文件 644,否则以 system(uid 1000)运行的 `com.pvr.shortcut` 读不到。
 
 **关于裁剪比例**:Dock 高度固定 `main_view_height = 120dp`,宽度是 `wrap_content` 随应用数量变化(左区约 176dp + 右区约 138dp + 每个应用 84dp),还会因"最近/运行中应用"临时变宽。所以裁剪按系统硬上限 `dock_max_width 1800dp / 120dp = 15:1` 出图,保证之后加图标或打开应用时右侧也不会缺画面。背景**左对齐**绘制,Dock 越宽右侧露出的画面越多。
@@ -81,9 +81,9 @@ The Dock bar is a fixed solid color (`#FF1F1F1F`) in the system. This module let
 - Hooks `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)` and swaps the background once the root view is available.
 - Target view: the first `LinearLayout` child of `dock_container` (`0x7f09009c`) whose `id != 0x7f09005b` = the visible Dock bar; the Guide (onboarding) = `0x7f09005b`. Both share the same Bitmap and keep their own corner radii.
   - **Never set the background on `dock_container` itself** — it is a transparent container; doing so fills the transparent gap between the Dock bar and the Guide.
-- Custom `RoundedBgDrawable : Drawable` builds the `BitmapShader` (Matrix center-crop, no distortion) + `Path.addRoundRect` corners in `onBoundsChange()` using the real bounds.
-  - At inflate time the view is not measured yet (`width/height == 0`), so you cannot pre-render the Bitmap in the hook; you must wait for the bounds callback.
-  - Corner radius is read from the original `GradientDrawable` (measured 38px), falling back to 38f.
+- Custom **RoundedBgDrawable : Drawable** builds the **BitmapShader** (Matrix center-crop, no distortion) + **Path.addRoundRect** corners in **onBoundsChange()** using the real bounds.
+  - At inflate time the view is not measured yet (**width/height == 0**), so you cannot pre-render the Bitmap in the hook; you must wait for the bounds callback.
+  - Corner radius is read from the original **GradientDrawable** (measured 38px), falling back to 38f.
 - The user image is stored at `/data/user/0/com.hamer.dockshortcut/dock_bg.png`; the directory must be 755 and the file 644, otherwise `com.pvr.shortcut` (running as system, uid 1000) cannot read it.
 
 **About the crop ratio**: the Dock height is fixed (`main_view_height = 120dp`), the width is `wrap_content` and grows with the app count (left area ≈176dp + right area ≈138dp + 84dp per app), and it temporarily widens when "recent/running apps" appear. So the crop uses the system hard cap `dock_max_width 1800dp / 120dp = 15:1`, guaranteeing the right side never runs out of artwork when you add icons or open apps. The background is drawn **left-aligned**: the wider the Dock, the more of the image shows on the right.
@@ -138,9 +138,9 @@ LSPosed-модуль для настройки системного Dock (пан
 - Хук `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)`; фон меняется после получения корневого view.
 - Целевой view: первый дочерний `LinearLayout` у `dock_container` (`0x7f09009c`) с `id != 0x7f09005b` = видимая полоса Dock; Guide (подсказки) = `0x7f09005b`. Оба используют один Bitmap и сохраняют свои радиусы скругления.
   - **Нельзя менять фон самого `dock_container`** — это прозрачный контейнер; иначе заполнится прозрачный зазор между полосой Dock и Guide.
-- Кастомный `RoundedBgDrawable : Drawable` строит `BitmapShader` (Matrix center-crop, без искажений) + `Path.addRoundRect` в `onBoundsChange()` по реальным границам.
-  - На этапе inflate view ещё не измерен (`width/height == 0`), поэтому нельзя отрисовать Bitmap прямо в хуке — нужно ждать колбэк границ.
-  - Радиус скругления берётся из исходного `GradientDrawable` (измерено 38px), по умолчанию 38f.
+- Кастомный **RoundedBgDrawable : Drawable** строит **BitmapShader** (Matrix center-crop, без искажений) + **Path.addRoundRect** в **onBoundsChange()** по реальным границам.
+  - На этапе inflate view ещё не измерен (**width/height == 0**), поэтому нельзя отрисовать Bitmap прямо в хуке — нужно ждать колбэк границ.
+  - Радиус скругления берётся из исходного **GradientDrawable** (измерено 38px), по умолчанию 38f.
 - Изображение хранится в `/data/user/0/com.hamer.dockshortcut/dock_bg.png`; каталог должен быть 755, файл 644, иначе `com.pvr.shortcut` (работает как system, uid 1000) не сможет его прочитать.
 
 **О соотношении сторон**: высота Dock фиксирована (`main_view_height = 120dp`), ширина — `wrap_content` и растёт с числом приложений (левая зона ≈176dp + правая ≈138dp + 84dp на приложение), а при появлении «недавних/запущенных приложений» временно становится ещё шире. Поэтому кадрирование идёт по аппаратному пределу `dock_max_width 1800dp / 120dp = 15:1`, чтобы при добавлении значков или открытии приложений справа никогда не заканчивалось изображение. Фон рисуется **слева**: чем шире Dock, тем больше изображения видно справа.
