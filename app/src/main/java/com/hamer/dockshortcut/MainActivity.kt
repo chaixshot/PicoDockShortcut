@@ -3,17 +3,21 @@ package com.hamer.dockshortcut
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,7 +28,9 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -409,8 +415,11 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             ) {
                 Header(viewModel, context)
                 Spacer(modifier = Modifier.height(24.dp))
+                // 给网格 weight(1f): 先量完底部背景区, 网格只吃剩下的高度
+                // (之前 LazyVerticalGrid 没 weight, 会把可用高度全吃完 → 下方按钮被顶出屏幕)
                 DockGrid(
                     viewModel = viewModel,
+                    modifier = Modifier.weight(1f),
                     onSlotClick = { index ->
                         editingIndex = index
                         showPicker = true
@@ -420,6 +429,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         showPicker = true
                     }
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                DockBgSection(viewModel, context)
             }
         }
     }
@@ -437,6 +448,366 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 editingIndex = null
             }
         )
+    }
+}
+
+@Composable
+private fun DockBgSection(viewModel: MainViewModel, context: Context) {
+    var bgInfo by remember { mutableStateOf(readBgInfo(context)) }
+    var cropUri by remember { mutableStateOf<android.net.Uri?>(null) }
+
+    // Dock 条宽高比。高度固定, 宽度随应用数变化。
+    // 裁剪按“上限比例”(11 个应用满载)出图, 左侧对齐; 应用少时右侧内容看不到。
+    val barRatio = remember(viewModel.selectedApps.size, bgInfo) {
+        dockBarAspect(context, viewModel.selectedApps.size)
+    }
+    val maxRatio = remember { DOCK_MAX_ASPECT }
+
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri -> if (uri != null) cropUri = uri }
+
+    if (cropUri != null) {
+        CropDialog(
+            uri = cropUri!!,
+            aspect = maxRatio,
+            visibleAspect = barRatio,
+            appCount = viewModel.selectedApps.size,
+            onDismiss = { cropUri = null },
+            onConfirm = { cropped ->
+                try {
+                    val dst = File(context.filesDir.parentFile, "dock_bg.png")
+                    dst.outputStream().use { out ->
+                        cropped.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                    }
+                    try { dst.setReadable(true, false) } catch (_: Throwable) {}
+                    bgInfo = readBgInfo(context)
+                    cropUri = null
+                    Toast.makeText(context, "背景已裁剪保存: $bgInfo", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) {
+                    Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        )
+    }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                "Dock 背景",
+                style = MaterialTheme.typography.titleSmall,
+                color = Color.LightGray
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                if (bgInfo.isNullOrBlank())
+                    "未设置背景 · 选图后可自己框选区域"
+                else "当前背景: $bgInfo",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (bgInfo.isNullOrBlank()) Color.Gray else Color(0xFF7EC8FF)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                "Dock 高度固定(120dp)、宽度随图标数量变化。图片左侧对齐固定, " +
+                "图标越多右侧露出的画面越多。裁剪按系统硬上限 dock_max_width 1800dp " +
+                "(${"%.0f".format(maxRatio)} : 1)。当前 ${viewModel.selectedApps.size} 个快捷应用 + 资源库" +
+                ", 只能看到左边约 ${(barRatio / maxRatio * 100).toInt()}%。打开应用(资源库右侧最多" +
+                "$MAX_RECENT_APPS 个最近应用)时会临时变宽, 露出更多。",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                ActionButton(
+                    text = "选择图片",
+                    icon = Icons.Default.Image,
+                    containerColor = Color(0xFF1E3C78),
+                    disabled = false
+                ) { launcher.launch("image/*") }
+                ActionButton(
+                    text = "应用背景",
+                    icon = Icons.Default.Check,
+                    containerColor = Color(0xFF2E7D32),
+                    disabled = bgInfo.isNullOrBlank()
+                ) { viewModel.applyChanges(context) }
+            }
+        }
+    }
+}
+
+// ---- Dock 条宽高比 ----
+// 真实值由 HookInit 写进 Settings.Global("pico_dock_bar_size") = "WxH"。
+// 拿不到时按 dock_main_view / dock_left_view / dock_right_view / dock_app_item 布局推算(单位 dp):
+//   左区 DockLeftView   = user_icon_margin 16 + user_icon_size 84 + user_icon_margin_left 4
+//                      + fit/noti 列 44 + app_split_line_width 28 = 176
+//   右区 DockRightView  = dock_right_container_margin 8 + dock_right_view_width 114
+//                      + dock_right_container_margin_right 16 = 138  (沉浸/IM 块默认 gone)
+//   每个图标         = app_icon_width 76 + app_icon_margin 4*2 = 84
+//   高度             = main_view_height 120
+//   硬上限           = dock_max_width 1800  => 比例上限 15 : 1
+const val MAX_DOCK_APPS = 11        // 本 GUI 允许配置的快捷应用上限(不含资源库)
+const val MAX_RECENT_APPS = 5       // 资源库右侧的最近/运行中应用(多窗口开启时上限 5)
+const val DOCK_MAX_ASPECT = 15f     // dock_max_width 1800 / main_view_height 120
+
+private const val DOCK_SIDE_DP = 176f + 138f
+private const val DOCK_ICON_DP = 84f
+private const val DOCK_HEIGHT_DP = 120f
+
+// n = 快捷应用个数(不含资源库); 资源库图标总是存在
+private fun dockBarAspectFor(appCount: Int, recentCount: Int = 0): Float {
+    val n = (if (appCount > 0) appCount else 5) + 1
+    var widthDp = DOCK_SIDE_DP + DOCK_ICON_DP * n
+    if (recentCount > 0) widthDp += DOCK_ICON_DP * recentCount + 28f // 分隔线 28
+    return (widthDp / DOCK_HEIGHT_DP).coerceAtMost(DOCK_MAX_ASPECT)
+}
+
+private fun dockBarAspect(context: Context, appCount: Int): Float {
+    try {
+        val s = android.provider.Settings.Global.getString(
+            context.contentResolver, "pico_dock_bar_size"
+        )
+        if (!s.isNullOrBlank()) {
+            val p = s.split("x")
+            if (p.size == 2) {
+                val w = p[0].trim().toFloat()
+                val h = p[1].trim().toFloat()
+                if (w > 0f && h > 0f) return w / h
+            }
+        }
+    } catch (_: Throwable) {}
+    return dockBarAspectFor(appCount)
+}
+
+// ---- 固定比例裁剪对话框: 拖动平移 + 滑杆缩放, 预览即结果 ----
+// aspect        = 存图比例(上限, 按 MAX_DOCK_APPS 算)
+// visibleAspect = 当前应用数下实际可见的比例, 用于在框内画“当前可见边界”
+@Composable
+private fun CropDialog(
+    uri: android.net.Uri,
+    aspect: Float,
+    visibleAspect: Float = aspect,
+    appCount: Int = 0,
+    onDismiss: () -> Unit,
+    onConfirm: (android.graphics.Bitmap) -> Unit
+) {
+    val context = LocalContext.current
+    val src = remember(uri) { decodeScaled(context, uri, 3000) }
+
+    if (src == null) {
+        LaunchedEffect(Unit) {
+            Toast.makeText(context, "图片无法解码", Toast.LENGTH_LONG).show()
+            onDismiss()
+        }
+        return
+    }
+
+    val img = remember(src) { src.asImageBitmap() }
+    val iw = src.width.toFloat()
+    val ih = src.height.toFloat()
+
+    // 缩放 1 = 在图内能取到的最大同比例区域
+    val maxCropW: Float
+    val maxCropH: Float
+    if (iw / ih > aspect) {
+        maxCropH = ih; maxCropW = ih * aspect
+    } else {
+        maxCropW = iw; maxCropH = iw / aspect
+    }
+
+    var zoom by remember { mutableFloatStateOf(1f) }
+    var cx by remember { mutableFloatStateOf(iw / 2f) }
+    var cy by remember { mutableFloatStateOf(ih / 2f) }
+    var frameW by remember { mutableFloatStateOf(1f) }
+    var frameH by remember { mutableFloatStateOf(1f) }
+
+    val cropW = maxCropW / zoom
+    val cropH = maxCropH / zoom
+    cx = cx.coerceIn(cropW / 2f, iw - cropW / 2f)
+    cy = cy.coerceIn(cropH / 2f, ih - cropH / 2f)
+
+    androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
+        Surface(
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF292929),
+            modifier = Modifier.fillMaxWidth(0.9f)
+        ) {
+            Column(
+                modifier = Modifier
+                    .padding(24.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Text(
+                    "框选 Dock 背景区域",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "比例 ${"%.0f".format(aspect)} : 1 (Dock 硬上限宽度) · 原图 ${src.width}x${src.height}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    if (visibleAspect < aspect)
+                        "图片左侧对齐。当前 $appCount 个快捷应用只能看到蓝线左侧部分, 图标越多越往右露"
+                    else "图片左侧对齐, 图标越多右侧露出的画面越多",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color(0xFF7EC8FF)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // 裁剪框(固定比例), 内部直接按 src 矩形绘制 => 所见即所得
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(aspect)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Black)
+                        .pointerInput(src, aspect) {
+                            detectDragGestures { _, drag ->
+                                val kx = cropW / frameW.coerceAtLeast(1f)
+                                val ky = cropH / frameH.coerceAtLeast(1f)
+                                cx = (cx - drag.x * kx).coerceIn(cropW / 2f, iw - cropW / 2f)
+                                cy = (cy - drag.y * ky).coerceIn(cropH / 2f, ih - cropH / 2f)
+                            }
+                        }
+                ) {
+                    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+                        frameW = size.width
+                        frameH = size.height
+                        val sx = (cx - cropW / 2f).coerceAtLeast(0f)
+                        val sy = (cy - cropH / 2f).coerceAtLeast(0f)
+                        drawImage(
+                            image = img,
+                            srcOffset = androidx.compose.ui.unit.IntOffset(
+                                sx.toInt().coerceIn(0, src.width - 1),
+                                sy.toInt().coerceIn(0, src.height - 1)
+                            ),
+                            srcSize = androidx.compose.ui.unit.IntSize(
+                                cropW.toInt().coerceIn(1, src.width - sx.toInt()),
+                                cropH.toInt().coerceIn(1, src.height - sy.toInt())
+                            ),
+                            dstOffset = androidx.compose.ui.unit.IntOffset.Zero,
+                            dstSize = androidx.compose.ui.unit.IntSize(
+                                size.width.toInt(), size.height.toInt()
+                            ),
+                            filterQuality = androidx.compose.ui.graphics.FilterQuality.High
+                        )
+                        // 当前应用数下的可见边界: 右侧变暗 + 一条分界线
+                        if (visibleAspect < aspect) {
+                            val vw = size.width * (visibleAspect / aspect)
+                            drawRect(
+                                color = Color.Black.copy(alpha = 0.55f),
+                                topLeft = Offset(vw, 0f),
+                                size = androidx.compose.ui.geometry.Size(size.width - vw, size.height)
+                            )
+                            drawLine(
+                                color = Color(0xFF7EC8FF),
+                                start = Offset(vw, 0f),
+                                end = Offset(vw, size.height),
+                                strokeWidth = 3f
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.ZoomIn, null, tint = Color.LightGray)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Slider(
+                        value = zoom,
+                        onValueChange = { zoom = it },
+                        valueRange = 1f..6f,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("${"%.1f".format(zoom)}x", color = Color.LightGray)
+                }
+                Text(
+                    "拖动画面调整取景 · 滑杆放大可只截取局部",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Spacer(modifier = Modifier.weight(1f))
+                    ActionButton(
+                        text = "取消",
+                        icon = Icons.Default.Close,
+                        containerColor = Color(0xFF444444),
+                        disabled = false
+                    ) { onDismiss() }
+                    ActionButton(
+                        text = "使用此区域",
+                        icon = Icons.Default.Check,
+                        containerColor = Color(0xFF2E7D32),
+                        disabled = false
+                    ) {
+                        try {
+                            val sx = (cx - cropW / 2f).toInt().coerceIn(0, src.width - 1)
+                            val sy = (cy - cropH / 2f).toInt().coerceIn(0, src.height - 1)
+                            val cw = cropW.toInt().coerceIn(1, src.width - sx)
+                            val ch = cropH.toInt().coerceIn(1, src.height - sy)
+                            var out = android.graphics.Bitmap.createBitmap(src, sx, sy, cw, ch)
+                            // 输出到 Dock 条实际像素的 2 倍即可, 省内存
+                            val targetH = 320
+                            if (out.height > targetH) {
+                                val targetW = (targetH * aspect).toInt().coerceAtLeast(1)
+                                out = android.graphics.Bitmap.createScaledBitmap(
+                                    out, targetW, targetH, true
+                                )
+                            }
+                            onConfirm(out)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "裁剪失败: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+// 按最长边上限解码, 避免大图 OOM
+private fun decodeScaled(context: Context, uri: android.net.Uri, maxEdge: Int): android.graphics.Bitmap? {
+    return try {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        context.contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, bounds)
+        }
+        var sample = 1
+        val longest = maxOf(bounds.outWidth, bounds.outHeight)
+        while (longest / sample > maxEdge) sample *= 2
+        val opts = BitmapFactory.Options().apply { inSampleSize = sample }
+        context.contentResolver.openInputStream(uri)?.use {
+            BitmapFactory.decodeStream(it, null, opts)
+        }
+    } catch (e: Exception) {
+        null
+    }
+}
+
+// 读模块数据目录里的背景信息(存在则显示文件名+分辨率)
+private fun readBgInfo(context: Context): String? {
+    return try {
+        val f = File(context.filesDir.parentFile, "dock_bg.png")
+        if (!f.exists()) return null
+        val bmp = BitmapFactory.decodeFile(f.absolutePath)
+        if (bmp == null) "dock_bg.png (无法解析)"
+        else "dock_bg.png · ${bmp.width}x${bmp.height}"
+    } catch (e: Exception) {
+        "dock_bg.png (不可用)"
     }
 }
 
@@ -575,6 +946,7 @@ private fun ActionButton(
 @Composable
 private fun DockGrid(
     viewModel: MainViewModel,
+    modifier: Modifier = Modifier,
     onSlotClick: (Int) -> Unit,
     onAddClick: () -> Unit
 ) {
@@ -586,14 +958,14 @@ private fun DockGrid(
     var gridCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .onGloballyPositioned { gridCoords = it }) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxSize()
         ) {
             itemsIndexed(
                 viewModel.selectedApps,
