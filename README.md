@@ -2,6 +2,8 @@
 
 Pico 4 系统 Dock(快捷栏)定制 LSPosed 模块。基于 [chaixshot/PicoDockShortcut](https://github.com/chaixshot/PicoDockShortcut),面向中文固件定制。
 
+> 🌍 **English** · **Русский** · **简体中文**
+
 ## 功能
 
 - **自定义 Dock 应用列表**:拦截 `com.pvr.shortcut` 的 `dock_fix_apps.json`,用 GUI 配置你想固定的应用。
@@ -50,3 +52,113 @@ adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.sho
 ## 许可证
 
 MIT(继承原仓库)。
+
+---
+
+# English
+
+LSPosed module that customizes the Pico 4 system Dock (quick bar). Based on [chaixshot/PicoDockShortcut](https://github.com/chaixshot/PicoDockShortcut), customized for the Chinese firmware.
+
+## Features
+
+- **Custom Dock app list**: intercepts `com.pvr.shortcut`'s `dock_fix_apps.json` and lets you pin your own apps via the GUI.
+- **Custom icons**: intercepts `Image/custom_icon_<pkg>.png` and replaces icons with the app's real icon.
+- **Fit Center control**: Fit Center is a hard-coded Dock entry that the original JSON cannot remove; this version turns it into a toggle in the GUI.
+- **Custom Dock background image**: pick an image in the GUI (with a fixed-ratio crop box); the onboarding guide bar uses the same image.
+
+## Custom Dock background
+
+The Dock bar is a fixed solid color (`#FF1F1F1F`) in the system. This module lets you replace it with any image.
+
+**Usage**: open the manager GUI → "Dock background" at the bottom → pick an image → drag/zoom to crop the area you want → confirm → summon the Dock to apply.
+
+**Implementation notes**:
+
+- Hooks `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)` and swaps the background once the root view is available.
+- Target view: the first `LinearLayout` child of `dock_container` (`0x7f09009c`) whose `id != 0x7f09005b` = the visible Dock bar; the Guide (onboarding) = `0x7f09005b`. Both share the same Bitmap and keep their own corner radii.
+  - **Never set the background on `dock_container` itself** — it is a transparent container; doing so fills the transparent gap between the Dock bar and the Guide.
+- Custom `RoundedBgDrawable : Drawable` builds the `BitmapShader` (Matrix center-crop, no distortion) + `Path.addRoundRect` corners in `onBoundsChange()` using the real bounds.
+  - At inflate time the view is not measured yet (`width/height == 0`), so you cannot pre-render the Bitmap in the hook; you must wait for the bounds callback.
+  - Corner radius is read from the original `GradientDrawable` (measured 38px), falling back to 38f.
+- The user image is stored at `/data/user/0/com.hamer.dockshortcut/dock_bg.png`; the directory must be 755 and the file 644, otherwise `com.pvr.shortcut` (running as system, uid 1000) cannot read it.
+
+**About the crop ratio**: the Dock height is fixed (`main_view_height = 120dp`), the width is `wrap_content` and grows with the app count (left area ≈176dp + right area ≈138dp + 84dp per app), and it temporarily widens when "recent/running apps" appear. So the crop uses the system hard cap `dock_max_width 1800dp / 120dp = 15:1`, guaranteeing the right side never runs out of artwork when you add icons or open apps. The background is drawn **left-aligned**: the wider the Dock, the more of the image shows on the right.
+
+## Build & deploy (short)
+
+```bash
+# Have the Android SDK locally with local.properties pointing at it, then:
+./gradlew assembleDebug
+# Output: app/build/outputs/apk/debug/app-debug.apk
+# On device (Zygisk-Vector):
+adb install -r app-debug.apk
+adb shell su -c '/data/adb/lspd/cli modules enable com.hamer.dockshortcut'
+adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.shortcut/0'
+```
+
+> Enabling the module/scope must be done via `vector-cli`, never by editing `modules_config.db` directly.
+
+## Technical notes (reverse-engineering)
+
+- **Fit Center entry**: `com.pvr.shortcut.dock.datamanager.FixAppDataManager.addRemoveFitCenterApp`, triggered when `DockUtils.isUserCenterNoFit()==true` (ToB or Chinese Phoenix firmware).
+- **Actual apps**: `com.picovr.tobvrusercenter.MainActivity` / `com.picovr.vrusercenter.MainActivity`.
+- **Dock panel**: `com.pvr.shortcut` is a VR floating panel (type 3002) controlled by `com.picovr.systemext`; it cannot be summoned with a plain `am start`.
+
+## License
+
+MIT (inherited from the upstream repo).
+
+---
+
+# Русский
+
+LSPosed-модуль для настройки системного Dock (панели быстрого доступа) Pico 4. Основан на [chaixshot/PicoDockShortcut](https://github.com/chaixshot/PicoDockShortcut), адаптирован для китайской прошивки.
+
+## Возможности
+
+- **Свой список приложений в Dock**: перехватывает `dock_fix_apps.json` у `com.pvr.shortcut` и позволяет закрепить свои приложения через GUI.
+- **Свои значки**: перехватывает `Image/custom_icon_<pkg>.png` и заменяет значки на настоящие значки приложений.
+- **Управление Fit Center**: Fit Center — жёстко зашитый пункт Dock, который нельзя удалить через оригинальный JSON; эта версия превращает его в переключатель в GUI.
+- **Свой фон Dock**: выберите изображение в GUI (с фиксированным соотношением сторон для кадрирования); панель подсказок (Guide) использует то же изображение.
+
+## Свой фон Dock
+
+Полоса Dock в системе имеет фиксированный сплошной цвет (`#FF1F1F1F`). Этот модуль позволяет заменить его на любое изображение.
+
+**Использование**: откройте GUI менеджера → «Dock background» внизу → выберите изображение → перетаскивайте/масштабируйте, чтобы выбрать нужную область → подтвердите → вызовите Dock для применения.
+
+**Технические детали**:
+
+- Хук `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)`; фон меняется после получения корневого view.
+- Целевой view: первый дочерний `LinearLayout` у `dock_container` (`0x7f09009c`) с `id != 0x7f09005b` = видимая полоса Dock; Guide (подсказки) = `0x7f09005b`. Оба используют один Bitmap и сохраняют свои радиусы скругления.
+  - **Нельзя менять фон самого `dock_container`** — это прозрачный контейнер; иначе заполнится прозрачный зазор между полосой Dock и Guide.
+- Кастомный `RoundedBgDrawable : Drawable` строит `BitmapShader` (Matrix center-crop, без искажений) + `Path.addRoundRect` в `onBoundsChange()` по реальным границам.
+  - На этапе inflate view ещё не измерен (`width/height == 0`), поэтому нельзя отрисовать Bitmap прямо в хуке — нужно ждать колбэк границ.
+  - Радиус скругления берётся из исходного `GradientDrawable` (измерено 38px), по умолчанию 38f.
+- Изображение хранится в `/data/user/0/com.hamer.dockshortcut/dock_bg.png`; каталог должен быть 755, файл 644, иначе `com.pvr.shortcut` (работает как system, uid 1000) не сможет его прочитать.
+
+**О соотношении сторон**: высота Dock фиксирована (`main_view_height = 120dp`), ширина — `wrap_content` и растёт с числом приложений (левая зона ≈176dp + правая ≈138dp + 84dp на приложение), а при появлении «недавних/запущенных приложений» временно становится ещё шире. Поэтому кадрирование идёт по аппаратному пределу `dock_max_width 1800dp / 120dp = 15:1`, чтобы при добавлении значков или открытии приложений справа никогда не заканчивалось изображение. Фон рисуется **слева**: чем шире Dock, тем больше изображения видно справа.
+
+## Сборка и установка (кратко)
+
+```bash
+# Нужен Android SDK, local.properties должен указывать на него:
+./gradlew assembleDebug
+# Результат: app/build/outputs/apk/debug/app-debug.apk
+# На устройстве (Zygisk-Vector):
+adb install -r app-debug.apk
+adb shell su -c '/data/adb/lspd/cli modules enable com.hamer.dockshortcut'
+adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.shortcut/0'
+```
+
+> Включать модуль и скоуп нужно только через `vector-cli`, не редактируя напрямую `modules_config.db`.
+
+## Технические заметки (реверс-инжиниринг)
+
+- **Точка входа Fit Center**: `com.pvr.shortcut.dock.datamanager.FixAppDataManager.addRemoveFitCenterApp`, срабатывает при `DockUtils.isUserCenterNoFit()==true` (ToB или китайская прошивка Phoenix).
+- **Фактические приложения**: `com.picovr.tobvrusercenter.MainActivity` / `com.picovr.vrusercenter.MainActivity`.
+- **Панель Dock**: `com.pvr.shortcut` — VR-плавающая панель (type 3002), управляется `com.picovr.systemext`; её нельзя вызвать обычным `am start`.
+
+## Лицензия
+
+MIT (унаследована от исходного репозитория).
