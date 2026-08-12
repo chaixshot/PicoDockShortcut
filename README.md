@@ -15,6 +15,8 @@ Pico 4 系统 Dock(快捷栏)定制 LSPosed 模块。基于 [chaixshot/PicoDockS
 
 Dock 条本身在系统里是固定的纯色 `#FF1F1F1F`,本模块让你换成任意图片。
 
+![Dock 背景图演示](screenshots/dock_background_demo.jpeg)
+
 **用法**:打开管理器 GUI → 底部"Dock 背景" → 选择背景图片 → 在裁剪框里拖动/缩放框选想要的区域 → 确认 → 呼出 Dock 生效。
 
 **实现要点**:
@@ -70,6 +72,8 @@ LSPosed module that customizes the Pico 4 system Dock (quick bar). Based on [cha
 
 The Dock bar is a fixed solid color (`#FF1F1F1F`) in the system. This module lets you replace it with any image.
 
+![Dock background demo](screenshots/dock_background_demo.jpeg)
+
 **Usage**: open the manager GUI → "Dock background" at the bottom → pick an image → drag/zoom to crop the area you want → confirm → summon the Dock to apply.
 
 **Implementation notes**:
@@ -124,6 +128,8 @@ LSPosed-модуль для настройки системного Dock (пан
 ## Свой фон Dock
 
 Полоса Dock в системе имеет фиксированный сплошной цвет (`#FF1F1F1F`). Этот модуль позволяет заменить его на любое изображение.
+
+![Демонстрация фона Dock](screenshots/dock_background_demo.jpeg)
 
 **Использование**: откройте GUI менеджера → «Dock background» внизу → выберите изображение → перетаскивайте/масштабируйте, чтобы выбрать нужную область → подтвердите → вызовите Dock для применения.
 
