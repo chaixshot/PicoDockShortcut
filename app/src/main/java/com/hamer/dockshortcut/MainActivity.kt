@@ -686,7 +686,7 @@ private fun DockGrid(
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(
@@ -699,7 +699,6 @@ private fun DockGrid(
                 Box(
                     modifier = Modifier
                         .animateItem()
-                        .padding(top = if (index >= 6) 24.dp else 0.dp)
                         .onGloballyPositioned {
                             itemCoords = it
                             if (slotSize == Offset.Zero) slotSize =
@@ -752,7 +751,7 @@ private fun DockGrid(
             if (viewModel.selectedApps.size < 11) {
                 val addIndex = viewModel.selectedApps.size
                 item {
-                    Box(modifier = Modifier.padding(top = if (addIndex >= 6) 24.dp else 0.dp)) {
+                    Box() {
                         AddSlot(onClick = onAddClick)
                     }
                 }
@@ -768,7 +767,7 @@ private fun DockGrid(
                         className = "com.pvr.appmanager.AllAppActivity"
                     )
                 }
-                Box(modifier = Modifier.padding(top = if (fixedIndex >= 6) 24.dp else 0.dp)) {
+                Box() {
                     FixedSlot(appMgr)
                 }
             }
