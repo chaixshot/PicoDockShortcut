@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">ドックショートカット</string>
+    <string name="exit_toast">もう一度押すと終了します</string>
+    <string name="header_title">ドックショートカットマネージャー</string>
+    <string name="header_desc">Pico 4ドックの固定ショートカットを管理します</string>
+    <string name="header_instruction_reorder">- 長押ししてドラッグで並べ替え</string>
+    <string name="header_instruction_change">- アプリをタップして変更</string>
+    <string name="action_restore">復元</string>
+    <string name="action_reload">リロード</string>
+    <string name="action_apply">適用</string>
+    <string name="action_wait">待機中...</string>
+    <string name="error_no_app_mgr">アプリマネージャーがありません</string>
+    <string name="search_placeholder">アプリを検索...</string>
+    <string name="toast_applied_active">適用済み &amp; サービス有効</string>
+    <string name="toast_applied_slow">適用済み（サービスの起動が遅れています）</string>
+    <string name="toast_applied_timeout">適用済み（プロセス確認タイムアウト）</string>
+    <string name="toast_applied_fallback">適用済み（フォールバック起動）</string>
+    <string name="toast_applied_target_active">適用済み &amp; ターゲット有効</string>
+    <string name="toast_applied_target_timeout">適用済み（ターゲット確認タイムアウト）</string>
+    <string name="dialog_root_title">ルート権限が必要です</string>
+    <string name="dialog_root_text">変更を適用するにはルート権限（su）が必要です。許可を与えてください。</string>
+    <string name="dialog_retry">再試行</string>
+    <string name="dialog_exit">終了</string>
+    <string name="dialog_warning_title">システム警告</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosedモジュールがアクティブではありません。</string>
+    <string name="dialog_warning_lsposed_enable">• LSPosedマネージャーで有効にしてください。</string>
+    <string name="dialog_warning_target_not_hooked">ターゲットアプリ（com.pvr.shortcut）がフックされていません。</string>
+    <string name="dialog_warning_scope_select">• スコープでDock（com.pvr.shortcut）を選択してください。</string>
+    <string name="dialog_warning_reboot">• 動作しない場合はデバイスを再起動してみてください。</string>
+    <string name="dialog_restart_retry">再起動して再試行</string>
+    <string name="debug_app_label">デバッグアプリ</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">アプリマネージャー</string>
+</resources>

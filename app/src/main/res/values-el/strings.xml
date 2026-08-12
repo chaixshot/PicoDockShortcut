@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Συντόμευση Dock</string>
+    <string name="exit_toast">Πιέστε άλλη μια φορά για Έξοδο</string>
+    <string name="header_title">Διαχειριστής Συντομεύσεων Dock</string>
+    <string name="header_desc">Διαχειριστείτε τις καρφιτσωμένες συντομεύσεις στο dock του Pico 4</string>
+    <string name="header_instruction_reorder">- Κρατήστε και σύρετε για αναδιάταξη</string>
+    <string name="header_instruction_change">- Πατήστε σε μια εφαρμογή για αλλαγή</string>
+    <string name="action_restore">Επαναφορά</string>
+    <string name="action_reload">Επαναφόρτωση</string>
+    <string name="action_apply">Εφαρμογή</string>
+    <string name="action_wait">Περιμένετε...</string>
+    <string name="error_no_app_mgr">Χωρίς Διαχειριστή Εφαρμογών</string>
+    <string name="search_placeholder">Αναζήτηση εφαρμογών...</string>
+    <string name="toast_applied_active">Εφαρμόστηκε &amp; Ενεργή Υπηρεσία</string>
+    <string name="toast_applied_slow">Εφαρμόστηκε (Η υπηρεσία αργεί να ξεκινήσει)</string>
+    <string name="toast_applied_timeout">Εφαρμόστηκε (Λήξη χρόνου ελέγχου διεργασίας)</string>
+    <string name="toast_applied_fallback">Εφαρμόστηκε (Εναλλακτική εκκίνηση)</string>
+    <string name="toast_applied_target_active">Εφαρμόστηκε &amp; Ενεργός Στόχος</string>
+    <string name="toast_applied_target_timeout">Εφαρμόστηκε (Λήξη χρόνου ελέγχου στόχου)</string>
+    <string name="dialog_root_title">Απαιτείται Πρόσβαση Root</string>
+    <string name="dialog_root_text">Αυτή η εφαρμογή απαιτεί πρόσβαση Root (su) για την εφαρμογή αλλαγών. Παρακαλώ δώστε δικαιώματα.</string>
+    <string name="dialog_retry">Δοκιμάστε ξανά</string>
+    <string name="dialog_exit">Έξοδος</string>
+    <string name="dialog_warning_title">Προειδοποίηση Συστήματος</string>
+    <string name="dialog_warning_lsposed_inactive">Η μονάδα LSPosed δεν είναι ενεργή.</string>
+    <string name="dialog_warning_lsposed_enable">• Παρακαλώ ενεργοποιήστε την στο LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Η εφαρμογή στόχος (com.pvr.shortcut) δεν έχει αγκιστρωθεί.</string>
+    <string name="dialog_warning_scope_select">• Επιλέξτε Dock (com.pvr.shortcut) στο εύρος.</string>
+    <string name="dialog_warning_reboot">• Δοκιμάστε να επανεκκινήσετε τη συσκευή αν δεν λειτουργεί.</string>
+    <string name="dialog_restart_retry">Επανεκκίνηση &amp; Δοκιμή ξανά</string>
+    <string name="debug_app_label">Εφαρμογή Εντοπισμού Σφαλμάτων</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Διαχείριση εφαρμογών</string>
+</resources>

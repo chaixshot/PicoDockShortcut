@@ -45,6 +45,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -204,7 +205,7 @@ class MainViewModel : ViewModel() {
                         )
                     )
                 } else if (pkg == "com.hamer.debug") {
-                    tempApps.add(AppInfo(pkg, null, "Debug App", null))
+                    tempApps.add(AppInfo(pkg, null, context.getString(R.string.debug_app_label), null))
                 }
                 if (tempApps.size >= 11) break
             }
@@ -213,7 +214,7 @@ class MainViewModel : ViewModel() {
                 AppInfo(
                     "com.hamer.debug",
                     null,
-                    "Debug App",
+                    context.getString(R.string.debug_app_label),
                     null
                 )
             )
@@ -418,9 +419,9 @@ class MainViewModel : ViewModel() {
 
             withContext(Dispatchers.Main) {
                 val msg = when {
-                    serviceStarted -> "Applied & Service Active"
-                    processStarted -> "Applied (Service slow to start)"
-                    else -> "Applied (Process check timeout)"
+                    serviceStarted -> context.getString(R.string.toast_applied_active)
+                    processStarted -> context.getString(R.string.toast_applied_slow)
+                    else -> context.getString(R.string.toast_applied_timeout)
                 }
                 Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
             }
@@ -431,7 +432,7 @@ class MainViewModel : ViewModel() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 withContext(Dispatchers.Main) {
                     context.startActivity(intent)
-                    Toast.makeText(context, "Applied (Launch fallback)", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, context.getString(R.string.toast_applied_fallback), Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -454,7 +455,7 @@ class MainActivity : ComponentActivity() {
                     lastBackTime = System.currentTimeMillis()
                     Toast.makeText(
                         this@MainActivity,
-                        "Press once again to Exit",
+                        getString(R.string.exit_toast),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -573,23 +574,23 @@ private fun Header(viewModel: MainViewModel, context: Context) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    "Dock Shortcut Manager",
+                    stringResource(R.string.header_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.LightGray
                 )
                 Text(
-                    "Manage your Pico 4 dock pinned shortcuts",
+                    stringResource(R.string.header_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
                 Text(
-                    "- Hold and drag to reorder",
+                    stringResource(R.string.header_instruction_reorder),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
                 Text(
-                    "- Tap app to change it",
+                    stringResource(R.string.header_instruction_change),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
@@ -598,7 +599,7 @@ private fun Header(viewModel: MainViewModel, context: Context) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             ActionButton(
-                "Restore",
+                stringResource(R.string.action_restore),
                 Icons.Default.SettingsBackupRestore,
                 MaterialTheme.colorScheme.secondaryContainer,
                 viewModel.isApplying
@@ -606,7 +607,7 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 viewModel.restoreDefault(context)
             }
             ActionButton(
-                "Reload",
+                stringResource(R.string.action_reload),
                 Icons.Default.Refresh,
                 MaterialTheme.colorScheme.tertiaryContainer,
                 viewModel.isApplying
@@ -614,7 +615,7 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 viewModel.reload(context)
             }
             ActionButton(
-                "Apply",
+                stringResource(R.string.action_apply),
                 Icons.Default.Check,
                 MaterialTheme.colorScheme.primary,
                 viewModel.isApplying || !viewModel.isModified,
@@ -657,7 +658,7 @@ private fun ActionButton(
                 strokeWidth = 2.dp
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Wait...", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.action_wait), style = MaterialTheme.typography.labelLarge)
         } else {
             Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
@@ -761,9 +762,10 @@ private fun DockGrid(
                 viewModel.selectedApps.size + (if (viewModel.selectedApps.size < 11) 1 else 0)
             item {
                 val context = LocalContext.current
-                val appMgr = remember {
+                val appMgrLabel = stringResource(R.string.app_manager_label)
+                val appMgr = remember(appMgrLabel) {
                     AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
-                        label = "App Manager",
+                        label = appMgrLabel,
                         className = "com.pvr.appmanager.AllAppActivity"
                     )
                 }
@@ -921,7 +923,7 @@ fun FixedSlot(app: AppInfo?) {
                     tint = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    "No App Mgr",
+                    stringResource(R.string.error_no_app_mgr),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -999,7 +1001,7 @@ fun AppPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search apps...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -1071,36 +1073,36 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
     if (!viewModel.hasRoot) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("Root Access Required", color = MaterialTheme.colorScheme.error) },
-            text = { Text("This app requires Root Access (su) to apply changes. Please grant permissions.") },
+            title = { Text(stringResource(R.string.dialog_root_title), color = MaterialTheme.colorScheme.error) },
+            text = { Text(stringResource(R.string.dialog_root_text)) },
             confirmButton = {
-                TextButton(onClick = { viewModel.checkStatus() }) { Text("Retry") }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
+                TextButton(onClick = { viewModel.checkStatus() }) { Text(stringResource(R.string.dialog_retry)) }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
     } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("System Warning", color = MaterialTheme.colorScheme.error) },
+            title = { Text(stringResource(R.string.dialog_warning_title), color = MaterialTheme.colorScheme.error) },
             text = {
                 Column {
                     if (!viewModel.isModuleActive) {
-                        Text("LSPosed module is not active.")
+                        Text(stringResource(R.string.dialog_warning_lsposed_inactive))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "• Please enable it in LSPosed Manager.",
+                            stringResource(R.string.dialog_warning_lsposed_enable),
                             style = MaterialTheme.typography.bodySmall
                         )
                     } else if (!viewModel.isTargetHooked) {
-                        Text("Target App (com.pvr.shortcut) not hooked.")
+                        Text(stringResource(R.string.dialog_warning_target_not_hooked))
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "• Select Dock (com.pvr.shortcut) in scope.",
+                            stringResource(R.string.dialog_warning_scope_select),
                             style = MaterialTheme.typography.bodySmall
                         )
                         Text(
-                            "• Try to reboot the device if not working.",
+                            stringResource(R.string.dialog_warning_reboot),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -1115,9 +1117,9 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                         modifier = Modifier.size(18.dp),
                         strokeWidth = 2.dp
                     )
-                    else Text("Restart & Retry")
+                    else Text(stringResource(R.string.dialog_restart_retry))
                 }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )

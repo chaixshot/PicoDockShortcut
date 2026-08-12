@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">ทางลัดด็อก</string>
+    <string name="exit_toast">กดอีกครั้งเพื่อออก</string>
+    <string name="header_title">ตัวจัดการทางลัดด็อก</string>
+    <string name="header_desc">จัดการทางลัดที่ปักหมุดไว้ในด็อก Pico 4 ของคุณ</string>
+    <string name="header_instruction_reorder">- กดค้างแล้วลากเพื่อจัดลำดับใหม่</string>
+    <string name="header_instruction_change">- แตะที่แอปเพื่อเปลี่ยน</string>
+    <string name="action_restore">คืนค่า</string>
+    <string name="action_reload">โหลดใหม่</string>
+    <string name="action_apply">นำไปใช้</string>
+    <string name="action_wait">กรุณารอสักครู่...</string>
+    <string name="error_no_app_mgr">ไม่มีตัวจัดการแอป</string>
+    <string name="search_placeholder">ค้นหาแอป...</string>
+    <string name="toast_applied_active">นำไปใช้แล้ว &amp; บริการทำงานอยู่</string>
+    <string name="toast_applied_slow">นำไปใช้แล้ว (บริการเริ่มทำงานช้า)</string>
+    <string name="toast_applied_timeout">นำไปใช้แล้ว (หมดเวลาตรวจสอบกระบวนการ)</string>
+    <string name="toast_applied_fallback">นำไปใช้แล้ว (การเปิดใช้งานสำรอง)</string>
+    <string name="toast_applied_target_active">นำไปใช้แล้ว &amp; เป้าหมายทำงานอยู่</string>
+    <string name="toast_applied_target_timeout">นำไปใช้แล้ว (หมดเวลาตรวจสอบเป้าหมาย)</string>
+    <string name="dialog_root_title">ต้องมีการเข้าถึง Root</string>
+    <string name="dialog_root_text">แอปนี้ต้องการการเข้าถึง Root (su) เพื่อนำการเปลี่ยนแปลงไปใช้ โปรดอนุญาตสิทธิ์</string>
+    <string name="dialog_retry">ลองใหม่</string>
+    <string name="dialog_exit">ออก</string>
+    <string name="dialog_warning_title">คำเตือนระบบ</string>
+    <string name="dialog_warning_lsposed_inactive">โมดูล LSPosed ไม่ได้ทำงาน</string>
+    <string name="dialog_warning_lsposed_enable">• โปรดเปิดใช้งานในตัวจัดการ LSPosed</string>
+    <string name="dialog_warning_target_not_hooked">แอปเป้าหมาย (com.pvr.shortcut) ไม่ได้ถูก hook</string>
+    <string name="dialog_warning_scope_select">• เลือก Dock (com.pvr.shortcut) ในขอบเขต</string>
+    <string name="dialog_warning_reboot">• ลองรีบูตอุปกรณ์หากยังใช้งานไม่ได้</string>
+    <string name="dialog_restart_retry">รีสตาร์ทและลองใหม่</string>
+    <string name="debug_app_label">แอปดีบัก</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">ตัวจัดการแอป</string>
+</resources>

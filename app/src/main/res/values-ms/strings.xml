@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Pintasan Dok</string>
+    <string name="exit_toast">Tekan sekali lagi untuk Keluar</string>
+    <string name="header_title">Pengurus Pintasan Dok</string>
+    <string name="header_desc">Urus pintasan dok Pico 4 anda</string>
+    <string name="header_instruction_reorder">- Tahan dan seret untuk susun semula</string>
+    <string name="header_instruction_change">- Ketik apl untuk mengubahnya</string>
+    <string name="action_restore">Pulihkan</string>
+    <string name="action_reload">Muat semula</string>
+    <string name="action_apply">Gunakan</string>
+    <string name="action_wait">Tunggu...</string>
+    <string name="error_no_app_mgr">Tiada Pengurus Apl</string>
+    <string name="search_placeholder">Cari apl...</string>
+    <string name="toast_applied_active">Digunakan &amp; Perkhidmatan Aktif</string>
+    <string name="toast_applied_slow">Digunakan (Perkhidmatan lambat bermula)</string>
+    <string name="toast_applied_timeout">Digunakan (Masa tamat semakan proses)</string>
+    <string name="toast_applied_fallback">Digunakan (Pelancaran sandaran)</string>
+    <string name="toast_applied_target_active">Digunakan &amp; Sasaran Aktif</string>
+    <string name="toast_applied_target_timeout">Digunakan (Masa tamat semakan sasaran)</string>
+    <string name="dialog_root_title">Akses Root Diperlukan</string>
+    <string name="dialog_root_text">Apl ini memerlukan Akses Root (su) untuk menggunakan perubahan. Sila berikan kebenaran.</string>
+    <string name="dialog_retry">Cuba lagi</string>
+    <string name="dialog_exit">Keluar</string>
+    <string name="dialog_warning_title">Amaran Sistem</string>
+    <string name="dialog_warning_lsposed_inactive">Modul LSPosed tidak aktif.</string>
+    <string name="dialog_warning_lsposed_enable">• Sila aktifkan dalam Pengurus LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">Apl Sasaran (com.pvr.shortcut) tidak dihubungkan.</string>
+    <string name="dialog_warning_scope_select">• Pilih Dok (com.pvr.shortcut) dalam skop.</string>
+    <string name="dialog_warning_reboot">• Cuba but semula peranti jika tidak berfungsi.</string>
+    <string name="dialog_restart_retry">Mula semula &amp; Cuba lagi</string>
+    <string name="debug_app_label">Apl Debug</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Pengurus Apl</string>
+</resources>

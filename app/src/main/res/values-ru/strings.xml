@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Ярлык дока</string>
+    <string name="exit_toast">Нажмите еще раз для выхода</string>
+    <string name="header_title">Менеджер ярлыков дока</string>
+    <string name="header_desc">Управление закрепленными ярлыками в доке Pico 4</string>
+    <string name="header_instruction_reorder">- Удерживайте и перетаскивайте для изменения порядка</string>
+    <string name="header_instruction_change">- Нажмите на приложение, чтобы изменить его</string>
+    <string name="action_restore">Восстановить</string>
+    <string name="action_reload">Перезагрузить</string>
+    <string name="action_apply">Применить</string>
+    <string name="action_wait">Подождите...</string>
+    <string name="error_no_app_mgr">Нет менеджера приложений</string>
+    <string name="search_placeholder">Поиск приложений...</string>
+    <string name="toast_applied_active">Применено, сервис активен</string>
+    <string name="toast_applied_slow">Применено (сервис запускается медленно)</string>
+    <string name="toast_applied_timeout">Применено (тайм-аут проверки процесса)</string>
+    <string name="toast_applied_fallback">Применено (резервный запуск)</string>
+    <string name="toast_applied_target_active">Применено, цель активна</string>
+    <string name="toast_applied_target_timeout">Применено (тайм-аут проверки цели)</string>
+    <string name="dialog_root_title">Требуется Root-доступ</string>
+    <string name="dialog_root_text">Для применения изменений приложению требуется Root-доступ (su). Пожалуйста, предоставьте разрешения.</string>
+    <string name="dialog_retry">Повторить</string>
+    <string name="dialog_exit">Выход</string>
+    <string name="dialog_warning_title">Системное предупреждение</string>
+    <string name="dialog_warning_lsposed_inactive">Модуль LSPosed не активен.</string>
+    <string name="dialog_warning_lsposed_enable">• Пожалуйста, включите его в LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Целевое приложение (com.pvr.shortcut) не перехвачено.</string>
+    <string name="dialog_warning_scope_select">• Выберите Dock (com.pvr.shortcut) в области видимости.</string>
+    <string name="dialog_warning_reboot">• Попробуйте перезагрузить устройство, если не работает.</string>
+    <string name="dialog_restart_retry">Перезапуск и повтор</string>
+    <string name="debug_app_label">Отладочное приложение</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Диспетчер приложений</string>
+</resources>

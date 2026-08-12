@@ -29,7 +29,6 @@ data class AppInfo(
 // but persistence uses the fitCenter flag to drive a special hook rule.
 const val FIT_CENTER_PACKAGE = "com.pvr.fitcenter"
 const val FIT_CENTER_CLASS = "com.pvr.shortcut.utils.AppList${'$'}FitCenter"
-const val FIT_CENTER_LABEL = "运动中心"
 
 fun isFitCenter(app: AppInfo): Boolean = app.fitCenter || app.packageName == FIT_CENTER_PACKAGE
 
@@ -65,7 +64,7 @@ object AppManager {
                 val appInfo = pm.getApplicationInfo(packageName, 0)
                 pm.getApplicationLabel(appInfo).toString()
             } catch (e: Exception) {
-                FIT_CENTER_LABEL
+                context.getString(R.string.fit_center_default_label)
             }
             return AppInfo(
                 packageName = FIT_CENTER_PACKAGE,

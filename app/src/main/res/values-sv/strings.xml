@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Genväg till Dock</string>
+    <string name="exit_toast">Tryck en gång till för att avsluta</string>
+    <string name="header_title">Dock-genvägshanterare</string>
+    <string name="header_desc">Hantera dina fästa genvägar i Pico 4-dockan</string>
+    <string name="header_instruction_reorder">- Håll och dra för att ändra ordning</string>
+    <string name="header_instruction_change">- Tryck på en app för att ändra den</string>
+    <string name="action_restore">Återställ</string>
+    <string name="action_reload">Ladda om</string>
+    <string name="action_apply">Verkställ</string>
+    <string name="action_wait">Vänta...</string>
+    <string name="error_no_app_mgr">Ingen App Mgr</string>
+    <string name="search_placeholder">Sök appar...</string>
+    <string name="toast_applied_active">Verkställt &amp; tjänst aktiv</string>
+    <string name="toast_applied_slow">Verkställt (tjänsten startar långsamt)</string>
+    <string name="toast_applied_timeout">Verkställt (timeout vid processkontroll)</string>
+    <string name="toast_applied_fallback">Verkställt (reservstart)</string>
+    <string name="toast_applied_target_active">Verkställt &amp; mål aktivt</string>
+    <string name="toast_applied_target_timeout">Verkställt (timeout vid målkontroll)</string>
+    <string name="dialog_root_title">Root-åtkomst krävs</string>
+    <string name="dialog_root_text">Denna app kräver Root-åtkomst (su) för att verkställa ändringar. Vänligen ge tillstånd.</string>
+    <string name="dialog_retry">Försök igen</string>
+    <string name="dialog_exit">Avsluta</string>
+    <string name="dialog_warning_title">Systemvarning</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-modulen är inte aktiv.</string>
+    <string name="dialog_warning_lsposed_enable">• Aktivera den i LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Målappen (com.pvr.shortcut) är inte krokad.</string>
+    <string name="dialog_warning_scope_select">• Välj Dock (com.pvr.shortcut) i omfattningen.</string>
+    <string name="dialog_warning_reboot">• Försök att starta om enheten om det inte fungerar.</string>
+    <string name="dialog_restart_retry">Starta om &amp; försök igen</string>
+    <string name="debug_app_label">Debug-app</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-hanterare</string>
+</resources>

@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Dock-Verknüpfung</string>
+    <string name="exit_toast">Zum Beenden noch einmal drücken</string>
+    <string name="header_title">Dock-Verknüpfungs-Manager</string>
+    <string name="header_desc">Verwalte deine angehefteten Verknüpfungen im Pico 4-Dock</string>
+    <string name="header_instruction_reorder">- Halten und ziehen, um die Reihenfolge zu ändern</string>
+    <string name="header_instruction_change">- Tippe auf eine App, um sie zu ändern</string>
+    <string name="action_restore">Wiederherstellen</string>
+    <string name="action_reload">Neu laden</string>
+    <string name="action_apply">Anwenden</string>
+    <string name="action_wait">Warten...</string>
+    <string name="error_no_app_mgr">Kein App-Mgr</string>
+    <string name="search_placeholder">Apps suchen...</string>
+    <string name="toast_applied_active">Angewendet &amp; Dienst aktiv</string>
+    <string name="toast_applied_slow">Angewendet (Dienst startet langsam)</string>
+    <string name="toast_applied_timeout">Angewendet (Zeitüberschreitung bei Prozessprüfung)</string>
+    <string name="toast_applied_fallback">Angewendet (Fallback-Start)</string>
+    <string name="toast_applied_target_active">Angewendet &amp; Ziel aktiv</string>
+    <string name="toast_applied_target_timeout">Angewendet (Zeitüberschreitung bei Zielprüfung)</string>
+    <string name="dialog_root_title">Root-Zugriff erforderlich</string>
+    <string name="dialog_root_text">Diese App benötigt Root-Zugriff (su), um Änderungen anzuwenden. Bitte gewähre die Berechtigungen.</string>
+    <string name="dialog_retry">Wiederholen</string>
+    <string name="dialog_exit">Beenden</string>
+    <string name="dialog_warning_title">Systemwarnung</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-Modul ist nicht aktiv.</string>
+    <string name="dialog_warning_lsposed_enable">• Bitte aktiviere es im LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Ziel-App (com.pvr.shortcut) nicht gehookt.</string>
+    <string name="dialog_warning_scope_select">• Wähle Dock (com.pvr.shortcut) im Umfang aus.</string>
+    <string name="dialog_warning_reboot">• Versuche das Gerät neu zu starten, wenn es nicht funktioniert.</string>
+    <string name="dialog_restart_retry">Neustart &amp; Wiederholen</string>
+    <string name="debug_app_label">Debug-App</string>
+    <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-Manager</string>
+</resources>
