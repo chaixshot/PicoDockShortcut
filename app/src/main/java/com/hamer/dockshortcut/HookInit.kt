@@ -71,6 +71,10 @@ class HookInit : IXposedHookLoadPackage {
                 "com.pvr.shortcut.dock.datamanager.FixAppDataManager",
                 lpparam.classLoader,
                 "addRemoveFitCenterApp",
+                // MUST pass the exact parameter types here, otherwise Vector resolves
+                // addRemoveFitCenterApp() (zero-arg) and fails with #exact mismatch.
+                java.util.List::class.java,
+                java.util.List::class.java,
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
                         if (!fitCenterEnabledInJson()) {
