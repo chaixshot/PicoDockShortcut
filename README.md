@@ -2,7 +2,7 @@
 
 Pico 4 系统 Dock(快捷栏)定制 LSPosed 模块。基于 [chaixshot/PicoDockShortcut](https://github.com/chaixshot/PicoDockShortcut),面向中文固件定制。
 
-> 🌍 **English** · **Русский** · **简体中文**
+🌍 [简体中文](#picodockshortcut_chinese) · [English](#english) · [Русский](#русский)
 
 ## 功能
 
