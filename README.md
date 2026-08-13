@@ -2,8 +2,7 @@
 <img src="Resource/icon.webp" width="128" height="128"/>
 
 # PicoDockShortcut
-### Manage your Pico 4 dock pinned shortcuts with ease.
-### Companion project for customizing your VR experience.
+### Manage your Pico 4 dock pinned shortcuts with ease.<br>Companion project for customizing your VR experience.
 </div>
 
 ## 👓 Screenshot
