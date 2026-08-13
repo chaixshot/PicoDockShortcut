@@ -110,13 +110,14 @@ class HookInit : IXposedHookLoadPackage {
                 }
 
                 // Intercept custom icons
-                if (fileName.startsWith("Image/custom_icon_") && fileName.endsWith(".png")) {
-                    val pkgName = fileName.substringAfter("Image/custom_icon_").substringBefore(".png")
-                    XposedBridge.log("PicoDockShortcut: Providing custom icon for $pkgName")
+                if (fileName.startsWith("Image/") && fileName.contains("custom_icon_") && fileName.endsWith(".png")) {
+                    val relativePath = fileName.substringAfter("Image/")
+                    val pkgName = relativePath.substringAfter("custom_icon_").substringBefore(".png")
+                    XposedBridge.log("PicoDockShortcut: Providing custom icon for $pkgName (path: $fileName)")
 
                     try {
                         // Try loading from cache first
-                        val cacheFile = File(imagePath, "custom_icon_$pkgName.png")
+                        val cacheFile = File(imagePath, relativePath)
                         if (cacheFile.exists() && cacheFile.canRead()) {
                             XposedBridge.log("PicoDockShortcut: Loading icon from cache for $pkgName")
                             param.result = ByteArrayInputStream(cacheFile.readBytes())

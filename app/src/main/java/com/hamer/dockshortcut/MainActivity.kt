@@ -4,14 +4,19 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -201,7 +206,8 @@ class MainViewModel : ViewModel() {
                         appInfo.copy(
                             actionName = if (obj.has("actionName")) obj.getString("actionName") else null,
                             className = if (obj.has("className")) obj.getString("className") else appInfo.className,
-                            fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE
+                            fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE,
+                            iconUrl = if (obj.has("iconUrl")) obj.getString("iconUrl") else null
                         )
                     )
                 } else if (pkg == "com.hamer.debug") {
@@ -271,6 +277,45 @@ class MainViewModel : ViewModel() {
         selectedApps.add(to, item)
     }
 
+    fun saveCustomIcon(context: Context, uri: Uri, packageName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                if (originalBitmap != null) {
+                    // Process ratio handler
+                    val drawable = BitmapDrawable(context.resources, originalBitmap)
+                    val processedBitmap = drawableToBitmap(drawable)
+
+                    val imageDir = File(context.filesDir.parentFile, "Image/Custom")
+                    if (!imageDir.exists()) {
+                        imageDir.mkdirs()
+                    }
+                    imageDir.setReadable(true, false)
+                    imageDir.setExecutable(true, false)
+
+                    val iconFile = File(imageDir, "custom_icon_$packageName.png")
+                    iconFile.outputStream().use {
+                        processedBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    iconFile.setReadable(true, false)
+
+                    withContext(Dispatchers.Main) {
+                        val index = selectedApps.indexOfFirst { it.packageName == packageName }
+                        if (index != -1) {
+                            val app = selectedApps[index]
+                            selectedApps[index] = app.copy(iconUrl = "Image/Custom/custom_icon_$packageName.png?t=${System.currentTimeMillis()}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     private fun saveToJson(context: Context) {
         val jsonArray = JSONArray().apply {
             selectedApps.forEach { app ->
@@ -283,7 +328,13 @@ class MainViewModel : ViewModel() {
                         put("packageName", app.packageName)
                         app.className?.let { put("className", it) }
                         app.actionName?.let { put("actionName", it) }
-                        put("iconUrl", "Image/custom_icon_${app.packageName}.png")
+                        
+                        val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+                        if (customFile.exists()) {
+                            put("iconUrl", "Image/Custom/custom_icon_${app.packageName}.png")
+                        } else {
+                            put("iconUrl", "Image/custom_icon_${app.packageName}.png")
+                        }
                     }
                 })
             }
@@ -482,6 +533,19 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
+    var pickingIconIndex by remember { mutableStateOf<Int?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            pickingIconIndex?.let { index ->
+                val app = viewModel.selectedApps[index]
+                viewModel.saveCustomIcon(context, it, app.packageName)
+            }
+        }
+        pickingIconIndex = null
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadApps(context)
@@ -513,6 +577,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     onAddClick = {
                         editingIndex = null
                         showPicker = true
+                    },
+                    onPickIcon = { index ->
+                        pickingIconIndex = index
+                        imagePickerLauncher.launch("image/*")
                     }
                 )
             }
@@ -670,7 +738,8 @@ private fun ActionButton(
 private fun DockGrid(
     viewModel: MainViewModel,
     onSlotClick: (Int) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onPickIcon: (Int) -> Unit
 ) {
     val density = LocalDensity.current
     var draggedIndex by remember { mutableStateOf<Int?>(null) }
@@ -744,7 +813,8 @@ private fun DockGrid(
                     DockSlot(
                         app,
                         onClick = { onSlotClick(index) },
-                        onDelete = { viewModel.removeApp(index) })
+                        onDelete = { viewModel.removeApp(index) },
+                        onPickIcon = { onPickIcon(index) })
                 }
             }
 
@@ -787,14 +857,14 @@ private fun DockGrid(
                             scaleX = 1.05f; scaleY = 1.05f
                             shadowElevation = 8.dp.toPx()
                         }
-                ) { DockSlot(app, {}, {}) }
+                ) { DockSlot(app, {}, {}, {}) }
             }
         }
     }
 }
 
 @Composable
-fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
+fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
@@ -850,6 +920,28 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+
+            val pickInteraction = remember { MutableInteractionSource() }
+            val isPickHovered by pickInteraction.collectIsHoveredAsState()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .size(40.dp)
+                    .background(
+                        if (isPickHovered) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
+                        RoundedCornerShape(bottomEnd = 7.dp)
+                    )
+                    .hoverable(pickInteraction)
+                    .clickable(onClick = onPickIcon),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Image,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         }
@@ -934,10 +1026,15 @@ fun FixedSlot(app: AppInfo?) {
 @Composable
 fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
     val context = LocalContext.current
-    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName, app.fitCenter) {
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName, app.fitCenter, app.iconUrl) {
         value = withContext(Dispatchers.IO) {
-            val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
-            drawable?.toBitmap()?.asImageBitmap()
+            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            if (customFile.exists()) {
+                BitmapFactory.decodeFile(customFile.absolutePath)?.asImageBitmap()
+            } else {
+                val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
+                drawable?.toBitmap()?.asImageBitmap()
+            }
         }
     }
 

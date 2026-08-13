@@ -18,7 +18,8 @@ data class AppInfo(
         return packageName == other.packageName &&
                 className == other.className &&
                 actionName == other.actionName &&
-                fitCenter == other.fitCenter
+                fitCenter == other.fitCenter &&
+                iconUrl == other.iconUrl
     }
 }
 
