@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Raccourci du Dock</string>
+    <string name="exit_toast">Appuyez encore une fois pour quitter</string>
+    <string name="header_title">Gestionnaire de raccourcis du Dock</string>
+    <string name="header_desc">Gérez vos raccourcis épinglés dans le dock Pico 4</string>
+    <string name="header_instruction_reorder">- Maintenir et faire glisser pour réorganiser</string>
+    <string name="header_instruction_change">- Appuyez sur une application pour la modifier</string>
+    <string name="action_restore">Restaurer</string>
+    <string name="action_reload">Recharger</string>
+    <string name="action_apply">Appliquer</string>
+    <string name="action_wait">Attendez...</string>
+    <string name="error_no_app_mgr">Pas de gestionnaire d\'applis</string>
+    <string name="search_placeholder">Rechercher des applications...</string>
+    <string name="toast_applied_active">Appliqué &amp; Service Actif</string>
+    <string name="toast_applied_slow">Appliqué (Le service met du temps à démarrer)</string>
+    <string name="toast_applied_timeout">Appliqué (Délai d\'attente du processus dépassé)</string>
+    <string name="toast_applied_fallback">Appliqué (Lancement de secours)</string>
+    <string name="toast_applied_target_active">Appliqué &amp; Cible Active</string>
+    <string name="toast_applied_target_timeout">Appliqué (Délai d\'attente de la cible dépassé)</string>
+    <string name="dialog_root_title">Accès Root Requis</string>
+    <string name="dialog_root_text">Cette application nécessite un accès Root (su) pour appliquer les modifications. Veuillez accorder les permissions.</string>
+    <string name="dialog_retry">Réessayer</string>
+    <string name="dialog_exit">Quitter</string>
+    <string name="dialog_warning_title">Avertissement Système</string>
+    <string name="dialog_warning_lsposed_inactive">Le module LSPosed n\'est pas actif.</string>
+    <string name="dialog_warning_lsposed_enable">• Veuillez l\'activer dans le gestionnaire LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">L\'application cible (com.pvr.shortcut) n\'est pas hookée.</string>
+    <string name="dialog_warning_scope_select">• Sélectionnez Dock (com.pvr.shortcut) dans le périmètre.</string>
+    <string name="dialog_warning_reboot">• Essayez de redémarrer l\'appareil si cela ne fonctionne pas.</string>
+    <string name="dialog_restart_retry">Redémarrer &amp; Réessayer</string>
+    <string name="debug_app_label">Application de débogage</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

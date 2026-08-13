@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">독 단축키</string>
+    <string name="exit_toast">종료하려면 한 번 더 누르세요</string>
+    <string name="header_title">독 단축키 관리자</string>
+    <string name="header_desc">Pico 4 독에 고정된 단축키를 관리합니다</string>
+    <string name="header_instruction_reorder">- 길게 눌러 드래그하여 순서 변경</string>
+    <string name="header_instruction_change">- 앱을 탭하여 변경</string>
+    <string name="action_restore">복원</string>
+    <string name="action_reload">새로고침</string>
+    <string name="action_apply">적용</string>
+    <string name="action_wait">대기 중...</string>
+    <string name="error_no_app_mgr">앱 관리자 없음</string>
+    <string name="search_placeholder">앱 검색...</string>
+    <string name="toast_applied_active">적용됨 &amp; 서비스 활성화</string>
+    <string name="toast_applied_slow">적용됨 (서비스 시작이 느림)</string>
+    <string name="toast_applied_timeout">적용됨 (프로세스 확인 시간 초과)</string>
+    <string name="toast_applied_fallback">적용됨 (폴백 실행)</string>
+    <string name="toast_applied_target_active">적용됨 &amp; 타겟 활성화</string>
+    <string name="toast_applied_target_timeout">적용됨 (타겟 확인 시간 초과)</string>
+    <string name="dialog_root_title">루트 권한 필요</string>
+    <string name="dialog_root_text">변경 사항을 적용하려면 루트 권한(su)이 필요합니다. 권한을 허용해 주세요.</string>
+    <string name="dialog_retry">재시도</string>
+    <string name="dialog_exit">종료</string>
+    <string name="dialog_warning_title">시스템 경고</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed 모듈이 활성화되지 않았습니다.</string>
+    <string name="dialog_warning_lsposed_enable">• LSPosed 관리자에서 활성화해 주세요.</string>
+    <string name="dialog_warning_target_not_hooked">타겟 앱(com.pvr.shortcut)이 후킹되지 않았습니다.</string>
+    <string name="dialog_warning_scope_select">• 범위에서 독(com.pvr.shortcut)을 선택해 주세요.</string>
+    <string name="dialog_warning_reboot">• 작동하지 않으면 기기를 재부팅해 보세요.</string>
+    <string name="dialog_restart_retry">재시작 및 재시도</string>
+    <string name="debug_app_label">디버그 앱</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

@@ -7,9 +7,46 @@ Pico 4 系统 Dock(快捷栏)定制 LSPosed 模块。基于 [chaixshot/PicoDockS
 ## 功能
 
 - **自定义 Dock 应用列表**:拦截 `com.pvr.shortcut` 的 `dock_fix_apps.json`,用 GUI 配置你想固定的应用。
-- **自定义图标**:拦截 `Image/custom_icon_<pkg>.png`,用应用真实图标替换。
+- **拖拽排序**:长按图标拖拽调整 Dock 快捷栏顺序。
+- **自定义图标**:从设备存储选择自己的图片,替换任意快捷方式的图标。
+- **图标缓存**:优化图标缓存,显著加快 Dock 加载速度。
 - **运动中心(Fit Center)可控制**:运动中心是 Pico Dock 硬编码入口,原版 JSON 删不掉;本版把它变成一个可在 GUI 里开关的项。
 - **自定义 Dock 背景图**:在 GUI 里选一张图片当 Dock 条背景,自带固定比例裁剪框,新手引导条同步同一张图。
+- **多语言支持**:内置 26+ 种语言,应用内语言选择器可覆盖系统默认语言。
+- **自动重启**:应用更改后自动重启 Dock 服务,确保立即生效。
+- **系统健康检查**:内置诊断检测 Root 访问和 LSPosed 状态,弹出明确提示。
+
+## 前置需求
+
+- **设备:** Pico 4 头显(支持 Phoenix/中国版固件)
+- **权限:** 需要 **[Root 权限](https://pico4.wiki/guides/root/01-root/)** 修改系统文件
+- **环境:** 需要安装 **[LSPosed 框架](https://github.com/JingMatrix/Vector/releases/tag/v2.0)**
+- **作用域:** 在 LSPosed 模块作用域中勾选 `Dock` (`com.pvr.shortcut`)
+
+## 如何使用
+
+1. 在头显上安装 `PicoDockShortcut` APK
+2. 在 LSPosed 管理器中启用模块
+3. **选择作用域:** 确保勾选 `Dock` (`com.pvr.shortcut`)
+4. **重启**设备或重启 `com.pvr.shortcut` 进程激活 hook
+5. **打开 PicoDockShortcut:**
+   - **添加应用:** 点击 `+` 槽位从已安装列表中选择应用
+   - **换顺序:** 长按拖拽调整位置
+   - **自定义图标:** 点击槽位左上角的图片图标,从存储中选图
+   - **换应用:** 点击槽位主体替换为其他应用
+   - **删除:** 点击右上角删除图标移除快捷方式
+6. **应用更改:** 点击 **Apply** 按钮,应用会请求 Root 权限,保存配置并自动重启 Dock 服务。
+
+## 更改不生效?
+
+- 检查 LSPosed 模块是否激活
+- 确保作用域选择了 `Dock` (`com.pvr.shortcut`)
+- 确认已授予 PicoDockShortcut **Root 权限**
+- 尝试完全重启设备
+
+## 自定义图标如何工作?
+
+应用将选择的图片保存到 `/data/user/0/com.hamer.dockshortcut/Image/Custom`。LSPosed hook 拦截 Dock 的图片请求,取而代之提供这些自定义文件。
 
 ## 自定义 Dock 背景图
 
@@ -51,6 +88,12 @@ adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.sho
 - **实际 app**:`com.picovr.tobvrusercenter.MainActivity` / `com.picovr.vrusercenter.MainActivity`。
 - **Dock 面板**:`com.pvr.shortcut` 是 `com.picovr.systemext` 控制的 VR 浮动面板(type 3002),无法用普通 am start 强制呼出。
 
+## 致谢
+
+- [LSPosed Framework](https://github.com/LSPosed/LSPosed) - 强大的 hook 引擎
+- [Jetpack Compose](https://developer.android.com/compose) - 现代声明式 UI 工具包
+- [Material 3](https://m3.material.io/) - 优雅的设计组件
+
 ## 许可证
 
 MIT(继承原仓库)。
@@ -64,9 +107,46 @@ LSPosed module that customizes the Pico 4 system Dock (quick bar). Based on [cha
 ## Features
 
 - **Custom Dock app list**: intercepts `com.pvr.shortcut`'s `dock_fix_apps.json` and lets you pin your own apps via the GUI.
-- **Custom icons**: intercepts `Image/custom_icon_<pkg>.png` and replaces icons with the app's real icon.
+- **Drag to Reorder**: easily organize your dock shortcuts with intuitive long-press and drag gestures.
+- **Custom App Icons**: pick your own images from device storage to customize the look of any shortcut.
+- **App Icon Cache**: optimized icon caching ensures significantly faster dock loading times.
 - **Fit Center control**: Fit Center is a hard-coded Dock entry that the original JSON cannot remove; this version turns it into a toggle in the GUI.
 - **Custom Dock background image**: pick an image in the GUI (with a fixed-ratio crop box); the onboarding guide bar uses the same image.
+- **Language Support**: fully supports 26+ languages with an in-app selector to override system defaults.
+- **Auto Restart**: automatically restarts the Dock service after applying changes to ensure they take effect immediately.
+- **System Health Check**: built-in diagnostics detect Root access and LSPosed status, providing clear warning popups if requirements aren't met.
+
+## Prerequisites
+
+- **Device:** Pico 4 Headset (Phoenix/China firmware supported).
+- **Permissions:** **[Root Access](https://pico4.wiki/guides/root/01-root/)** is required to apply changes to system files.
+- **Environment:** **[LSPosed Framework](https://github.com/JingMatrix/Vector/releases/tag/v2.0)** must be installed and active.
+- **Scope:** Ensure `Dock` (`com.pvr.shortcut`) is selected in the LSPosed module scope.
+
+## How to use?
+
+1. **Install** the `PicoDockShortcut` APK on your headset.
+2. **Enable** the module in the LSPosed Manager.
+3. **Select Scope:** Make sure `Dock` (`com.pvr.shortcut`) is checked in the module's scope settings.
+4. **Reboot** your device or restart the `com.pvr.shortcut` process to activate the hooks.
+5. **Open PicoDockShortcut:**
+   - **Add App:** Tap the `+` slot to pick an app from the installed list.
+   - **Reorder:** Long-press and drag any slot to change its position on the dock.
+   - **Custom Icon:** Tap the image icon at the top-left of a slot to pick a custom image from storage.
+   - **Change App:** Tap the app slot body to swap it with another app.
+   - **Delete:** Tap the delete icon at the top-right to remove a shortcut.
+6. **Apply:** Tap the **Apply** button. The app will request Root access, save the configuration, and restart the Dock service automatically.
+
+## Why are my changes not appearing?
+
+- Check if the LSPosed module is active.
+- Ensure the `Dock` (`com.pvr.shortcut`) app is selected in the scope.
+- Verify that you have granted **Root permissions** to PicoDockShortcut.
+- Try a full device reboot if the service restart doesn't catch the changes.
+
+## How do custom icons work?
+
+The app saves your chosen images to `/data/user/0/com.hamer.dockshortcut/Image/Custom`. The LSPosed hook intercepts the Dock's request for assets and provides these custom files instead.
 
 ## Custom Dock background
 
@@ -108,6 +188,12 @@ adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.sho
 - **Actual apps**: `com.picovr.tobvrusercenter.MainActivity` / `com.picovr.vrusercenter.MainActivity`.
 - **Dock panel**: `com.pvr.shortcut` is a VR floating panel (type 3002) controlled by `com.picovr.systemext`; it cannot be summoned with a plain `am start`.
 
+## Special thanks to
+
+- [LSPosed Framework](https://github.com/LSPosed/LSPosed) - For providing the powerful hooking engine.
+- [Jetpack Compose](https://developer.android.com/compose) - For the modern declarative UI toolkit.
+- [Material 3](https://m3.material.io/) - For the sleek design components.
+
 ## License
 
 MIT (inherited from the upstream repo).
@@ -121,9 +207,23 @@ LSPosed-модуль для настройки системного Dock (пан
 ## Возможности
 
 - **Свой список приложений в Dock**: перехватывает `dock_fix_apps.json` у `com.pvr.shortcut` и позволяет закрепить свои приложения через GUI.
-- **Свои значки**: перехватывает `Image/custom_icon_<pkg>.png` и заменяет значки на настоящие значки приложений.
+- **Перетаскивание**: длительное нажатие и перетаскивание для изменения порядка.
+- **Свои значки**: выбирайте свои изображения из хранилища устройства для настройки любого ярлыка.
+- **Кэш значков**: оптимизированное кэширование значков для значительного ускорения загрузки Dock.
 - **Управление Fit Center**: Fit Center — жёстко зашитый пункт Dock, который нельзя удалить через оригинальный JSON; эта версия превращает его в переключатель в GUI.
 - **Свой фон Dock**: выберите изображение в GUI (с фиксированным соотношением сторон для кадрирования); панель подсказок (Guide) использует то же изображение.
+- **Поддержка языков**: полная поддержка 26+ языков со встроенным переключателем языка.
+- **Автоматический перезапуск**: автоматически перезапускает службу Dock после применения изменений.
+- **Проверка работоспособности**: встроенная диагностика определяет Root-доступ и статус LSPosed.
+
+## Как использовать
+
+1. **Установите** APK `PicoDockShortcut` на гарнитуру.
+2. **Включите** модуль в LSPosed Manager.
+3. **Выберите область:** убедитесь, что `Dock` (`com.pvr.shortcut`) отмечен.
+4. **Перезагрузите** устройство или перезапустите процесс `com.pvr.shortcut`.
+5. **Откройте PicoDockShortcut:** добавляйте, перетаскивайте, меняйте значки.
+6. **Примените:** нажмите **Apply** для сохранения и перезапуска Dock.
 
 ## Свой фон Dock
 
@@ -131,40 +231,4 @@ LSPosed-модуль для настройки системного Dock (пан
 
 ![Демонстрация фона Dock](screenshots/dock_background_demo.jpeg)
 
-**Использование**: откройте GUI менеджера → «Dock background» внизу → выберите изображение → перетаскивайте/масштабируйте, чтобы выбрать нужную область → подтвердите → вызовите Dock для применения.
-
-**Технические детали**:
-
-- Хук `com.pvr.shortcut.service.ShortcutViewContainer.inflateRootView(Context)`; фон меняется после получения корневого view.
-- Целевой view: первый дочерний `LinearLayout` у `dock_container` (`0x7f09009c`) с `id != 0x7f09005b` = видимая полоса Dock; Guide (подсказки) = `0x7f09005b`. Оба используют один Bitmap и сохраняют свои радиусы скругления.
-  - **Нельзя менять фон самого `dock_container`** — это прозрачный контейнер; иначе заполнится прозрачный зазор между полосой Dock и Guide.
-- Кастомный **RoundedBgDrawable : Drawable** строит **BitmapShader** (Matrix center-crop, без искажений) + **Path.addRoundRect** в **onBoundsChange()** по реальным границам.
-  - На этапе inflate view ещё не измерен (**width/height == 0**), поэтому нельзя отрисовать Bitmap прямо в хуке — нужно ждать колбэк границ.
-  - Радиус скругления берётся из исходного **GradientDrawable** (измерено 38px), по умолчанию 38f.
-- Изображение хранится в `/data/user/0/com.hamer.dockshortcut/dock_bg.png`; каталог должен быть 755, файл 644, иначе `com.pvr.shortcut` (работает как system, uid 1000) не сможет его прочитать.
-
-**О соотношении сторон**: высота Dock фиксирована (`main_view_height = 120dp`), ширина — `wrap_content` и растёт с числом приложений (левая зона ≈176dp + правая ≈138dp + 84dp на приложение), а при появлении «недавних/запущенных приложений» временно становится ещё шире. Поэтому кадрирование идёт по аппаратному пределу `dock_max_width 1800dp / 120dp = 15:1`, чтобы при добавлении значков или открытии приложений справа никогда не заканчивалось изображение. Фон рисуется **слева**: чем шире Dock, тем больше изображения видно справа.
-
-## Сборка и установка (кратко)
-
-```bash
-# Нужен Android SDK, local.properties должен указывать на него:
-./gradlew assembleDebug
-# Результат: app/build/outputs/apk/debug/app-debug.apk
-# На устройстве (Zygisk-Vector):
-adb install -r app-debug.apk
-adb shell su -c '/data/adb/lspd/cli modules enable com.hamer.dockshortcut'
-adb shell su -c '/data/adb/lspd/cli scope add com.hamer.dockshortcut com.pvr.shortcut/0'
-```
-
-> Включать модуль и скоуп нужно только через `vector-cli`, не редактируя напрямую `modules_config.db`.
-
-## Технические заметки (реверс-инжиниринг)
-
-- **Точка входа Fit Center**: `com.pvr.shortcut.dock.datamanager.FixAppDataManager.addRemoveFitCenterApp`, срабатывает при `DockUtils.isUserCenterNoFit()==true` (ToB или китайская прошивка Phoenix).
-- **Фактические приложения**: `com.picovr.tobvrusercenter.MainActivity` / `com.picovr.vrusercenter.MainActivity`.
-- **Панель Dock**: `com.pvr.shortcut` — VR-плавающая панель (type 3002), управляется `com.picovr.systemext`; её нельзя вызвать обычным `am start`.
-
-## Лицензия
-
-MIT (унаследована от исходного репозитория).
+**Использование**: откройте GUI менеджера → «Dock background» внизу → выберите изображение →

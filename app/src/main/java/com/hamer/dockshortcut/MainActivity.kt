@@ -3,16 +3,23 @@ package com.hamer.dockshortcut
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateColorAsState
+import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -48,6 +55,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -200,11 +208,13 @@ class MainViewModel : ViewModel() {
                     tempApps.add(
                         appInfo.copy(
                             actionName = if (obj.has("actionName")) obj.getString("actionName") else null,
-                            className = if (obj.has("className")) obj.getString("className") else appInfo.className
+                            className = if (obj.has("className")) obj.getString("className") else appInfo.className,
+                            fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE,
+                            iconUrl = if (obj.has("iconUrl")) obj.getString("iconUrl") else null
                         )
                     )
                 } else if (pkg == "com.hamer.debug") {
-                    tempApps.add(AppInfo(pkg, null, "Debug App", null))
+                    tempApps.add(AppInfo(pkg, null, context.getString(R.string.debug_app_label), null))
                 }
                 if (tempApps.size >= 11) break
             }
@@ -213,7 +223,7 @@ class MainViewModel : ViewModel() {
                 AppInfo(
                     "com.hamer.debug",
                     null,
-                    "Debug App",
+                    context.getString(R.string.debug_app_label),
                     null
                 )
             )
@@ -246,6 +256,14 @@ class MainViewModel : ViewModel() {
                 "[]"
             }
             parseApps(context, default, updateSaved = false)
+
+        }
+    }
+
+    private fun clearIconCache(context: Context) {
+        val imageDir = File(context.filesDir.parentFile, "Image")
+        if (imageDir.exists()) {
+            imageDir.listFiles()?.filter { it.isFile }?.forEach { it.delete() }
         }
     }
 
@@ -253,14 +271,61 @@ class MainViewModel : ViewModel() {
         if (selectedApps.size < 11) selectedApps.add(app)
     }
 
-    fun removeApp(index: Int) {
-        if (index in selectedApps.indices) selectedApps.removeAt(index)
+    fun removeApp(context: Context, index: Int) {
+        if (index in selectedApps.indices) {
+            val app = selectedApps[index]
+            // Delete custom icon if exists
+            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            if (customFile.exists()) {
+                customFile.delete()
+            }
+            selectedApps.removeAt(index)
+        }
     }
 
     fun moveApp(from: Int, to: Int) {
         if (from == to || from !in selectedApps.indices || to !in selectedApps.indices) return
         val item = selectedApps.removeAt(from)
         selectedApps.add(to, item)
+    }
+
+    fun saveCustomIcon(context: Context, uri: Uri, packageName: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val originalBitmap = BitmapFactory.decodeStream(inputStream)
+                inputStream?.close()
+
+                if (originalBitmap != null) {
+                    // Process ratio handler
+                    val drawable = BitmapDrawable(context.resources, originalBitmap)
+                    val processedBitmap = drawableToBitmap(drawable)
+
+                    val imageDir = File(context.filesDir.parentFile, "Image/Custom")
+                    if (!imageDir.exists()) {
+                        imageDir.mkdirs()
+                    }
+                    imageDir.setReadable(true, false)
+                    imageDir.setExecutable(true, false)
+
+                    val iconFile = File(imageDir, "custom_icon_$packageName.png")
+                    iconFile.outputStream().use {
+                        processedBitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    iconFile.setReadable(true, false)
+
+                    withContext(Dispatchers.Main) {
+                        val index = selectedApps.indexOfFirst { it.packageName == packageName }
+                        if (index != -1) {
+                            val app = selectedApps[index]
+                            selectedApps[index] = app.copy(iconUrl = "Image/Custom/custom_icon_$packageName.png?t=${System.currentTimeMillis()}")
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
     }
 
     private fun saveToJson(context: Context) {
@@ -287,15 +352,71 @@ class MainViewModel : ViewModel() {
             writeText(jsonArray.toString(2))
             setReadable(true, false)
         }
+        
+        saveIconsToDisk(context)
     }
 
-    fun applyChanges(context: Context) {
+    private fun saveIconsToDisk(context: Context) {
+        val imageDir = File(context.filesDir.parentFile, "Image")
+        if (!imageDir.exists()) {
+            imageDir.mkdirs()
+        }
+        imageDir.setReadable(true, false)
+        imageDir.setExecutable(true, false)
+
+        selectedApps.forEach { app ->
+            if (isFitCenter(app)) return@forEach
+            val iconFile = File(imageDir, "custom_icon_${app.packageName}.png")
+            if (!iconFile.exists()) {
+                val drawable = AppManager.getAppIcon(context, app.packageName)
+                if (drawable != null) {
+                    val bitmap = drawableToBitmap(drawable)
+                    iconFile.outputStream().use {
+                        bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+                    }
+                    iconFile.setReadable(true, false)
+                }
+            }
+        }
+    }
+
+    private fun drawableToBitmap(drawable: Drawable): Bitmap {
+        val srcW = drawable.intrinsicWidth.coerceAtLeast(1)
+        val srcH = drawable.intrinsicHeight.coerceAtLeast(1)
+        val targetRatio = 152f / 128f
+        val srcRatio = srcW.toFloat() / srcH.toFloat()
+
+        val bitmapW: Int
+        val bitmapH: Int
+        if (srcRatio < targetRatio) {
+            bitmapH = srcH
+            bitmapW = (srcH * 152) / 128
+        } else {
+            bitmapW = srcW
+            bitmapH = (srcW * 128) / 152
+        }
+
+        val bitmap = Bitmap.createBitmap(bitmapW, bitmapH, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        val left = (bitmapW - srcW) / 2
+        val top = (bitmapH - srcH) / 2
+        drawable.setBounds(left, top, left + srcW, top + srcH)
+        drawable.draw(canvas)
+        return bitmap
+    }
+
+    fun applyChanges(context: Context, checkStatus: Boolean) {
         viewModelScope.launch {
             isApplying = true
             saveToJson(context)
+            clearIconCache(context)
             savedApps.clear()
             savedApps.addAll(selectedApps)
             restartTargetApp(context)
+            if (checkStatus) {
+                delay(2000) // Give more time for the service to start and module to inject
+                checkStatus()
+            }
             isApplying = false
         }
     }
@@ -307,6 +428,7 @@ class MainViewModel : ViewModel() {
                 restartSelf(context)
             } else {
                 restartTargetApp(context)
+                delay(2000)
                 checkStatus()
             }
             isRetrying = false
@@ -351,7 +473,7 @@ class MainViewModel : ViewModel() {
 
 // --- Main Activity ---
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private var lastBackTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -365,7 +487,7 @@ class MainActivity : ComponentActivity() {
                     lastBackTime = System.currentTimeMillis()
                     Toast.makeText(
                         this@MainActivity,
-                        "Press once again to Exit",
+                        getString(R.string.exit_toast),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -381,8 +503,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Force exit to ensure clean state for module/hooks
-        android.os.Process.killProcess(android.os.Process.myPid())
+        // Only force exit if not changing configuration (like locale change)
+        if (!isChangingConfigurations) {
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 }
 
@@ -392,7 +516,21 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
+    var showLanguageSelector by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
+    var pickingIconIndex by remember { mutableStateOf<Int?>(null) }
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            pickingIconIndex?.let { index ->
+                val app = viewModel.selectedApps[index]
+                viewModel.saveCustomIcon(context, it, app.packageName)
+            }
+        }
+        pickingIconIndex = null
+    }
 
     LaunchedEffect(Unit) {
         viewModel.loadApps(context)
@@ -413,7 +551,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                Header(viewModel, context)
+                Header(viewModel, context, onLanguageClick = { showLanguageSelector = true })
                 Spacer(modifier = Modifier.height(24.dp))
                 // 给网格 weight(1f): 先量完底部背景区, 网格只吃剩下的高度
                 // (之前 LazyVerticalGrid 没 weight, 会把可用高度全吃完 → 下方按钮被顶出屏幕)
@@ -427,6 +565,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     onAddClick = {
                         editingIndex = null
                         showPicker = true
+                    },
+                    onPickIcon = { index ->
+                        pickingIconIndex = index
+                        imagePickerLauncher.launch("image/*")
                     }
                 )
                 Spacer(modifier = Modifier.height(16.dp))
@@ -448,6 +590,10 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 editingIndex = null
             }
         )
+    }
+
+    if (showLanguageSelector) {
+        LanguageSelector(onDismiss = { showLanguageSelector = false })
     }
 }
 
@@ -832,8 +978,7 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                     ) {
                         iconTapCount++
                         if (iconTapCount >= 3) {
-                            viewModel.applyChanges(context)
-                            viewModel.checkStatus()
+                            viewModel.applyChanges(context, true)
                             iconTapCount = 0
                         }
                     },
@@ -850,23 +995,23 @@ private fun Header(viewModel: MainViewModel, context: Context) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    "Dock Shortcut Manager",
+                    stringResource(R.string.header_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.LightGray
                 )
                 Text(
-                    "Manage your Pico 4 dock pinned shortcuts",
+                    stringResource(R.string.header_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
                 Text(
-                    "- Hold and drag to reorder",
+                    stringResource(R.string.header_instruction_reorder),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
                 Text(
-                    "- Tap app to change it",
+                    stringResource(R.string.header_instruction_change),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.LightGray
                 )
@@ -874,8 +1019,21 @@ private fun Header(viewModel: MainViewModel, context: Context) {
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            IconButton(
+                onClick = onLanguageClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Icon(
+                    Icons.Default.Language,
+                    contentDescription = "Language",
+                    tint = Color.LightGray
+                )
+            }
             ActionButton(
-                "Restore",
+                stringResource(R.string.action_restore),
                 Icons.Default.SettingsBackupRestore,
                 MaterialTheme.colorScheme.secondaryContainer,
                 viewModel.isApplying
@@ -883,7 +1041,7 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 viewModel.restoreDefault(context)
             }
             ActionButton(
-                "Reload",
+                stringResource(R.string.action_reload),
                 Icons.Default.Refresh,
                 MaterialTheme.colorScheme.tertiaryContainer,
                 viewModel.isApplying
@@ -891,13 +1049,13 @@ private fun Header(viewModel: MainViewModel, context: Context) {
                 viewModel.reload(context)
             }
             ActionButton(
-                "Apply",
+                stringResource(R.string.action_apply),
                 Icons.Default.Check,
                 MaterialTheme.colorScheme.primary,
                 viewModel.isApplying || !viewModel.isModified,
                 showLoading = viewModel.isApplying
             ) {
-                viewModel.applyChanges(context)
+                viewModel.applyChanges(context, false)
             }
         }
     }
@@ -934,7 +1092,7 @@ private fun ActionButton(
                 strokeWidth = 2.dp
             )
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Wait...", style = MaterialTheme.typography.labelLarge)
+            Text(stringResource(R.string.action_wait), style = MaterialTheme.typography.labelLarge)
         } else {
             Icon(icon, contentDescription = null, modifier = Modifier.size(18.dp))
             Spacer(modifier = Modifier.width(8.dp))
@@ -948,8 +1106,10 @@ private fun DockGrid(
     viewModel: MainViewModel,
     modifier: Modifier = Modifier,
     onSlotClick: (Int) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onPickIcon: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     var draggedIndex by remember { mutableStateOf<Int?>(null) }
     var touchPosition by remember { mutableStateOf(Offset.Zero) }
@@ -964,8 +1124,8 @@ private fun DockGrid(
         LazyVerticalGrid(
             columns = GridCells.Fixed(6),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(
                 viewModel.selectedApps,
@@ -1023,7 +1183,8 @@ private fun DockGrid(
                     DockSlot(
                         app,
                         onClick = { onSlotClick(index) },
-                        onDelete = { viewModel.removeApp(index) })
+                        onDelete = { viewModel.removeApp(context, index) },
+                        onPickIcon = { onPickIcon(index) })
                 }
             }
 
@@ -1040,9 +1201,10 @@ private fun DockGrid(
                 viewModel.selectedApps.size + (if (viewModel.selectedApps.size < 11) 1 else 0)
             item {
                 val context = LocalContext.current
-                val appMgr = remember {
+                val appMgrLabel = stringResource(R.string.app_manager_label)
+                val appMgr = remember(appMgrLabel) {
                     AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
-                        label = "App Manager",
+                        label = appMgrLabel,
                         className = "com.pvr.appmanager.AllAppActivity"
                     )
                 }
@@ -1065,14 +1227,14 @@ private fun DockGrid(
                             scaleX = 1.05f; scaleY = 1.05f
                             shadowElevation = 8.dp.toPx()
                         }
-                ) { DockSlot(app, {}, {}) }
+                ) { DockSlot(app, {}, {}, {}) }
             }
         }
     }
 }
 
 @Composable
-fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
+fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Card(
         onClick = onClick,
@@ -1128,6 +1290,28 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit) {
                     contentDescription = null,
                     modifier = Modifier.size(20.dp),
                     tint = MaterialTheme.colorScheme.onErrorContainer
+                )
+            }
+
+            val pickInteraction = remember { MutableInteractionSource() }
+            val isPickHovered by pickInteraction.collectIsHoveredAsState()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .size(40.dp)
+                    .background(
+                        if (isPickHovered) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
+                        RoundedCornerShape(bottomEnd = 7.dp)
+                    )
+                    .hoverable(pickInteraction)
+                    .clickable(onClick = onPickIcon),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Image,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
             }
         }
@@ -1200,7 +1384,7 @@ fun FixedSlot(app: AppInfo?) {
                     tint = MaterialTheme.colorScheme.error
                 )
                 Text(
-                    "No App Mgr",
+                    stringResource(R.string.error_no_app_mgr),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -1212,10 +1396,15 @@ fun FixedSlot(app: AppInfo?) {
 @Composable
 fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
     val context = LocalContext.current
-    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName) {
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName, app.fitCenter, app.iconUrl) {
         value = withContext(Dispatchers.IO) {
-            val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
-            drawable?.toBitmap()?.asImageBitmap()
+            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            if (customFile.exists()) {
+                BitmapFactory.decodeFile(customFile.absolutePath)?.asImageBitmap()
+            } else {
+                val drawable = app.icon ?: AppManager.getAppIcon(context, app.packageName)
+                drawable?.toBitmap()?.asImageBitmap()
+            }
         }
     }
 
@@ -1238,7 +1427,7 @@ fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Default.Apps,
+                if (isFitCenter(app)) Icons.Default.FitnessCenter else Icons.Default.Apps,
                 contentDescription = null,
                 modifier = Modifier.size(size * 0.64f),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant
@@ -1257,7 +1446,9 @@ fun AppPicker(
     val context = LocalContext.current
     val apps by produceState<List<AppInfo>>(emptyList()) {
         value = withContext(Dispatchers.IO) {
-            AppManager.getInstalledApps(context).filter { it.packageName !in excludedPackages }
+            AppManager.getInstalledApps(context).filter { 
+                it.packageName !in excludedPackages && it.packageName != FIT_CENTER_PACKAGE 
+            }
         }
     }
     var query by remember { mutableStateOf("") }
@@ -1286,7 +1477,7 @@ fun AppPicker(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                placeholder = { Text("Search apps...") },
+                placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
                     focusedIndicatorColor = Color.Transparent,
@@ -1327,9 +1518,39 @@ fun AppPicker(
                             )
                         }
                     }
+                    items(filtered) { app ->
+                        AppPickerItem(app = app, onAppSelected = onAppSelected)
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
+    val interaction = remember { MutableInteractionSource() }
+    val isHovered by interaction.collectIsHoveredAsState()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(
+                if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
+                    alpha = 0.2f
+                ) else Color.Transparent
+            )
+            .hoverable(interaction)
+            .clickable { onAppSelected(app) }
+            .padding(horizontal = 24.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        AppIcon(app, 48.dp)
+        Spacer(modifier = Modifier.width(16.dp))
+        Text(
+            app.label,
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.White
+        )
     }
 }
 
@@ -1338,33 +1559,38 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
     if (!viewModel.hasRoot) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("Root Access Required", color = MaterialTheme.colorScheme.error) },
-            text = { Text("This app requires Root Access (su) to apply changes. Please grant permissions.") },
+            title = { Text(stringResource(R.string.dialog_root_title), color = MaterialTheme.colorScheme.error) },
+            text = { Text(stringResource(R.string.dialog_root_text)) },
             confirmButton = {
-                TextButton(onClick = { viewModel.checkStatus() }) { Text("Retry") }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
+                TextButton(onClick = { viewModel.checkStatus() }) { Text(stringResource(R.string.dialog_retry)) }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
     } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked || !viewModel.isTargetRunning) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("System Warning", color = MaterialTheme.colorScheme.error) },
+            title = { Text(stringResource(R.string.dialog_warning_title), color = MaterialTheme.colorScheme.error) },
             text = {
                 Column {
                     if (!viewModel.isModuleActive) {
-                        Text("• LSPosed module is not active.")
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Please enable it in LSPosed Manager.", style = MaterialTheme.typography.bodySmall)
-                    }
-                    if (!viewModel.isTargetRunning) {
-                        Text("• Target App (Dock) is not running.")
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Click Restart below to start the service.", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.dialog_warning_lsposed_inactive))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.dialog_warning_lsposed_enable),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     } else if (!viewModel.isTargetHooked) {
-                        Text("• Target App is running but NOT hooked.")
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("Ensure 'Dock' is checked in LSPosed scope.", style = MaterialTheme.typography.bodySmall)
+                        Text(stringResource(R.string.dialog_warning_target_not_hooked))
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            stringResource(R.string.dialog_warning_scope_select),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                        Text(
+                            stringResource(R.string.dialog_warning_reboot),
+                            style = MaterialTheme.typography.bodySmall
+                        )
                     }
                     
                     Spacer(modifier = Modifier.height(8.dp))
@@ -1376,10 +1602,13 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                     onClick = { viewModel.restartAndRetry(context) },
                     enabled = !viewModel.isRetrying
                 ) {
-                    if (viewModel.isRetrying) CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                    else Text("Restart & Retry")
+                    if (viewModel.isRetrying) CircularProgressIndicator(
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp
+                    )
+                    else Text(stringResource(R.string.dialog_restart_retry))
                 }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text("Exit") }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
@@ -1390,4 +1619,84 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
 @Composable
 fun DefaultPreview() {
     PicoDockShortcutTheme { MainScreen() }
+}
+
+@Composable
+fun LanguageSelector(onDismiss: () -> Unit) {
+    val supportedLocales = listOf(
+        "Auto" to "",
+        "English" to "en",
+        "English (UK)" to "en-GB",
+        "简体中文" to "zh-CN",
+        "繁體中文 (台灣)" to "zh-TW",
+        "繁體中文 (香港)" to "zh-HK",
+        "Deutsch" to "de",
+        "Français" to "fr",
+        "Español" to "es",
+        "Español (US)" to "es-US",
+        "Italiano" to "it",
+        "日本語" to "ja",
+        "한국어" to "ko",
+        "Русский" to "ru",
+        "ไทย" to "th",
+        "Türkçe" to "tr",
+        "Čeština" to "cs",
+        "Dansk" to "da",
+        "Nederlands" to "nl",
+        "Suomi" to "fi",
+        "Eλληνικά" to "el",
+        "Bahasa Melayu" to "ms",
+        "Norsk Bokmål" to "nb",
+        "Polski" to "pl",
+        "Português (Brasil)" to "pt-BR",
+        "Português (Portugal)" to "pt-PT",
+        "Română" to "ro",
+        "Svenska" to "sv"
+    )
+
+    val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Language", color = Color.White) },
+        text = {
+            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+                items(supportedLocales) { (name, tag) ->
+                    val isSelected = (tag == "" && currentLocale == "") || 
+                                   (tag != "" && currentLocale.startsWith(tag))
+                    TextButton(
+                        onClick = {
+                            val appLocale: LocaleListCompat = if (tag.isEmpty()) {
+                                LocaleListCompat.getEmptyLocaleList()
+                            } else {
+                                LocaleListCompat.forLanguageTags(tag)
+                            }
+                            AppCompatDelegate.setApplicationLocales(appLocale)
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(name, textAlign = TextAlign.Start)
+                            if (isSelected) {
+                                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Close") }
+        },
+        containerColor = Color(0xFF333333),
+        textContentColor = Color.White
+    )
 }

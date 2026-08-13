@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Atalho da Dock</string>
+    <string name="exit_toast">Pressione mais uma vez para sair</string>
+    <string name="header_title">Gerenciador de Atalhos da Dock</string>
+    <string name="header_desc">Gerencie seus atalhos fixados na dock do Pico 4</string>
+    <string name="header_instruction_reorder">- Mantenha pressionado e arraste para reordenar</string>
+    <string name="header_instruction_change">- Toque no app para alterá-lo</string>
+    <string name="action_restore">Restaurar</string>
+    <string name="action_reload">Recarregar</string>
+    <string name="action_apply">Aplicar</string>
+    <string name="action_wait">Aguarde...</string>
+    <string name="error_no_app_mgr">Sem Gerenciador de Apps</string>
+    <string name="search_placeholder">Pesquisar apps...</string>
+    <string name="toast_applied_active">Aplicado e Serviço Ativo</string>
+    <string name="toast_applied_slow">Aplicado (Serviço lento ao iniciar)</string>
+    <string name="toast_applied_timeout">Aplicado (Tempo esgotado na verificação do processo)</string>
+    <string name="toast_applied_fallback">Aplicado (Início de contingência)</string>
+    <string name="toast_applied_target_active">Aplicado e Alvo Ativo</string>
+    <string name="toast_applied_target_timeout">Aplicado (Tempo esgotado na verificação do alvo)</string>
+    <string name="dialog_root_title">Acesso Root Necessário</string>
+    <string name="dialog_root_text">Este app requer acesso Root (su) para aplicar as alterações. Por favor, conceda as permissões.</string>
+    <string name="dialog_retry">Repetir</string>
+    <string name="dialog_exit">Sair</string>
+    <string name="dialog_warning_title">Aviso do Sistema</string>
+    <string name="dialog_warning_lsposed_inactive">O módulo LSPosed não está ativo.</string>
+    <string name="dialog_warning_lsposed_enable">• Por favor, ative-o no Gerenciador LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">App alvo (com.pvr.shortcut) não interceptado.</string>
+    <string name="dialog_warning_scope_select">• Selecione Dock (com.pvr.shortcut) no escopo.</string>
+    <string name="dialog_warning_reboot">• Tente reiniciar o dispositivo se não estiver funcionando.</string>
+    <string name="dialog_restart_retry">Reiniciar e Repetir</string>
+    <string name="debug_app_label">App de Depuração</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

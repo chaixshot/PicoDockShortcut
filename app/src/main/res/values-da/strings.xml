@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Genvej til Dock</string>
+    <string name="exit_toast">Tryk igen for at afslutte</string>
+    <string name="header_title">Dock Genvejsadministrator</string>
+    <string name="header_desc">Administrer dine fastgjorte genveje i Pico 4 docken</string>
+    <string name="header_instruction_reorder">- Hold og træk for at omarrangere</string>
+    <string name="header_instruction_change">- Tryk på en app for at ændre den</string>
+    <string name="action_restore">Gendan</string>
+    <string name="action_reload">Genindlæs</string>
+    <string name="action_apply">Anvend</string>
+    <string name="action_wait">Vent...</string>
+    <string name="error_no_app_mgr">Ingen App Mgr</string>
+    <string name="search_placeholder">Søg efter apps...</string>
+    <string name="toast_applied_active">Anvendt &amp; Tjeneste Aktiv</string>
+    <string name="toast_applied_slow">Anvendt (Tjenesten er langsom om at starte)</string>
+    <string name="toast_applied_timeout">Anvendt (Timeout for proceskontrol)</string>
+    <string name="toast_applied_fallback">Anvendt (Launch fallback)</string>
+    <string name="toast_applied_target_active">Anvendt &amp; Mål Aktiv</string>
+    <string name="toast_applied_target_timeout">Anvendt (Timeout for målkontrol)</string>
+    <string name="dialog_root_title">Root-adgang påkrævet</string>
+    <string name="dialog_root_text">Denne app kræver Root-adgang (su) for at anvende ændringer. Giv venligst tilladelse.</string>
+    <string name="dialog_retry">Prøv igen</string>
+    <string name="dialog_exit">Afslut</string>
+    <string name="dialog_warning_title">Systemadvarsel</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-modulet er ikke aktivt.</string>
+    <string name="dialog_warning_lsposed_enable">• Aktiver det venligst i LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Mål-app (com.pvr.shortcut) er ikke hooked.</string>
+    <string name="dialog_warning_scope_select">• Vælg Dock (com.pvr.shortcut) i omfanget.</string>
+    <string name="dialog_warning_reboot">• Prøv at genstarte enheden, hvis det ikke virker.</string>
+    <string name="dialog_restart_retry">Genstart &amp; Prøv igen</string>
+    <string name="debug_app_label">Debug App</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

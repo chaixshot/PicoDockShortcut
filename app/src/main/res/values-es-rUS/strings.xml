@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Acceso directo al Dock</string>
+    <string name="exit_toast">Presiona una vez más para salir</string>
+    <string name="header_title">Administrador de accesos directos al Dock</string>
+    <string name="header_desc">Administra tus accesos directos anclados en el dock de Pico 4</string>
+    <string name="header_instruction_reorder">- Mantén presionado y arrastra para reordenar</string>
+    <string name="header_instruction_change">- Toca una aplicación para cambiarla</string>
+    <string name="action_restore">Restaurar</string>
+    <string name="action_reload">Recargar</string>
+    <string name="action_apply">Aplicar</string>
+    <string name="action_wait">Espera...</string>
+    <string name="error_no_app_mgr">Sin administrador de aplicaciones</string>
+    <string name="search_placeholder">Buscar aplicaciones...</string>
+    <string name="toast_applied_active">Aplicado y servicio activo</string>
+    <string name="toast_applied_slow">Aplicado (el servicio tarda en iniciar)</string>
+    <string name="toast_applied_timeout">Aplicado (tiempo de espera de verificación agotado)</string>
+    <string name="toast_applied_fallback">Aplicado (inicio de respaldo)</string>
+    <string name="toast_applied_target_active">Aplicado y objetivo activo</string>
+    <string name="toast_applied_target_timeout">Aplicado (tiempo de espera del objetivo agotado)</string>
+    <string name="dialog_root_title">Se requiere acceso Root</string>
+    <string name="dialog_root_text">Esta aplicación requiere acceso Root (su) para aplicar los cambios. Por favor, otorga los permisos.</string>
+    <string name="dialog_retry">Reintentar</string>
+    <string name="dialog_exit">Salir</string>
+    <string name="dialog_warning_title">Advertencia del sistema</string>
+    <string name="dialog_warning_lsposed_inactive">El módulo LSPosed no está activo.</string>
+    <string name="dialog_warning_lsposed_enable">• Por favor, actívalo en el administrador de LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">Aplicación objetivo (com.pvr.shortcut) no interceptada.</string>
+    <string name="dialog_warning_scope_select">• Selecciona Dock (com.pvr.shortcut) en el alcance.</string>
+    <string name="dialog_warning_reboot">• Intenta reiniciar el dispositivo si no funciona.</string>
+    <string name="dialog_restart_retry">Reiniciar y reintentar</string>
+    <string name="debug_app_label">Aplicación de depuración</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

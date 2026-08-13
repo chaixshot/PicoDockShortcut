@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Dock-snarvei</string>
+    <string name="exit_toast">Trykk en gang til for å avslutte</string>
+    <string name="header_title">Dock-snarveiadministrator</string>
+    <string name="header_desc">Administrer dine festede snarveier i Pico 4-docken</string>
+    <string name="header_instruction_reorder">- Hold og dra for å endre rekkefølge</string>
+    <string name="header_instruction_change">- Trykk på en app for å endre den</string>
+    <string name="action_restore">Gjenopprett</string>
+    <string name="action_reload">Last på nytt</string>
+    <string name="action_apply">Bruk</string>
+    <string name="action_wait">Vent...</string>
+    <string name="error_no_app_mgr">Ingen App-administrator</string>
+    <string name="search_placeholder">Søk etter apper...</string>
+    <string name="toast_applied_active">Brukt &amp; tjeneste aktiv</string>
+    <string name="toast_applied_slow">Brukt (tjenesten er treg med å starte)</string>
+    <string name="toast_applied_timeout">Brukt (tidsavbrudd for prosesskontroll)</string>
+    <string name="toast_applied_fallback">Brukt (reserveoppstart)</string>
+    <string name="toast_applied_target_active">Brukt &amp; mål aktiv</string>
+    <string name="toast_applied_target_timeout">Brukt (tidsavbrudd for målkontroll)</string>
+    <string name="dialog_root_title">Root-tilgang kreves</string>
+    <string name="dialog_root_text">Denne appen krever root-tilgang (su) for å bruke endringer. Vennligst gi tillatelse.</string>
+    <string name="dialog_retry">Prøv på nytt</string>
+    <string name="dialog_exit">Avslutt</string>
+    <string name="dialog_warning_title">Systemadvarsel</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-modulen er ikke aktiv.</string>
+    <string name="dialog_warning_lsposed_enable">• Vennligst aktiver den i LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Målappen (com.pvr.shortcut) er ikke huket.</string>
+    <string name="dialog_warning_scope_select">• Velg Dock (com.pvr.shortcut) i omfanget.</string>
+    <string name="dialog_warning_reboot">• Prøv å starte enheten på nytt hvis det ikke fungerer.</string>
+    <string name="dialog_restart_retry">Start på nytt &amp; prøv igjen</string>
+    <string name="debug_app_label">Debug-app</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

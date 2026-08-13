@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Dock Snelkoppeling</string>
+    <string name="exit_toast">Druk nogmaals om af te sluiten</string>
+    <string name="header_title">Dock Snelkoppeling Beheerder</string>
+    <string name="header_desc">Beheer je vastgezette snelkoppelingen in het Pico 4-dock</string>
+    <string name="header_instruction_reorder">- Houd vast en sleep om de volgorde te wijzigen</string>
+    <string name="header_instruction_change">- Tik op een app om deze te wijzigen</string>
+    <string name="action_restore">Herstellen</string>
+    <string name="action_reload">Vernieuwen</string>
+    <string name="action_apply">Toepassen</string>
+    <string name="action_wait">Wacht...</string>
+    <string name="error_no_app_mgr">Geen App Mgr</string>
+    <string name="search_placeholder">Apps zoeken...</string>
+    <string name="toast_applied_active">Toegepast &amp; Service Actief</string>
+    <string name="toast_applied_slow">Toegepast (Service start traag)</string>
+    <string name="toast_applied_timeout">Toegepast (Procescontrole time-out)</string>
+    <string name="toast_applied_fallback">Toegepast (Launch fallback)</string>
+    <string name="toast_applied_target_active">Toegepast &amp; Doel Actief</string>
+    <string name="toast_applied_target_timeout">Toegepast (Doelcontrole time-out)</string>
+    <string name="dialog_root_title">Root-toegang vereist</string>
+    <string name="dialog_root_text">Deze app vereist Root-toegang (su) om wijzigingen toe te passen. Verleen a.u.b. toestemming.</string>
+    <string name="dialog_retry">Opnieuw proberen</string>
+    <string name="dialog_exit">Afsluiten</string>
+    <string name="dialog_warning_title">Systeemwaarschuwing</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-module is niet actief.</string>
+    <string name="dialog_warning_lsposed_enable">• Schakel deze in via LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Doel-app (com.pvr.shortcut) niet gehookt.</string>
+    <string name="dialog_warning_scope_select">• Selecteer Dock (com.pvr.shortcut) in de scope.</string>
+    <string name="dialog_warning_reboot">• Start het apparaat opnieuw op als het niet werkt.</string>
+    <string name="dialog_restart_retry">Opnieuw opstarten &amp; Proberen</string>
+    <string name="debug_app_label">Debug App</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

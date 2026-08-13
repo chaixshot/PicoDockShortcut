@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Dock Kısayolu</string>
+    <string name="exit_toast">Çıkmak için bir kez daha basın</string>
+    <string name="header_title">Dock Kısayol Yöneticisi</string>
+    <string name="header_desc">Pico 4 dock\'una sabitlenmiş kısayollarınızı yönetin</string>
+    <string name="header_instruction_reorder">- Yeniden sıralamak için basılı tutun ve sürükleyin</string>
+    <string name="header_instruction_change">- Değiştirmek için uygulamaya dokunun</string>
+    <string name="action_restore">Geri Yükle</string>
+    <string name="action_reload">Yeniden Yükle</string>
+    <string name="action_apply">Uygula</string>
+    <string name="action_wait">Bekleyin...</string>
+    <string name="error_no_app_mgr">Uygulama Yöneticisi Yok</string>
+    <string name="search_placeholder">Uygulamaları ara...</string>
+    <string name="toast_applied_active">Uygulandı &amp; Servis Aktif</string>
+    <string name="toast_applied_slow">Uygulandı (Servis yavaş başlıyor)</string>
+    <string name="toast_applied_timeout">Uygulandı (İşlem kontrol zaman aşımı)</string>
+    <string name="toast_applied_fallback">Uygulandı (Yedek başlatma)</string>
+    <string name="toast_applied_target_active">Uygulandı &amp; Hedef Aktif</string>
+    <string name="toast_applied_target_timeout">Uygulandı (Hedef kontrol zaman aşımı)</string>
+    <string name="dialog_root_title">Root Erişimi Gerekli</string>
+    <string name="dialog_root_text">Bu uygulama, değişiklikleri uygulamak için Root Erişimi (su) gerektirir. Lütfen izinleri verin.</string>
+    <string name="dialog_retry">Yeniden Dene</string>
+    <string name="dialog_exit">Çıkış</string>
+    <string name="dialog_warning_title">Sistem Uyarısı</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed modülü aktif değil.</string>
+    <string name="dialog_warning_lsposed_enable">• Lütfen LSPosed Yöneticisi\'nde etkinleştirin.</string>
+    <string name="dialog_warning_target_not_hooked">Hedef Uygulama (com.pvr.shortcut) bağlanamadı.</string>
+    <string name="dialog_warning_scope_select">• Kapsamda Dock\'u (com.pvr.shortcut) seçin.</string>
+    <string name="dialog_warning_reboot">• Çalışmıyorsa cihazı yeniden başlatmayı deneyin.</string>
+    <string name="dialog_restart_retry">Yeniden Başlat ve Dene</string>
+    <string name="debug_app_label">Hata Ayıklama Uygulaması</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

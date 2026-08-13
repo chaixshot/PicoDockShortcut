@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Dock 快捷方式</string>
+    <string name="exit_toast">再按一次退出</string>
+    <string name="header_title">Dock 快捷方式管理器</string>
+    <string name="header_desc">管理您的 Pico 4 Dock 固定快捷方式</string>
+    <string name="header_instruction_reorder">- 按住並拖動以重新排序</string>
+    <string name="header_instruction_change">- 點擊應用以更改它</string>
+    <string name="action_restore">恢復</string>
+    <string name="action_reload">重新加載</string>
+    <string name="action_apply">應用</string>
+    <string name="action_wait">請稍候...</string>
+    <string name="error_no_app_mgr">無應用管理器</string>
+    <string name="search_placeholder">搜索應用...</string>
+    <string name="toast_applied_active">已應用 &amp; 服務激活</string>
+    <string name="toast_applied_slow">已應用（服務啟動較慢）</string>
+    <string name="toast_applied_timeout">已應用（進程檢查超時）</string>
+    <string name="toast_applied_fallback">已應用（備用啟動）</string>
+    <string name="toast_applied_target_active">已應用 &amp; 目標激活</string>
+    <string name="toast_applied_target_timeout">已應用（目標檢查超時）</string>
+    <string name="dialog_root_title">需要 Root 權限</string>
+    <string name="dialog_root_text">此應用需要 Root 權限 (su) 才能應用更改。請授予權限。</string>
+    <string name="dialog_retry">重試</string>
+    <string name="dialog_exit">退出</string>
+    <string name="dialog_warning_title">系統警告</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed 模組未激活。</string>
+    <string name="dialog_warning_lsposed_enable">• 請在 LSPosed 管理器中啟用它。</string>
+    <string name="dialog_warning_target_not_hooked">目標應用 (com.pvr.shortcut) 未掛載。</string>
+    <string name="dialog_warning_scope_select">• 在作用域中選擇 Dock (com.pvr.shortcut)。</string>
+    <string name="dialog_warning_reboot">• 如果不起作用，請嘗試重啟設備。</string>
+    <string name="dialog_restart_retry">重啟並重試</string>
+    <string name="debug_app_label">調試應用</string>
+    <string name="fit_center_default_label">运动中心</string>
+</resources>

@@ -18,16 +18,18 @@ data class AppInfo(
         return packageName == other.packageName &&
                 className == other.className &&
                 actionName == other.actionName &&
-                fitCenter == other.fitCenter
+                fitCenter == other.fitCenter &&
+                iconUrl == other.iconUrl
     }
 }
 
+// [Chinese Firmware]
 // The "运动中心" (Fit Center) is a hard-coded Dock entry injected by
 // FixAppDataManager.addRemoveFitCenterApp, NOT part of the normal JSON app list.
 // We give it a synthetic AppInfo so it can be added/removed like any other app,
 // but persistence uses the fitCenter flag to drive a special hook rule.
 const val FIT_CENTER_PACKAGE = "com.pvr.fitcenter"
-const val FIT_CENTER_CLASS = "com.pvr.shortcut.utils.AppList\$FitCenter"
+const val FIT_CENTER_CLASS = "com.pvr.shortcut.utils.AppList${'$'}FitCenter"
 const val FIT_CENTER_LABEL = "运动中心"
 
 fun isFitCenter(app: AppInfo): Boolean = app.fitCenter || app.packageName == FIT_CENTER_PACKAGE
@@ -58,6 +60,22 @@ object AppManager {
     }
 
     fun getAppInfo(context: Context, packageName: String): AppInfo? {
+        if (packageName == FIT_CENTER_PACKAGE) {
+            val pm = context.packageManager
+            val label = try {
+                val appInfo = pm.getApplicationInfo(packageName, 0)
+                pm.getApplicationLabel(appInfo).toString()
+            } catch (e: Exception) {
+                context.getString(R.string.fit_center_default_label)
+            }
+            return AppInfo(
+                packageName = FIT_CENTER_PACKAGE,
+                className = FIT_CENTER_CLASS,
+                label = label,
+                fitCenter = true
+            )
+        }
+
         val pm = context.packageManager
         return try {
             val appInfo = pm.getApplicationInfo(packageName, 0)
@@ -69,6 +87,15 @@ object AppManager {
             )
         } catch (e: PackageManager.NameNotFoundException) {
             null
+        }
+    }
+
+    fun isPackageInstalled(context: Context, packageName: String): Boolean {
+        return try {
+            context.packageManager.getPackageInfo(packageName, 0)
+            true
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
         }
     }
 }

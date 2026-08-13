@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Skrót doku</string>
+    <string name="exit_toast">Naciśnij jeszcze raz, aby wyjść</string>
+    <string name="header_title">Menedżer skrótów doku</string>
+    <string name="header_desc">Zarządzaj przypiętymi skrótami w doku Pico 4</string>
+    <string name="header_instruction_reorder">- Przytrzymaj i przeciągnij, aby zmienić kolejność</string>
+    <string name="header_instruction_change">- Dotknij aplikacji, aby ją zmienić</string>
+    <string name="action_restore">Przywróć</string>
+    <string name="action_reload">Odśwież</string>
+    <string name="action_apply">Zastosuj</string>
+    <string name="action_wait">Czekaj...</string>
+    <string name="error_no_app_mgr">Brak menedżera aplikacji</string>
+    <string name="search_placeholder">Szukaj aplikacji...</string>
+    <string name="toast_applied_active">Zastosowano i usługa aktywna</string>
+    <string name="toast_applied_slow">Zastosowano (usługa wolno się uruchamia)</string>
+    <string name="toast_applied_timeout">Zastosowano (limit czasu sprawdzania procesu)</string>
+    <string name="toast_applied_fallback">Zastosowano (uruchomienie awaryjne)</string>
+    <string name="toast_applied_target_active">Zastosowano i cel aktywny</string>
+    <string name="toast_applied_target_timeout">Zastosowano (limit czasu sprawdzania celu)</string>
+    <string name="dialog_root_title">Wymagany dostęp Root</string>
+    <string name="dialog_root_text">Ta aplikacja wymaga dostępu Root (su) do zastosowania zmian. Proszę udzielić uprawnień.</string>
+    <string name="dialog_retry">Ponów</string>
+    <string name="dialog_exit">Wyjdź</string>
+    <string name="dialog_warning_title">Ostrzeżenie systemowe</string>
+    <string name="dialog_warning_lsposed_inactive">Moduł LSPosed nie jest aktywny.</string>
+    <string name="dialog_warning_lsposed_enable">• Proszę włączyć go w Menedżerze LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">Aplikacja docelowa (com.pvr.shortcut) nie jest podpięta.</string>
+    <string name="dialog_warning_scope_select">• Wybierz Dock (com.pvr.shortcut) w zakresie.</string>
+    <string name="dialog_warning_reboot">• Spróbuj zrestartować urządzenie, jeśli nie działa.</string>
+    <string name="dialog_restart_retry">Uruchom ponownie i ponów</string>
+    <string name="debug_app_label">Aplikacja debugująca</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

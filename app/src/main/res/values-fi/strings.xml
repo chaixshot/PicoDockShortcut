@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Telakan pikakuvake</string>
+    <string name="exit_toast">Poistu painamalla vielä kerran</string>
+    <string name="header_title">Telakan pikakuvakkeiden hallinta</string>
+    <string name="header_desc">Hallitse Pico 4 -telakkaan kiinnitettyjä pikakuvakkeita</string>
+    <string name="header_instruction_reorder">- Järjestä uudelleen painamalla ja vetämällä</string>
+    <string name="header_instruction_change">- Muuta sovellusta napauttamalla sitä</string>
+    <string name="action_restore">Palauta</string>
+    <string name="action_reload">Lataa uudelleen</string>
+    <string name="action_apply">Käytä</string>
+    <string name="action_wait">Odota...</string>
+    <string name="error_no_app_mgr">Ei sovellusten hallintaa</string>
+    <string name="search_placeholder">Etsi sovelluksia...</string>
+    <string name="toast_applied_active">Käytössä &amp; Palvelu aktiivinen</string>
+    <string name="toast_applied_slow">Käytössä (Palvelu käynnistyy hitaasti)</string>
+    <string name="toast_applied_timeout">Käytössä (Prosessin tarkistuksen aikakatkaisu)</string>
+    <string name="toast_applied_fallback">Käytössä (Varakäynnistys)</string>
+    <string name="toast_applied_target_active">Käytössä &amp; Kohde aktiivinen</string>
+    <string name="toast_applied_target_timeout">Käytössä (Kohteen tarkistuksen aikakatkaisu)</string>
+    <string name="dialog_root_title">Root-oikeudet vaaditaan</string>
+    <string name="dialog_root_text">Tämä sovellus vaatii Root-oikeudet (su) muutosten soveltamiseen. Myönnä luvat.</string>
+    <string name="dialog_retry">Yritä uudelleen</string>
+    <string name="dialog_exit">Poistu</string>
+    <string name="dialog_warning_title">Järjestelmävaroitus</string>
+    <string name="dialog_warning_lsposed_inactive">LSPosed-moduuli ei ole aktiivinen.</string>
+    <string name="dialog_warning_lsposed_enable">• Ota se käyttöön LSPosed Managerissa.</string>
+    <string name="dialog_warning_target_not_hooked">Kohdesovellusta (com.pvr.shortcut) ei ole koukutettu.</string>
+    <string name="dialog_warning_scope_select">• Valitse Dock (com.pvr.shortcut) laajuudesta.</string>
+    <string name="dialog_warning_reboot">• Yritä käynnistää laite uudelleen, jos se ei toimi.</string>
+    <string name="dialog_restart_retry">Käynnistä uudelleen &amp; Yritä uudelleen</string>
+    <string name="debug_app_label">Debug-sovellus</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

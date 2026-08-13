@@ -9,6 +9,14 @@ android {
         version = release(37)
     }
 
+    androidResources {
+        localeFilters += setOf(
+            "cs", "da", "nl", "en", "en-rGB", "fi", "fr", "de", "el", "it", "ja", "ko", "ms",
+            "nb", "pl", "pt-rPT", "pt-rBR", "ro", "ru", "es-rUS", "es", "sv", "th", "tr",
+            "zh-rCN", "zh-rTW", "zh-rHK"
+        )
+    }
+
     defaultConfig {
         applicationId = "com.hamer.dockshortcut"
         minSdk = 29
@@ -21,9 +29,12 @@ android {
 
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -37,6 +48,7 @@ android {
 
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material.icons.extended)

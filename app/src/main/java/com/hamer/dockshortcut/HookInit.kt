@@ -14,9 +14,32 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
+import org.json.JSONArray
 
 class HookInit : IXposedHookLoadPackage {
     private val jsonPath = "/data/user/0/com.hamer.dockshortcut/dock_fix_apps.json"
+    private val imagePath = "/data/user/0/com.hamer.dockshortcut/Image"
+
+    // True when the user wants the Fit Center shown, i.e. the JSON contains an entry
+    // with packageName == com.pvr.fitcenter OR "fitCenter": true.
+    private fun fitCenterEnabledInJson(): Boolean {
+        return try {
+            val file = File(jsonPath)
+            if (file.exists() && file.canRead()) {
+                val content = file.readText()
+                val jsonArray = JSONArray(content)
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    if (obj.optBoolean("fitCenter", false) || obj.optString("packageName") == "com.pvr.fitcenter") {
+                        return true
+                    }
+                }
+            }
+            false
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == "com.hamer.dockshortcut") {
@@ -36,6 +59,33 @@ class HookInit : IXposedHookLoadPackage {
         if (lpparam.packageName != "com.pvr.shortcut") return
 
         XposedBridge.log("PicoDockShortcut: Hooking com.pvr.shortcut")
+
+        // [Chinese Firmware]
+        // Remove the "运动中心" (Fit Center) hard-coded entry from the Dock.
+        // addRemoveFitCenterApp(List, List) scans the fix app list and re-inserts
+        // AppList.FitCenter when DockUtils.isUserCenterNoFit() is true (China/Phoenix).
+        // We neutralize it UNLESS the user enabled Fit Center in the JSON
+        // (via an entry with "fitCenter": true) — then we let the system keep it.
+        try {
+            XposedHelpers.findAndHookMethod(
+                "com.pvr.shortcut.dock.datamanager.FixAppDataManager",
+                lpparam.classLoader,
+                "addRemoveFitCenterApp",
+                // MUST pass the exact parameter types here, otherwise Vector resolves
+                // addRemoveFitCenterApp() (zero-arg) and fails with #exact mismatch.
+                java.util.List::class.java,
+                java.util.List::class.java,
+                object : XC_MethodHook() {
+                    override fun beforeHookedMethod(param: MethodHookParam) {
+                        if (!fitCenterEnabledInJson()) {
+                            param.result = null
+                        }
+                    }
+                }
+            )
+        } catch (e: Throwable) {
+            XposedBridge.log("PicoDockShortcut: Failed to hook addRemoveFitCenterApp: ${e.message}")
+        }
 
         val hook = object : XC_MethodHook() {
             @SuppressLint("DiscouragedPrivateApi")
@@ -60,11 +110,21 @@ class HookInit : IXposedHookLoadPackage {
                 }
 
                 // Intercept custom icons
-                if (fileName.startsWith("Image/custom_icon_") && fileName.endsWith(".png")) {
-                    val pkgName = fileName.substringAfter("Image/custom_icon_").substringBefore(".png")
-                    XposedBridge.log("PicoDockShortcut: Providing custom icon for $pkgName")
+                if (fileName.startsWith("Image/") && fileName.contains("custom_icon_") && fileName.endsWith(".png")) {
+                    val relativePath = fileName.substringAfter("Image/")
+                    val pkgName = relativePath.substringAfter("custom_icon_").substringBefore(".png")
+                    XposedBridge.log("PicoDockShortcut: Providing custom icon for $pkgName (path: $fileName)")
 
                     try {
+                        // Try loading from cache first
+                        val cacheFile = File(imagePath, relativePath)
+                        if (cacheFile.exists() && cacheFile.canRead()) {
+                            XposedBridge.log("PicoDockShortcut: Loading icon from cache for $pkgName")
+                            param.result = ByteArrayInputStream(cacheFile.readBytes())
+                            return
+                        }
+
+                        // Fallback to generating if cache doesn't exist
                         val context = AndroidAppHelper.currentApplication()
                         val pm = context.packageManager
                         val icon = pm.getApplicationIcon(pkgName)

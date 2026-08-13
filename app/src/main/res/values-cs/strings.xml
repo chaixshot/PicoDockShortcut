@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Zástupce v doku</string>
+    <string name="exit_toast">Stiskněte ještě jednou pro ukončení</string>
+    <string name="header_title">Správce zástupců v doku</string>
+    <string name="header_desc">Spravujte své připnuté zástupce v doku Pico 4</string>
+    <string name="header_instruction_reorder">- Podržením a přetažením změníte pořadí</string>
+    <string name="header_instruction_change">- Klepnutím na aplikaci ji změníte</string>
+    <string name="action_restore">Obnovit</string>
+    <string name="action_reload">Znovu načíst</string>
+    <string name="action_apply">Použít</string>
+    <string name="action_wait">Čekejte...</string>
+    <string name="error_no_app_mgr">Žádný správce aplikací</string>
+    <string name="search_placeholder">Hledat aplikace...</string>
+    <string name="toast_applied_active">Použito a služba je aktivní</string>
+    <string name="toast_applied_slow">Použito (služba se spouští pomalu)</string>
+    <string name="toast_applied_timeout">Použito (časový limit kontroly procesu vypršel)</string>
+    <string name="toast_applied_fallback">Použito (nouzové spuštění)</string>
+    <string name="toast_applied_target_active">Použito a cíl je aktivní</string>
+    <string name="toast_applied_target_timeout">Použito (časový limit kontroly cíle vypršel)</string>
+    <string name="dialog_root_title">Vyžadován přístup Root</string>
+    <string name="dialog_root_text">Tato aplikace vyžaduje přístup Root (su) k použití změn. Udělte prosím oprávnění.</string>
+    <string name="dialog_retry">Opakovat</string>
+    <string name="dialog_exit">Ukončit</string>
+    <string name="dialog_warning_title">Systémové varování</string>
+    <string name="dialog_warning_lsposed_inactive">Modul LSPosed není aktivní.</string>
+    <string name="dialog_warning_lsposed_enable">• Povolte jej prosím ve Správci LSPosed.</string>
+    <string name="dialog_warning_target_not_hooked">Cílová aplikace (com.pvr.shortcut) není zachycena.</string>
+    <string name="dialog_warning_scope_select">• Vyberte Dock (com.pvr.shortcut) v rozsahu.</string>
+    <string name="dialog_warning_reboot">• Pokud to nefunguje, zkuste restartovat zařízení.</string>
+    <string name="dialog_restart_retry">Restartovat a opakovat</string>
+    <string name="debug_app_label">Ladicí aplikace</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>

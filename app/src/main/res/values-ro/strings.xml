@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">Comandă rapidă Dock</string>
+    <string name="exit_toast">Apăsați încă o dată pentru a ieși</string>
+    <string name="header_title">Manager comenzi rapide Dock</string>
+    <string name="header_desc">Gestionați comenzile rapide fixate în dock-ul Pico 4</string>
+    <string name="header_instruction_reorder">- Mențineți și trageți pentru a reordona</string>
+    <string name="header_instruction_change">- Atingeți aplicația pentru a o schimba</string>
+    <string name="action_restore">Restaurare</string>
+    <string name="action_reload">Reîncărcare</string>
+    <string name="action_apply">Aplicare</string>
+    <string name="action_wait">Așteptați...</string>
+    <string name="error_no_app_mgr">Fără App Mgr</string>
+    <string name="search_placeholder">Căutare aplicații...</string>
+    <string name="toast_applied_active">Aplicat &amp; Serviciu Activ</string>
+    <string name="toast_applied_slow">Aplicat (Serviciul pornește greu)</string>
+    <string name="toast_applied_timeout">Aplicat (Timeout verificare proces)</string>
+    <string name="toast_applied_fallback">Aplicat (Lansare de rezervă)</string>
+    <string name="toast_applied_target_active">Aplicat &amp; Țintă Activă</string>
+    <string name="toast_applied_target_timeout">Aplicat (Timeout verificare țintă)</string>
+    <string name="dialog_root_title">Acces Root Necesar</string>
+    <string name="dialog_root_text">Această aplicație necesită acces Root (su) pentru a aplica modificările. Vă rugăm să acordați permisiunile.</string>
+    <string name="dialog_retry">Reîncercare</string>
+    <string name="dialog_exit">Ieșire</string>
+    <string name="dialog_warning_title">Avertisment sistem</string>
+    <string name="dialog_warning_lsposed_inactive">Modulul LSPosed nu este activ.</string>
+    <string name="dialog_warning_lsposed_enable">• Vă rugăm să îl activați în LSPosed Manager.</string>
+    <string name="dialog_warning_target_not_hooked">Aplicația țintă (com.pvr.shortcut) nu este interceptată.</string>
+    <string name="dialog_warning_scope_select">• Selectați Dock (com.pvr.shortcut) în domeniu.</string>
+    <string name="dialog_warning_reboot">• Încercați să reporniți dispozitivul dacă nu funcționează.</string>
+    <string name="dialog_restart_retry">Repornire și Reîncercare</string>
+    <string name="debug_app_label">Aplicație Debug</string>
+    <string name="fit_center_default_label">Fit Center</string>
+</resources>
