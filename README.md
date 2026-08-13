@@ -1,5 +1,5 @@
 <div align="center">
-<img src="Resource/icon.ico" width="128" height="128"/>
+<img src="Resource/icon.webp" width="128" height="128"/>
 
 # PicoDockShortcut
 ### Manage your Pico 4 dock pinned shortcuts with ease.
@@ -7,7 +7,7 @@
 </div>
 
 ## 👓 Screenshot
-<image src="Resource/Android_Pico2Dock.png" width="400">
+<image src="Resource/Android_Pico2Dock.jpeg" width="400">
   
 ## 🌟 Key Features
 *   **🤌 Drag to Reorder:** Easily organize your dock shortcuts with intuitive long-press and drag gestures.
