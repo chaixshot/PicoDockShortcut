@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Genstart &amp; Prøv igen</string>
     <string name="debug_app_label">Debug App</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">App-manager</string>
 </resources>

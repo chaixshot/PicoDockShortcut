@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Mula semula &amp; Cuba lagi</string>
     <string name="debug_app_label">Apl Debug</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Pengurus Apl</string>
 </resources>

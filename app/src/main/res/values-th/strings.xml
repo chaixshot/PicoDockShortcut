@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">รีสตาร์ทและลองใหม่</string>
     <string name="debug_app_label">แอปดีบัก</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">ตัวจัดการแอป</string>
 </resources>

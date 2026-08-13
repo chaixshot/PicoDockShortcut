@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">重啟並重試</string>
     <string name="debug_app_label">調試應用</string>
     <string name="fit_center_default_label">运动中心</string>
-    <string name="app_manager_label">應用程式管理員</string>
 </resources>

@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">재시작 및 재시도</string>
     <string name="debug_app_label">디버그 앱</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">앱 관리자</string>
 </resources>

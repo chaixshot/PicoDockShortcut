@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Reiniciar e Repetir</string>
     <string name="debug_app_label">Aplicação de Depuração</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Gestor de aplicações</string>
 </resources>

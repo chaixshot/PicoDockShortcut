@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Redémarrer &amp; Réessayer</string>
     <string name="debug_app_label">Application de débogage</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Gestionnaire d\'applications</string>
 </resources>

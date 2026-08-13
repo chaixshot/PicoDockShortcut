@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Restartovat a opakovat</string>
     <string name="debug_app_label">Ladicí aplikace</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Správce aplikací</string>
 </resources>

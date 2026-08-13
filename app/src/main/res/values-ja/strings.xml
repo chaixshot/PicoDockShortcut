@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">再起動して再試行</string>
     <string name="debug_app_label">デバッグアプリ</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">アプリマネージャー</string>
 </resources>

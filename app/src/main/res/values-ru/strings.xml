@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Перезапуск и повтор</string>
     <string name="debug_app_label">Отладочное приложение</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Диспетчер приложений</string>
 </resources>

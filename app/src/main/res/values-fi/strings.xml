@@ -30,5 +30,4 @@
     <string name="dialog_restart_retry">Käynnistä uudelleen &amp; Yritä uudelleen</string>
     <string name="debug_app_label">Debug-sovellus</string>
     <string name="fit_center_default_label">Fit Center</string>
-    <string name="app_manager_label">Sovellusten hallinta</string>
 </resources>
