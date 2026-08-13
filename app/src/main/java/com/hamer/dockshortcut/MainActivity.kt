@@ -11,13 +11,15 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.animateColorAsState
+import androidx.core.os.LocaleListCompat
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -491,7 +493,7 @@ class MainViewModel : ViewModel() {
 
 // --- Main Activity ---
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private var lastBackTime: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -521,8 +523,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        // Force exit to ensure clean state for module/hooks
-        android.os.Process.killProcess(android.os.Process.myPid())
+        // Only force exit if not changing configuration (like locale change)
+        if (!isChangingConfigurations) {
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }
     }
 }
 
@@ -532,6 +536,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
+    var showLanguageSelector by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     var pickingIconIndex by remember { mutableStateOf<Int?>(null) }
 
@@ -566,7 +571,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                Header(viewModel, context)
+                Header(viewModel, context, onLanguageClick = { showLanguageSelector = true })
                 Spacer(modifier = Modifier.height(24.dp))
                 DockGrid(
                     viewModel = viewModel,
@@ -601,10 +606,14 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             }
         )
     }
+
+    if (showLanguageSelector) {
+        LanguageSelector(onDismiss = { showLanguageSelector = false })
+    }
 }
 
 @Composable
-private fun Header(viewModel: MainViewModel, context: Context) {
+private fun Header(viewModel: MainViewModel, context: Context, onLanguageClick: () -> Unit) {
     var iconTapCount by remember { mutableIntStateOf(0) }
     
     Row(
@@ -665,6 +674,19 @@ private fun Header(viewModel: MainViewModel, context: Context) {
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            IconButton(
+                onClick = onLanguageClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Icon(
+                    Icons.Default.Language,
+                    contentDescription = "Language",
+                    tint = Color.LightGray
+                )
+            }
             ActionButton(
                 stringResource(R.string.action_restore),
                 Icons.Default.SettingsBackupRestore,
@@ -1226,4 +1248,84 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
 @Composable
 fun DefaultPreview() {
     PicoDockShortcutTheme { MainScreen() }
+}
+
+@Composable
+fun LanguageSelector(onDismiss: () -> Unit) {
+    val supportedLocales = listOf(
+        "Auto" to "",
+        "English" to "en",
+        "English (UK)" to "en-GB",
+        "简体中文" to "zh-CN",
+        "繁體中文 (台灣)" to "zh-TW",
+        "繁體中文 (香港)" to "zh-HK",
+        "Deutsch" to "de",
+        "Français" to "fr",
+        "Español" to "es",
+        "Español (US)" to "es-US",
+        "Italiano" to "it",
+        "日本語" to "ja",
+        "한국어" to "ko",
+        "Русский" to "ru",
+        "ไทย" to "th",
+        "Türkçe" to "tr",
+        "Čeština" to "cs",
+        "Dansk" to "da",
+        "Nederlands" to "nl",
+        "Suomi" to "fi",
+        "Eλληνικά" to "el",
+        "Bahasa Melayu" to "ms",
+        "Norsk Bokmål" to "nb",
+        "Polski" to "pl",
+        "Português (Brasil)" to "pt-BR",
+        "Português (Portugal)" to "pt-PT",
+        "Română" to "ro",
+        "Svenska" to "sv"
+    )
+
+    val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Select Language", color = Color.White) },
+        text = {
+            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+                items(supportedLocales) { (name, tag) ->
+                    val isSelected = (tag == "" && currentLocale == "") || 
+                                   (tag != "" && currentLocale.startsWith(tag))
+                    TextButton(
+                        onClick = {
+                            val appLocale: LocaleListCompat = if (tag.isEmpty()) {
+                                LocaleListCompat.getEmptyLocaleList()
+                            } else {
+                                LocaleListCompat.forLanguageTags(tag)
+                            }
+                            AppCompatDelegate.setApplicationLocales(appLocale)
+                            onDismiss()
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                        )
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(name, textAlign = TextAlign.Start)
+                            if (isSelected) {
+                                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) { Text("Close") }
+        },
+        containerColor = Color(0xFF333333),
+        textContentColor = Color.White
+    )
 }

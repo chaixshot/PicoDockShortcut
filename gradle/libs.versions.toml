@@ -7,10 +7,12 @@ espressoCore = "3.5.1"
 lifecycleRuntimeKtx = "2.6.1"
 lifecycleViewmodelCompose = "2.6.1"
 activityCompose = "1.8.0"
+appcompat = "1.6.1"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
 
 [libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
