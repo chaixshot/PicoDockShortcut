@@ -269,8 +269,16 @@ class MainViewModel : ViewModel() {
         if (selectedApps.size < 11) selectedApps.add(app)
     }
 
-    fun removeApp(index: Int) {
-        if (index in selectedApps.indices) selectedApps.removeAt(index)
+    fun removeApp(context: Context, index: Int) {
+        if (index in selectedApps.indices) {
+            val app = selectedApps[index]
+            // Delete custom icon if exists
+            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            if (customFile.exists()) {
+                customFile.delete()
+            }
+            selectedApps.removeAt(index)
+        }
     }
 
     fun moveApp(from: Int, to: Int) {
@@ -763,6 +771,7 @@ private fun DockGrid(
     onAddClick: () -> Unit,
     onPickIcon: (Int) -> Unit
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     var draggedIndex by remember { mutableStateOf<Int?>(null) }
     var touchPosition by remember { mutableStateOf(Offset.Zero) }
@@ -835,7 +844,7 @@ private fun DockGrid(
                     DockSlot(
                         app,
                         onClick = { onSlotClick(index) },
-                        onDelete = { viewModel.removeApp(index) },
+                        onDelete = { viewModel.removeApp(context, index) },
                         onPickIcon = { onPickIcon(index) })
                 }
             }
