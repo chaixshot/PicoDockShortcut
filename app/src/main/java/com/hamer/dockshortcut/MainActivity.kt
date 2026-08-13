@@ -234,7 +234,6 @@ class MainViewModel : ViewModel() {
 
     fun reload(context: Context) {
         viewModelScope.launch {
-            clearIconCache(context)
             val file = getJsonFile(context)
             if (file.exists()) parseApps(context, file.readText(), updateSaved = true)
         }
@@ -242,7 +241,6 @@ class MainViewModel : ViewModel() {
 
     fun restoreDefault(context: Context) {
         viewModelScope.launch {
-            clearIconCache(context)
             val default = try {
                 context.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
             } catch (e: Exception) {
@@ -255,7 +253,7 @@ class MainViewModel : ViewModel() {
     private fun clearIconCache(context: Context) {
         val imageDir = File(context.filesDir.parentFile, "Image")
         if (imageDir.exists()) {
-            imageDir.listFiles()?.forEach { it.delete() }
+            imageDir.listFiles()?.filter { it.isFile }?.forEach { it.delete() }
         }
     }
 
@@ -356,6 +354,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             isApplying = true
             saveToJson(context)
+            clearIconCache(context)
             savedApps.clear()
             savedApps.addAll(selectedApps)
             restartTargetApp(context)
