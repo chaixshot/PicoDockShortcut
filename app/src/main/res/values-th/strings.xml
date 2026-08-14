@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">รีสตาร์ทและลองใหม่</string>
     <string name="debug_app_label">แอปดีบัก</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">ตัวจัดการแอป</string>
+    <string name="dock_bg_title">พื้นหลังด็อก</string>
+    <string name="dock_bg_not_set">ยังไม่ได้ตั้งค่าพื้นหลัง · เลือกรูปภาพเพื่อกำหนดพื้นที่</string>
+    <string name="dock_bg_current">พื้นหลังปัจจุบัน: %1$s</string>
+    <string name="dock_bg_desc">ความสูงของด็อกคงที่ (120dp) ความกว้างจะเปลี่ยนตามจำนวนไอคอน\nรูปภาพจะจัดชิดซ้ายและคงที่ พื้นที่ด้านขวาจะแสดงออกมามากขึ้นเมื่อเพิ่มไอคอน\nการตัดครอปจะเป็นไปตามขีดจำกัดระบบ dock_max_width 1800dp (%1$.0f : 1)\nปัจจุบันมี %2$d ทางลัด + คลังแอป เห็นพื้นที่ฝั่งซ้ายประมาณ %3$d%%\nเมื่อเปิดแอป (แอปที่เพิ่งใช้สูงสุด %4$d แอป) ด็อกจะกว้างขึ้นชั่วคราว</string>
+    <string name="action_choose_image">เลือกรูปภาพ</string>
+    <string name="action_apply_bg">ใช้พื้นหลัง</string>
+    <string name="toast_bg_saved">ครอปและบันทึกพื้นหลังแล้ว: %1$s</string>
+    <string name="toast_save_failed">บันทึกไม่สำเร็จ: %1$s</string>
+    <string name="toast_decode_failed">ไม่สามารถถอดรหัสรูปภาพได้</string>
+    <string name="crop_dialog_title">ครอปพื้นหลังด็อก</string>
+    <string name="crop_dialog_info">อัตราส่วน %1$.0f : 1 (จำกัดความกว้างด็อก) · ขนาดจริง %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">รูปภาพจัดชิดซ้าย ด้วย %1$d ทางลัดในปัจจุบัน จะเห็นเฉพาะส่วนที่อยู่ทางซ้ายของเส้นสีฟ้า</string>
+    <string name="crop_dialog_all_visible_hint">รูปภาพจัดชิดซ้าย พื้นที่ด้านขวาจะแสดงออกมามากขึ้นเมื่อเพิ่มไอคอน</string>
+    <string name="crop_dialog_instruction">ลากเพื่อย้าย · ใช้แถบเลื่อนเพื่อซูม</string>
+    <string name="action_cancel">ยกเลิก</string>
+    <string name="action_use_region">ใช้พื้นที่นี้</string>
+    <string name="toast_crop_failed">ครอปไม่สำเร็จ: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (ไม่สามารถถอดรหัสได้)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (ไม่พร้อมใช้งาน)</string>
 </resources>

@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Riavvia e Riprova</string>
     <string name="debug_app_label">App di Debug</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Gestore App</string>
+    <string name="dock_bg_title">Sfondo del Dock</string>
+    <string name="dock_bg_not_set">Nessuno sfondo impostato · Scegli un\'immagine per selezionare l\'area</string>
+    <string name="dock_bg_current">Sfondo attuale: %1$s</string>
+    <string name="dock_bg_desc">L\'altezza del dock è fissa (120dp), la larghezza varia con il numero di icone.\nL\'immagine è allineata a sinistra e fissa, più parte destra viene rivelata aggiungendo icone.\nIl ritaglio segue il limite di sistema dock_max_width 1800dp (%1$.0f : 1).\nAttualmente %2$d scorciatoie + Libreria, vedi solo circa il %3$d%% del lato sinistro.\nAprendo le app (fino a %4$d app recenti a destra della libreria), si allargherà temporaneamente.</string>
+    <string name="action_choose_image">Seleziona immagine</string>
+    <string name="action_apply_bg">Applica sfondo</string>
+    <string name="toast_bg_saved">Sfondo ritagliato e salvato: %1$s</string>
+    <string name="toast_save_failed">Salvataggio fallito: %1$s</string>
+    <string name="toast_decode_failed">Impossibile decodificare l\'immagine</string>
+    <string name="crop_dialog_title">Ritaglia sfondo Dock</string>
+    <string name="crop_dialog_info">Rapporto %1$.0f : 1 (Limite larghezza Dock) · Originale %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">L\'immagine è allineata a sinistra. Con %1$d scorciatoie, è visibile solo la parte a sinistra della linea blu.</string>
+    <string name="crop_dialog_all_visible_hint">L\'immagine è allineata a sinistra, più sfondo a destra viene rivelato con più icone</string>
+    <string name="crop_dialog_instruction">Trascina per spostare · Slider per lo zoom</string>
+    <string name="action_cancel">Annulla</string>
+    <string name="action_use_region">Usa questa area</string>
+    <string name="toast_crop_failed">Ritaglio fallito: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (impossibile decodificare)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (non disponibile)</string>
 </resources>

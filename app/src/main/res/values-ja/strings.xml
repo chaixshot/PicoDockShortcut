@@ -9,7 +9,7 @@
     <string name="action_reload">リロード</string>
     <string name="action_apply">適用</string>
     <string name="action_wait">待機中...</string>
-    <string name="error_no_app_mgr">アプリマネージャーがありません</string>
+    <string name="error_no_app_mgr">アプリマネージャーが見つかりません</string>
     <string name="search_placeholder">アプリを検索...</string>
     <string name="toast_applied_active">適用済み &amp; サービス有効</string>
     <string name="toast_applied_slow">適用済み（サービスの起動が遅れています）</string>
@@ -29,5 +29,26 @@
     <string name="dialog_warning_reboot">• 動作しない場合はデバイスを再起動してみてください。</string>
     <string name="dialog_restart_retry">再起動して再試行</string>
     <string name="debug_app_label">デバッグアプリ</string>
-    <string name="fit_center_default_label">Fit Center</string>
+    <string name="fit_center_default_label">フィットセンター</string>
+    <string name="app_manager_label">アプリマネージャー</string>
+    <string name="dock_bg_title">Dock背景</string>
+    <string name="dock_bg_not_set">背景未設定 · 画像選択後に範囲を指定できます</string>
+    <string name="dock_bg_current">現在の背景: %1$s</string>
+    <string name="dock_bg_desc">Dockの高さは固定(120dp)で、幅はアイコン数に応じて変わります。\n画像は左側に固定され、アイコンが増えるほど右側が表示されます。\n切り抜きはシステムの上限(1800dp、%1$.0f : 1)に合わせて行われます。\n現在 %2$d 個のアプリ + ライブラリで、左側の約 %3$d%% が表示されています。\n最近使用したアプリ(%4$d個まで)が表示されるとさらに幅が広がります。</string>
+    <string name="action_choose_image">画像を選択</string>
+    <string name="action_apply_bg">背景を適用</string>
+    <string name="toast_bg_saved">背景を保存しました: %1$s</string>
+    <string name="toast_save_failed">保存失敗: %1$s</string>
+    <string name="toast_decode_failed">画像をデコードできません</string>
+    <string name="crop_dialog_title">Dock背景の切り抜き</string>
+    <string name="crop_dialog_info">比率 %1$.0f : 1 (Dock上限幅) · 元のサイズ %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">画像は左揃えです。現在の %1$d 個のアプリでは、青線の左側のみが表示されます。</string>
+    <string name="crop_dialog_all_visible_hint">画像は左揃えです。アイコンが増えるほど右側が表示されます。</string>
+    <string name="crop_dialog_instruction">ドラッグで移動 · スライダーで拡大縮小</string>
+    <string name="action_cancel">キャンセル</string>
+    <string name="action_use_region">この範囲を使用</string>
+    <string name="toast_crop_failed">切り抜き失敗: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (デコード不能)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (利用不可)</string>
 </resources>

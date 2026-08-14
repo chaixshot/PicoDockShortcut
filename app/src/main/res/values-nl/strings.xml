@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Opnieuw opstarten &amp; Proberen</string>
     <string name="debug_app_label">Debug App</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-beheerder</string>
+    <string name="dock_bg_title">Dock-achtergrond</string>
+    <string name="dock_bg_not_set">Geen achtergrond ingesteld · Kies een afbeelding om het gebied te selecteren</string>
+    <string name="dock_bg_current">Huidige achtergrond: %1$s</string>
+    <string name="dock_bg_desc">Dockhoogte is vast (120dp), breedte varieert met het aantal iconen.\nAfbeelding is links uitgelijnd en vast, meer van de rechterkant wordt onthuld bij het toevoegen van iconen.\nBijsnijden volgt de systeemlimiet dock_max_width 1800dp (%1$.0f : 1).\nMomenteel %2$d snelkoppelingen + App-bibliotheek, je ziet slechts ca. %3$d%% van de linkerkant.\nBij het openen van apps (tot %4$d recente apps rechts), wordt het tijdelijk breder.</string>
+    <string name="action_choose_image">Afbeelding selecteren</string>
+    <string name="action_apply_bg">Achtergrond toepassen</string>
+    <string name="toast_bg_saved">Achtergrond bijgesneden en opgeslagen: %1$s</string>
+    <string name="toast_save_failed">Opslaan mislukt: %1$s</string>
+    <string name="toast_decode_failed">Afbeelding kon niet worden gedecodeerd</string>
+    <string name="crop_dialog_title">Dock-achtergrond bijsnijden</string>
+    <string name="crop_dialog_info">Ratio %1$.0f : 1 (Dock-breedtelimiet) · Origineel %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Afbeelding is links uitgelijnd. Met de huidige %1$d snelkoppelingen is alleen het deel links van de blauwe lijn zichtbaar.</string>
+    <string name="crop_dialog_all_visible_hint">Afbeelding is links uitgelijnd, meer van de achtergrond aan de rechterkant wordt onthuld met meer iconen</string>
+    <string name="crop_dialog_instruction">Sleep om te verplaatsen · Schuifregelaar voor zoom</string>
+    <string name="action_cancel">Annuleren</string>
+    <string name="action_use_region">Dit gebied gebruiken</string>
+    <string name="toast_crop_failed">Bijsnijden mislukt: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (kan niet decoderen)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (niet beschikbaar)</string>
 </resources>

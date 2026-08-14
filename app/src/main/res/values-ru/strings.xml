@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Перезапуск и повтор</string>
     <string name="debug_app_label">Отладочное приложение</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Менеджер приложений</string>
+    <string name="dock_bg_title">Фон дока</string>
+    <string name="dock_bg_not_set">Фон не установлен · Выберите изображение, чтобы указать область</string>
+    <string name="dock_bg_current">Текущий фон: %1$s</string>
+    <string name="dock_bg_desc">Высота дока фиксирована (120dp), ширина зависит от количества иконок.\nИзображение выровнено по левому краю и зафиксировано, при добавлении иконок открывается правая часть изображения.\nОбрезка соответствует системному лимиту dock_max_width 1800dp (%1$.0f : 1).\nСейчас %2$d ярлыков + Библиотека, видно только около %3$d%% левой стороны.\nПри открытии приложений (до %4$d недавних справа от библиотеки) док временно расширяется.</string>
+    <string name="action_choose_image">Выбрать изображение</string>
+    <string name="action_apply_bg">Применить фон</string>
+    <string name="toast_bg_saved">Фон обрезан и сохранен: %1$s</string>
+    <string name="toast_save_failed">Ошибка сохранения: %1$s</string>
+    <string name="toast_decode_failed">Не удалось декодировать изображение</string>
+    <string name="crop_dialog_title">Обрезать фон дока</string>
+    <string name="crop_dialog_info">Соотношение %1$.0f : 1 (Лимит ширины дока) · Оригинал %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Изображение выровнено по левому краю. При %1$d ярлыках видна только часть слева от синей линии.</string>
+    <string name="crop_dialog_all_visible_hint">Изображение выровнено по левому краю, при добавлении иконок открывается больше фона справа</string>
+    <string name="crop_dialog_instruction">Перетащите для перемещения · Ползунок для масштаба</string>
+    <string name="action_cancel">Отмена</string>
+    <string name="action_use_region">Использовать эту область</string>
+    <string name="toast_crop_failed">Ошибка обрезки: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (не удалось декодировать)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (недоступно)</string>
 </resources>

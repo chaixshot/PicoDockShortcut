@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Repornire și Reîncercare</string>
     <string name="debug_app_label">Aplicație Debug</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Manager aplicații</string>
+    <string name="dock_bg_title">Fundal Dock</string>
+    <string name="dock_bg_not_set">Niciun fundal setat · Alegeți o imagine pentru a selecta zona</string>
+    <string name="dock_bg_current">Fundal actual: %1$s</string>
+    <string name="dock_bg_desc">Înălțimea dock-ului este fixă (120dp), lățimea variază în funcție de numărul de pictograme.\nImaginea este aliniată la stânga și fixă, mai mult din partea dreaptă este dezvăluită pe măsură ce adăugați pictograme.\nDecuparea urmează limita sistemului dock_max_width 1800dp (%1$.0f : 1).\nÎn prezent %2$d comenzi rapide + Bibliotecă, vedeți doar aproximativ %3$d%% din partea stângă.\nLa deschiderea aplicațiilor (până la %4$d recente), se va lărgi temporar.</string>
+    <string name="action_choose_image">Selectare imagine</string>
+    <string name="action_apply_bg">Aplicare fundal</string>
+    <string name="toast_bg_saved">Fundal decupat și salvat: %1$s</string>
+    <string name="toast_save_failed">Salvare eșuată: %1$s</string>
+    <string name="toast_decode_failed">Imaginea nu a putut fi decodată</string>
+    <string name="crop_dialog_title">Decupare fundal Dock</string>
+    <string name="crop_dialog_info">Raport %1$.0f : 1 (Limită lățime Dock) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Imaginea este aliniată la stânga. Cu actualele %1$d comenzi rapide, este vizibilă doar partea din stânga liniei albastre.</string>
+    <string name="crop_dialog_all_visible_hint">Imaginea este aliniată la stânga, mai mult fundal la dreapta este dezvăluit cu mai multe pictograme</string>
+    <string name="crop_dialog_instruction">Trageți pentru a muta · Glisor pentru zoom</string>
+    <string name="action_cancel">Anulare</string>
+    <string name="action_use_region">Utilizați această zonă</string>
+    <string name="toast_crop_failed">Decupare eșuată: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (nu poate fi decodat)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (indisponibil)</string>
 </resources>

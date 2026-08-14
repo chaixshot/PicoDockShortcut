@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Neustart &amp; Wiederholen</string>
     <string name="debug_app_label">Debug-App</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-Manager</string>
+    <string name="dock_bg_title">Dock-Hintergrund</string>
+    <string name="dock_bg_not_set">Kein Hintergrund festgelegt · Wähle ein Bild aus, um den Bereich festzulegen</string>
+    <string name="dock_bg_current">Aktueller Hintergrund: %1$s</string>
+    <string name="dock_bg_desc">Die Dock-Höhe ist fest (120dp), die Breite variiert mit der Anzahl der Symbole.\nDas Bild ist linksbündig und fixiert, mehr vom rechten Bildbereich wird sichtbar, wenn Symbole hinzugefügt werden.\nDer Zuschnitt erfolgt nach dem Systemlimit dock_max_width 1800dp (%1$.0f : 1).\nAktuell %2$d Verknüpfungen + App-Bibliothek, es sind ca. %3$d%% der linken Seite sichtbar.\nBeim Öffnen von Apps (bis zu %4$d kürzlich verwendete Apps rechts von der Bibliothek) wird das Dock vorübergehend breiter.</string>
+    <string name="action_choose_image">Bild auswählen</string>
+    <string name="action_apply_bg">Hintergrund anwenden</string>
+    <string name="toast_bg_saved">Hintergrund zugeschnitten und gespeichert: %1$s</string>
+    <string name="toast_save_failed">Speichern fehlgeschlagen: %1$s</string>
+    <string name="toast_decode_failed">Bild konnte nicht dekodiert werden</string>
+    <string name="crop_dialog_title">Dock-Hintergrund zuschneiden</string>
+    <string name="crop_dialog_info">Verhältnis %1$.0f : 1 (Dock-Breitenlimit) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Das Bild ist linksbündig. Bei aktuell %1$d Verknüpfungen ist nur der Teil links der blauen Linie sichtbar.</string>
+    <string name="crop_dialog_all_visible_hint">Das Bild ist linksbündig, mehr vom rechten Bildbereich wird sichtbar, wenn Symbole hinzugefügt werden</string>
+    <string name="crop_dialog_instruction">Ziehen zum Verschieben · Schieberegler zum Zoomen</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="action_use_region">Diesen Bereich verwenden</string>
+    <string name="toast_crop_failed">Zuschneiden fehlgeschlagen: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (kann nicht dekodiert werden)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (nicht verfügbar)</string>
 </resources>

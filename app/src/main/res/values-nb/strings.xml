@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Start på nytt &amp; prøv igjen</string>
     <string name="debug_app_label">Debug-app</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-administrator</string>
+    <string name="dock_bg_title">Dock-bakgrunn</string>
+    <string name="dock_bg_not_set">Ingen bakgrunn valgt · Velg et bilde for å angi område</string>
+    <string name="dock_bg_current">Nåværende bakgrunn: %1$s</string>
+    <string name="dock_bg_desc">Dockhøyden er fast (120dp), bredden varierer med antall ikoner.\nBildet er venstrejustert og fast, mer av høyre side avsløres når ikoner legges til.\nBeskjæring følger systemgrensen dock_max_width 1800dp (%1$.0f : 1).\nAkkurat nå %2$d snarveier + Bibliotek, du ser bare ca. %3$d%% av venstre side.\nNår apper åpnes (opptil %4$d nylige til høyre), utvides den midlertidig.</string>
+    <string name="action_choose_image">Velg bilde</string>
+    <string name="action_apply_bg">Bruk bakgrunn</string>
+    <string name="toast_bg_saved">Bakgrunn beskåret og lagret: %1$s</string>
+    <string name="toast_save_failed">Lagring feilet: %1$s</string>
+    <string name="toast_decode_failed">Bildet kunne ikke dekodes</string>
+    <string name="crop_dialog_title">Beskjær dock-bakgrunn</string>
+    <string name="crop_dialog_info">Forhold %1$.0f : 1 (Dock-breddegrense) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Bildet er venstrejustert. Med nåværende %1$d snarveier ses bare delen til venstre for den blå linjen.</string>
+    <string name="crop_dialog_all_visible_hint">Bildet er venstrejustert, mer bakgrunn til høyre avsløres med flere ikoner</string>
+    <string name="crop_dialog_instruction">Dra for å flytte · Skyveknapp for zoom</string>
+    <string name="action_cancel">Avbryt</string>
+    <string name="action_use_region">Bruk dette området</string>
+    <string name="toast_crop_failed">Beskjæring feilet: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (kan ikke dekode)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (ikke tilgjengelig)</string>
 </resources>

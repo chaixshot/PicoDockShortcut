@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Yeniden Başlat ve Dene</string>
     <string name="debug_app_label">Hata Ayıklama Uygulaması</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Uygulama Yöneticisi</string>
+    <string name="dock_bg_title">Dock Arka Planı</string>
+    <string name="dock_bg_not_set">Arka plan ayarlanmadı · Alanı seçmek için bir resim seçin</string>
+    <string name="dock_bg_current">Geçerli arka plan: %1$s</string>
+    <string name="dock_bg_desc">Dock yüksekliği sabittir (120dp), genişlik simge sayısına göre değişir.\nResim sola hizalı ve sabittir, simge ekledikçe sağdaki resim alanı ortaya çıkar.\nKırpma, sistem sınırı olan dock_max_width 1800dp (%1$.0f : 1) değerini izler.\nŞu anda %2$d kısayol + Kitaplık var, sol tarafın yaklaşık %% %3$d kadarı görünüyor.\nUygulamalar açıldığında (kitaplığın sağında 5 taneye kadar son uygulama), geçici olarak genişleyecektir.</string>
+    <string name="action_choose_image">Resim Seç</string>
+    <string name="action_apply_bg">Arka Planı Uygula</string>
+    <string name="toast_bg_saved">Arka plan kırpıldı ve kaydedildi: %1$s</string>
+    <string name="toast_save_failed">Kaydetme başarısız: %1$s</string>
+    <string name="toast_decode_failed">Resim çözülemedi</string>
+    <string name="crop_dialog_title">Dock Arka Planını Kırp</string>
+    <string name="crop_dialog_info">Oran %1$.0f : 1 (Dock genişlik sınırı) · Orijinal %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Resim sola hizalıdır. Şu anki %1$d kısayolla sadece mavi çizginin solundaki kısım görünür.</string>
+    <string name="crop_dialog_all_visible_hint">Resim sola hizalıdır, simge ekledikçe sağdaki alan ortaya çıkar</string>
+    <string name="crop_dialog_instruction">Taşımak için sürükleyin · Yakınlaştırmak için kaydırıcıyı kullanın</string>
+    <string name="action_cancel">İptal</string>
+    <string name="action_use_region">Bu alanı kullan</string>
+    <string name="toast_crop_failed">Kırpma başarısız: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (çözülemiyor)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (kullanılamıyor)</string>
 </resources>

@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">재시작 및 재시도</string>
     <string name="debug_app_label">디버그 앱</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">앱 관리자</string>
+    <string name="dock_bg_title">독 배경</string>
+    <string name="dock_bg_not_set">배경이 설정되지 않음 · 이미지를 선택하여 영역을 지정하세요</string>
+    <string name="dock_bg_current">현재 배경: %1$s</string>
+    <string name="dock_bg_desc">독 높이는 고정(120dp)이며, 너비는 아이콘 수에 따라 달라집니다.\n이미지는 왼쪽에 고정되며, 아이콘을 추가할수록 오른쪽 영역이 더 많이 나타납니다.\n크롭은 시스템 한도인 dock_max_width 1800dp (%1$.0f : 1)를 따릅니다.\n현재 %2$d개의 단축키 + 라이브러리가 있으며, 왼쪽의 약 %3$d%%만 보입니다.\n앱을 열면(라이브러리 오른쪽 최대 %4$d개) 독이 일시적으로 넓어집니다.</string>
+    <string name="action_choose_image">이미지 선택</string>
+    <string name="action_apply_bg">배경 적용</string>
+    <string name="toast_bg_saved">배경이 크롭되어 저장됨: %1$s</string>
+    <string name="toast_save_failed">저장 실패: %1$s</string>
+    <string name="toast_decode_failed">이미지를 디코딩할 수 없음</string>
+    <string name="crop_dialog_title">독 배경 크롭</string>
+    <string name="crop_dialog_info">비율 %1$.0f : 1 (독 너비 제한) · 원본 %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">이미지는 왼쪽 정렬됩니다. 현재 %1$d개의 단축키로는 파란색 선 왼쪽만 보입니다.</string>
+    <string name="crop_dialog_all_visible_hint">이미지는 왼쪽 정렬되며, 아이콘이 늘어날수록 오른쪽이 더 많이 보입니다</string>
+    <string name="crop_dialog_instruction">드래그하여 이동 · 슬라이더로 확대/축소</string>
+    <string name="action_cancel">취소</string>
+    <string name="action_use_region">이 영역 사용</string>
+    <string name="toast_crop_failed">크롭 실패: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (디코딩 불가)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (사용 불가)</string>
 </resources>

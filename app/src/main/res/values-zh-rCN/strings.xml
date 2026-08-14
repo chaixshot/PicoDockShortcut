@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">重启并重试</string>
     <string name="debug_app_label">调试应用</string>
     <string name="fit_center_default_label">运动中心</string>
+    <string name="app_manager_label">资源库</string>
+    <string name="dock_bg_title">Dock 背景</string>
+    <string name="dock_bg_not_set">未设置背景 · 选图后可自行框选区域</string>
+    <string name="dock_bg_current">当前背景: %1$s</string>
+    <string name="dock_bg_desc">Dock 高度固定 (120dp)，宽度随图标数量变化。\n图片左侧对齐固定，图标越多右侧露出的画面越多。\n裁剪按系统硬上限 dock_max_width 1800dp (%1$.0f : 1)。\n当前 %2$d 个快捷应用 + 资源库，只能看到左边约 %3$d%%。\n打开应用（资源库右侧最多 %4$d 个最近应用）时会临时变宽，露出更多。</string>
+    <string name="action_choose_image">选择图片</string>
+    <string name="action_apply_bg">应用背景</string>
+    <string name="toast_bg_saved">背景已裁剪保存: %1$s</string>
+    <string name="toast_save_failed">保存失败: %1$s</string>
+    <string name="toast_decode_failed">无法解码图片</string>
+    <string name="crop_dialog_title">裁剪 Dock 背景</string>
+    <string name="crop_dialog_info">比例 %1$.0f : 1 (Dock 硬上限宽度) · 原图 %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">图片左侧对齐。当前有 %1$d 个快捷应用，只能看到蓝线左侧部分。</string>
+    <string name="crop_dialog_all_visible_hint">图片左侧对齐，图标越多右侧露出的画面越多</string>
+    <string name="crop_dialog_instruction">拖动画面调整取景 · 使用滑块缩放特定区域</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_use_region">使用此区域</string>
+    <string name="toast_crop_failed">裁剪失败: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (无法解码)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (不可用)</string>
 </resources>

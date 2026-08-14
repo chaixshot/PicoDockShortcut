@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Genstart &amp; Prøv igen</string>
     <string name="debug_app_label">Debug App</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-administrator</string>
+    <string name="dock_bg_title">Dock Baggrund</string>
+    <string name="dock_bg_not_set">Ingen baggrund valgt · Vælg et billede for at angive område</string>
+    <string name="dock_bg_current">Nuværende baggrund: %1$s</string>
+    <string name="dock_bg_desc">Dockhøjden er fast (120dp), bredden varierer med antallet af ikoner.\nBilledet er venstrejusteret og fast, mere af højre side afsløres, når ikoner tilføjes.\nBeskæring følger systemgrænsen dock_max_width 1800dp (%1$.0f : 1).\nLige nu %2$d genveje + Bibliotek, du ser kun ca. %3$d%% af venstre side.\nNår apps åbnes (op til %4$d seneste til højre), udvides den midlertidigt.</string>
+    <string name="action_choose_image">Vælg billede</string>
+    <string name="action_apply_bg">Anvend baggrund</string>
+    <string name="toast_bg_saved">Baggrund beskåret og gemt: %1$s</string>
+    <string name="toast_save_failed">Gem fejlede: %1$s</string>
+    <string name="toast_decode_failed">Billede kunne ikke afkodes</string>
+    <string name="crop_dialog_title">Beskær dock-baggrund</string>
+    <string name="crop_dialog_info">Forhold %1$.0f : 1 (Dock-breddegrænse) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Billedet er venstrejusteret. Med nuværende %1$d genveje ses kun delen til venstre for den blå linje.</string>
+    <string name="crop_dialog_all_visible_hint">Billedet er venstrejusteret, mere baggrund til højre afsløres med flere ikoner</string>
+    <string name="crop_dialog_instruction">Træk for at flytte · Skyder til zoom</string>
+    <string name="action_cancel">Annuller</string>
+    <string name="action_use_region">Brug dette område</string>
+    <string name="toast_crop_failed">Beskæring fejlede: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (kan ikke afkodes)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (ikke tilgængelig)</string>
 </resources>

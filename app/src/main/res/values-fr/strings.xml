@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Redémarrer &amp; Réessayer</string>
     <string name="debug_app_label">Application de débogage</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Gestionnaire d\'applis</string>
+    <string name="dock_bg_title">Arrière-plan du Dock</string>
+    <string name="dock_bg_not_set">Aucun arrière-plan défini · Choisissez une image pour sélectionner la zone</string>
+    <string name="dock_bg_current">Arrière-plan actuel : %1$s</string>
+    <string name="dock_bg_desc">La hauteur du dock est fixe (120dp), la largeur varie avec le nombre d\'icônes.\nL\'image est alignée à gauche et fixe, une plus grande partie de l\'image à droite est révélée au fur et à mesure que vous ajoutez des icônes.\nLe recadrage suit la limite système dock_max_width 1800dp (%1$.0f : 1).\nActuellement %2$d raccourcis + Bibliothèque, vous ne voyez qu\'environ %3$d%% du côté gauche.\nLors de l\'ouverture d\'applis (jusqu\'à %4$d applis récentes à droite de la bibliothèque), il s\'élargira temporairement.</string>
+    <string name="action_choose_image">Sélectionner une image</string>
+    <string name="action_apply_bg">Appliquer l\'arrière-plan</string>
+    <string name="toast_bg_saved">Arrière-plan recadré et enregistré : %1$s</string>
+    <string name="toast_save_failed">Échec de l\'enregistrement : %1$s</string>
+    <string name="toast_decode_failed">L\'image n\'a pas pu être décodée</string>
+    <string name="crop_dialog_title">Recadrer l\'arrière-plan du Dock</string>
+    <string name="crop_dialog_info">Ratio %1$.0f : 1 (Limite de largeur du Dock) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">L\'image est alignée à gauche. Avec %1$d raccourcis, seule la partie à gauche de la ligne bleue est visible.</string>
+    <string name="crop_dialog_all_visible_hint">L\'image est alignée à gauche, plus d\'image à droite est révélée avec plus d\'icônes</string>
+    <string name="crop_dialog_instruction">Faire glisser pour déplacer · Curseur pour zoomer</string>
+    <string name="action_cancel">Annuler</string>
+    <string name="action_use_region">Utiliser cette zone</string>
+    <string name="toast_crop_failed">Échec du recadrage : %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (impossible à décoder)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (non disponible)</string>
 </resources>

@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Mula semula &amp; Cuba lagi</string>
     <string name="debug_app_label">Apl Debug</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Pengurus Apl</string>
+    <string name="dock_bg_title">Latar Belakang Dok</string>
+    <string name="dock_bg_not_set">Tiada latar belakang ditetapkan · Pilih imej untuk memilih kawasan</string>
+    <string name="dock_bg_current">Latar belakang semasa: %1$s</string>
+    <string name="dock_bg_desc">Ketinggian dok adalah tetap (120dp), lebar berubah mengikut bilangan ikon.\nImej dijajarkan ke kiri dan tetap, lebih banyak bahagian kanan imej akan didedahkan apabila ikon ditambah.\nPemotongan mengikut had sistem dock_max_width 1800dp (%1$.0f : 1).\nPada masa ini %2$d pintasan + Perpustakaan, anda hanya melihat kira-kira %3$d%% bahagian kiri.\nApabila apl dibuka (sehingga %4$d apl terbaharu), dok akan melebar sementara.</string>
+    <string name="action_choose_image">Pilih Imej</string>
+    <string name="action_apply_bg">Gunakan Latar Belakang</string>
+    <string name="toast_bg_saved">Latar belakang dipotong dan disimpan: %1$s</string>
+    <string name="toast_save_failed">Gagal menyimpan: %1$s</string>
+    <string name="toast_decode_failed">Imej tidak dapat dinyahkod</string>
+    <string name="crop_dialog_title">Potong Latar Belakang Dok</string>
+    <string name="crop_dialog_info">Nisbah %1$.0f : 1 (Had lebar Dok) · Asal %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Imej dijajarkan ke kiri. Dengan %1$d pintasan semasa, hanya bahagian kiri garisan biru yang kelihatan.</string>
+    <string name="crop_dialog_all_visible_hint">Imej dijajarkan ke kiri, lebih banyak latar belakang di sebelah kanan didedahkan dengan lebih banyak ikon</string>
+    <string name="crop_dialog_instruction">Seret untuk gerak · Gelangsar untuk zum</string>
+    <string name="action_cancel">Batal</string>
+    <string name="action_use_region">Gunakan kawasan ini</string>
+    <string name="toast_crop_failed">Gagal memotong: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (tidak dapat dinyahkod)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (tidak tersedia)</string>
 </resources>

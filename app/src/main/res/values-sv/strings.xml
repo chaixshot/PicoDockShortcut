@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Starta om &amp; försök igen</string>
     <string name="debug_app_label">Debug-app</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App-hanterare</string>
+    <string name="dock_bg_title">Dock-bakgrund</string>
+    <string name="dock_bg_not_set">Ingen bakgrund inställd · Välj en bild för att ange område</string>
+    <string name="dock_bg_current">Nuvarande bakgrund: %1$s</string>
+    <string name="dock_bg_desc">Dock-höjden är fast (120dp), bredden varierar med antalet ikoner. Bilden är vänsterjusterad och fast, mer av den högra delen visas när ikoner läggs till. Beskärning följer systemgränsen dock_max_width 1800dp (%1$.0f : 1). Just nu %2$d genvägar + Bibliotek, du ser bara ca %3$d%% av vänstra sidan. När appar öppnas (upp till %4$d senaste till höger), blir den tillfälligt bredare.</string>
+    <string name="action_choose_image">Välj bild</string>
+    <string name="action_apply_bg">Verkställ bakgrund</string>
+    <string name="toast_bg_saved">Bakgrund beskuren och sparad: %1$s</string>
+    <string name="toast_save_failed">Kunde inte spara: %1$s</string>
+    <string name="toast_decode_failed">Bilden kunde inte avkodas</string>
+    <string name="crop_dialog_title">Beskär dock-bakgrund</string>
+    <string name="crop_dialog_info">Förhållande %1$.0f : 1 (Dock-breddgräns) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Bilden är vänsterjusterad. Med nuvarande %1$d genvägar syns bara delen till vänster om den blå linjen.</string>
+    <string name="crop_dialog_all_visible_hint">Bilden är vänsterjusterad, mer bakgrund till höger visas med fler ikoner</string>
+    <string name="crop_dialog_instruction">Dra för att flytta · Skjutreglage för zoom</string>
+    <string name="action_cancel">Avbryt</string>
+    <string name="action_use_region">Använd detta område</string>
+    <string name="toast_crop_failed">Beskärning misslyckades: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (kan inte avkoda)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (ej tillgänglig)</string>
 </resources>

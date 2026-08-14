@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Restartovat a opakovat</string>
     <string name="debug_app_label">Ladicí aplikace</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Správce aplikací</string>
+    <string name="dock_bg_title">Pozadí doku</string>
+    <string name="dock_bg_not_set">Není nastaveno žádné pozadí · Vyberte obrázek pro výběr oblasti</string>
+    <string name="dock_bg_current">Aktuální pozadí: %1$s</string>
+    <string name="dock_bg_desc">Výška doku je pevná (120dp), šířka se mění podle počtu ikon.\nObrázek je zarovnán doleva a pevný, více pravé strany se odkryje při přidání ikon.\nOřez odpovídá systémovému limitu dock_max_width 1800dp (%1$.0f : 1).\nNyní %2$d zástupců + Knihovna, vidíte jen cca %3$d%% levé strany.\nPři otevření aplikací (až %4$d nedávných vpravo), se dok dočasně rozšíří.</string>
+    <string name="action_choose_image">Vybrat obrázek</string>
+    <string name="action_apply_bg">Použít pozadí</string>
+    <string name="toast_bg_saved">Pozadí oříznuto a uloženo: %1$s</string>
+    <string name="toast_save_failed">Uložení selhalo: %1$s</string>
+    <string name="toast_decode_failed">Obrázek nelze dekódovat</string>
+    <string name="crop_dialog_title">Oříznout pozadí doku</string>
+    <string name="crop_dialog_info">Poměr %1$.0f : 1 (Limit šířky doku) · Originál %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Obrázek je zarovnán doleva. Při současných %1$d zástupcích je vidět jen část vlevo od modré čáry.</string>
+    <string name="crop_dialog_all_visible_hint">Obrázek je zarovnán doleva, více pozadí vpravo se odkryje s více ikonami</string>
+    <string name="crop_dialog_instruction">Tažením posunete · Posuvník pro zoom</string>
+    <string name="action_cancel">Zrušit</string>
+    <string name="action_use_region">Použít tuto oblast</string>
+    <string name="toast_crop_failed">Ořez selhal: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (nelze dekódovat)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (není k dispozici)</string>
 </resources>

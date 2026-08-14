@@ -660,9 +660,9 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
                     try { dst.setReadable(true, false) } catch (_: Throwable) {}
                     bgInfo = readBgInfo(context)
                     cropUri = null
-                    Toast.makeText(context, "背景已裁剪保存: $bgInfo", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.toast_bg_saved, bgInfo), Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
-                    Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(context, context.getString(R.string.toast_save_failed, e.message), Toast.LENGTH_LONG).show()
                 }
             }
         )
@@ -675,38 +675,40 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "Dock Background",
+                stringResource(R.string.dock_bg_title),
                 style = MaterialTheme.typography.titleSmall,
                 color = Color.LightGray
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 if (bgInfo.isNullOrBlank())
-                    "No background set · You can select an area after choosing an image"
-                else "Current background: $bgInfo",
+                    stringResource(R.string.dock_bg_not_set)
+                else stringResource(R.string.dock_bg_current, bgInfo!!),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (bgInfo.isNullOrBlank()) Color.Gray else Color(0xFF7EC8FF)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                "Dock height is fixed (120dp), width varies with the number of icons. Image is left-aligned and fixed, " +
-                "more of the image on the right is revealed as you add more icons. Cropping follows the system hard limit dock_max_width 1800dp " +
-                "(${"%.0f".format(maxRatio)} : 1). Current ${viewModel.selectedApps.size} shortcut apps + App Library" +
-                ", you can only see about ${(barRatio / maxRatio * 100).toInt()}% of the left side. When opening apps (up to " +
-                "$MAX_RECENT_APPS recent apps to the right of the library) it will temporarily widen, revealing more.",
+                stringResource(
+                    R.string.dock_bg_desc,
+                    maxRatio,
+                    viewModel.selectedApps.size,
+                    (barRatio / maxRatio * 100).toInt(),
+                    MAX_RECENT_APPS
+                ),
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
             Spacer(modifier = Modifier.height(12.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 ActionButton(
-                    text = "Select Image",
+                    text = stringResource(R.string.action_choose_image),
                     icon = Icons.Default.Image,
                     containerColor = Color(0xFF1E3C78),
                     disabled = false
                 ) { launcher.launch("image/*") }
                 ActionButton(
-                    text = "Apply Background",
+                    text = stringResource(R.string.action_apply_bg),
                     icon = Icons.Default.Check,
                     containerColor = Color(0xFF2E7D32),
                     disabled = bgInfo.isNullOrBlank()
@@ -738,7 +740,7 @@ private const val DOCK_HEIGHT_DP = 120f
 private fun dockBarAspectFor(appCount: Int, recentCount: Int = 0): Float {
     val n = (if (appCount > 0) appCount else 5) + 1
     var widthDp = DOCK_SIDE_DP + DOCK_ICON_DP * n
-    if (recentCount > 0) widthDp += DOCK_ICON_DP * recentCount + 28f // 分隔线 28
+    if (recentCount > 0) widthDp += DOCK_ICON_DP * recentCount + 28f // Separator line 28
     return (widthDp / DOCK_HEIGHT_DP).coerceAtMost(DOCK_MAX_ASPECT)
 }
 
@@ -776,7 +778,7 @@ private fun CropDialog(
 
     if (src == null) {
         LaunchedEffect(Unit) {
-            Toast.makeText(context, "图片无法解码", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.toast_decode_failed), Toast.LENGTH_LONG).show()
             onDismiss()
         }
         return
@@ -786,7 +788,7 @@ private fun CropDialog(
     val iw = src.width.toFloat()
     val ih = src.height.toFloat()
 
-    // 缩放 1 = 在图内能取到的最大同比例区域
+    // Zoom 1 = the largest area of the same aspect ratio that can be obtained within the image
     val maxCropW: Float
     val maxCropH: Float
     if (iw / ih > aspect) {
@@ -818,22 +820,22 @@ private fun CropDialog(
                     .verticalScroll(rememberScrollState())
             ) {
                 Text(
-                    "Crop Dock Background",
+                    stringResource(R.string.crop_dialog_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    "Ratio ${"%.0f".format(aspect)} : 1 (Dock hard limit width) · Original ${src.width}x${src.height}",
+                    stringResource(R.string.crop_dialog_info, aspect, src.width, src.height),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     if (visibleAspect < aspect)
-                        "Image is left-aligned. Currently with $appCount shortcut apps, only the part to the left of the blue line is visible."
-                    else "Image is left-aligned, more of the image on the right is revealed as you add more icons",
+                        stringResource(R.string.crop_dialog_visible_hint, appCount)
+                    else stringResource(R.string.crop_dialog_all_visible_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color(0xFF7EC8FF)
                 )
@@ -908,7 +910,7 @@ private fun CropDialog(
                     Text("${"%.1f".format(zoom)}x", color = Color.LightGray)
                 }
                 Text(
-                    "Drag to pan · Slider to zoom to a specific area",
+                    stringResource(R.string.crop_dialog_instruction),
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )
@@ -920,13 +922,13 @@ private fun CropDialog(
                 ) {
                     Spacer(modifier = Modifier.weight(1f))
                     ActionButton(
-                        text = "Cancel",
+                        text = stringResource(R.string.action_cancel),
                         icon = Icons.Default.Close,
                         containerColor = Color(0xFF444444),
                         disabled = false
                     ) { onDismiss() }
                     ActionButton(
-                        text = "Use this area",
+                        text = stringResource(R.string.action_use_region),
                         icon = Icons.Default.Check,
                         containerColor = Color(0xFF2E7D32),
                         disabled = false
@@ -947,7 +949,7 @@ private fun CropDialog(
                             }
                             onConfirm(out)
                         } catch (e: Exception) {
-                            Toast.makeText(context, "Crop failed: ${e.message}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, context.getString(R.string.toast_crop_failed, e.message), Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -981,10 +983,10 @@ private fun readBgInfo(context: Context): String? {
         val f = File(context.filesDir.parentFile, "dock_bg.png")
         if (!f.exists()) return null
         val bmp = BitmapFactory.decodeFile(f.absolutePath)
-        if (bmp == null) "dock_bg.png (cannot decode)"
-        else "dock_bg.png · ${bmp.width}x${bmp.height}"
+        if (bmp == null) context.getString(R.string.bg_info_cannot_decode)
+        else context.getString(R.string.bg_info_resolution, bmp.width, bmp.height)
     } catch (e: Exception) {
-        "dock_bg.png (not available)"
+        context.getString(R.string.bg_info_not_available)
     }
 }
 

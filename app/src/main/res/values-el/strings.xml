@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Επανεκκίνηση &amp; Δοκιμή ξανά</string>
     <string name="debug_app_label">Εφαρμογή Εντοπισμού Σφαλμάτων</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Διαχειριστής Εφαρμογών</string>
+    <string name="dock_bg_title">Φόντο Dock</string>
+    <string name="dock_bg_not_set">Δεν έχει οριστεί φόντο · Επιλέξτε μια εικόνα για να ορίσετε την περιοχή</string>
+    <string name="dock_bg_current">Τρέχον φόντο: %1$s</string>
+    <string name="dock_bg_desc">Το ύψος του dock είναι σταθερό (120dp), το πλάτος μεταβάλλεται ανάλογα με τον αριθμό των εικονιδίων.\nΗ εικόνα είναι αριστερά ευθυγραμμισμένη και σταθερή, περισσότερο από το δεξί μέρος της εικόνας αποκαλύπτεται καθώς προσθέτετε εικονίδια.\nΗ περικοπή ακολουθεί το όριο συστήματος dock_max_width 1800dp (%1$.0f : 1).\nΕπί του παρόντος %2$d συντομεύσεις + Βιβλιοθήκη, βλέπετε μόνο περίπου το %3$d%% της αριστερής πλευράς.\nΚατά το άνοιγμα εφαρμογών (έως %4$d πρόσφατες), θα διευρύνεται προσωρινά.</string>
+    <string name="action_choose_image">Επιλογή Εικόνας</string>
+    <string name="action_apply_bg">Εφαρμογή Φόντου</string>
+    <string name="toast_bg_saved">Το φόντο περικόπηκε και αποθηκεύτηκε: %1$s</string>
+    <string name="toast_save_failed">Η αποθήκευση απέτυχε: %1$s</string>
+    <string name="toast_decode_failed">Αδυναμία αποκωδικοποίησης εικόνας</string>
+    <string name="crop_dialog_title">Περικοπή Φόντου Dock</string>
+    <string name="crop_dialog_info">Αναλογία %1$.0f : 1 (Όριο πλάτους Dock) · Αρχικό %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Η εικόνα είναι αριστερά ευθυγραμμισμένη. Με τις τρέχουσες %1$d συντομεύσεις, μόνο το τμήμα αριστερά της μπλε γραμμής είναι ορατό.</string>
+    <string name="crop_dialog_all_visible_hint">Η εικόνα είναι αριστερά ευθυγραμμισμένη, περισσότερο φόντο στα δεξιά αποκαλύπτεται με περισσότερα εικονίδια</string>
+    <string name="crop_dialog_instruction">Σύρετε για μετακίνηση · Ρυθμιστικό για ζουμ</string>
+    <string name="action_cancel">Ακύρωση</string>
+    <string name="action_use_region">Χρήση αυτής της περιοχής</string>
+    <string name="toast_crop_failed">Η περικοπή απέτυχε: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (αδυναμία αποκωδικοποίησης)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (μη διαθέσιμο)</string>
 </resources>

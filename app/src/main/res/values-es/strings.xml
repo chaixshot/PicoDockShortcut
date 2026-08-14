@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Reiniciar y reintentar</string>
     <string name="debug_app_label">Aplicación de depuración</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Administrador de aplicaciones</string>
+    <string name="dock_bg_title">Fondo del Dock</string>
+    <string name="dock_bg_not_set">Sin fondo configurado · Elige una imagen para seleccionar el área</string>
+    <string name="dock_bg_current">Fondo actual: %1$s</string>
+    <string name="dock_bg_desc">La altura del dock es fija (120dp), el ancho varía con la cantidad de iconos.\nLa imagen está alineada a la izquierda y fija, se revela más de la parte derecha al añadir iconos.\nEl recorte sigue el límite del sistema dock_max_width 1800dp (%1$.0f : 1).\nActualmente %2$d accesos directos + Biblioteca, solo se ve aprox. el %3$d%% del lado izquierdo.\nAl abrir aplicaciones (hasta %4$d aplicaciones recientes a la derecha), se ensanchará temporalmente.</string>
+    <string name="action_choose_image">Seleccionar imagen</string>
+    <string name="action_apply_bg">Aplicar fondo</string>
+    <string name="toast_bg_saved">Fondo recortado y guardado: %1$s</string>
+    <string name="toast_save_failed">Error al guardar: %1$s</string>
+    <string name="toast_decode_failed">No se pudo decodificar la imagen</string>
+    <string name="crop_dialog_title">Recortar fondo del Dock</string>
+    <string name="crop_dialog_info">Relación %1$.0f : 1 (Límite de ancho del Dock) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">La imagen está alineada a la izquierda. Con %1$d accesos directos, solo se ve la parte a la izquierda de la línea azul.</string>
+    <string name="crop_dialog_all_visible_hint">La imagen está alineada a la izquierda, se revela más fondo a la derecha con más iconos</string>
+    <string name="crop_dialog_instruction">Arrastra para mover · Control deslizante para zoom</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_use_region">Usar esta área</string>
+    <string name="toast_crop_failed">Error al recortar: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (no se pudo decodificar)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (no disponible)</string>
 </resources>

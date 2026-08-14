@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Käynnistä uudelleen &amp; Yritä uudelleen</string>
     <string name="debug_app_label">Debug-sovellus</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Sovellusten hallinta</string>
+    <string name="dock_bg_title">Telakan taustakuva</string>
+    <string name="dock_bg_not_set">Taustakuvaa ei ole asetettu · Valitse kuva määrittääksesi alueen</string>
+    <string name="dock_bg_current">Nykyinen taustakuva: %1$s</string>
+    <string name="dock_bg_desc">Telakan korkeus on kiinteä (120dp), leveys vaihtelee kuvakkeiden määrän mukaan.\nKuva on vasemmalle tasattu ja kiinteä, oikeaa reunaa paljastuu lisää, kun kuvakkeita lisätään.\nRajaus noudattaa järjestelmän rajaa dock_max_width 1800dp (%1$.0f : 1).\nTällä hetkellä %2$d pikakuvaketta + Kirjasto, näet vain n. %3$d%% vasemmasta reunasta.\nKun sovelluksia avataan (enintään %4$d viimeisintä), telakka laajenee tilapäisesti.</string>
+    <string name="action_choose_image">Valitse kuva</string>
+    <string name="action_apply_bg">Käytä taustakuvaa</string>
+    <string name="toast_bg_saved">Taustakuva rajattu ja tallennettu: %1$s</string>
+    <string name="toast_save_failed">Tallennus epäonnistui: %1$s</string>
+    <string name="toast_decode_failed">Kuvaa ei voitu purkaa</string>
+    <string name="crop_dialog_title">Rajaa telakan taustakuva</string>
+    <string name="crop_dialog_info">Suhde %1$.0f : 1 (Telakan leveysraja) · Alkuperäinen %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Kuva on vasemmalle tasattu. Nykyisillä %1$d pikakuvakkeella vain sinisen viivan vasen puoli näkyy.</string>
+    <string name="crop_dialog_all_visible_hint">Kuva on vasemmalle tasattu, oikeaa reunaa paljastuu lisää kuvakkeiden myötä</string>
+    <string name="crop_dialog_instruction">Siirrä vetämällä · Zoomaa liukusäätimellä</string>
+    <string name="action_cancel">Peruuta</string>
+    <string name="action_use_region">Käytä tätä aluetta</string>
+    <string name="toast_crop_failed">Rajaus epäonnistui: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (ei voida purkaa)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (ei saatavilla)</string>
 </resources>

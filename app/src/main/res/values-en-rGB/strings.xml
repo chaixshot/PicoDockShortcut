@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Restart &amp; Retry</string>
     <string name="debug_app_label">Debug App</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">App Manager</string>
+    <string name="dock_bg_title">Dock Background</string>
+    <string name="dock_bg_not_set">No background set · You can select an area after choosing an image</string>
+    <string name="dock_bg_current">Current background: %1$s</string>
+    <string name="dock_bg_desc">Dock height is fixed (120dp), width varies with the number of icons.\nImage is left-aligned and fixed, more of the image on the right is revealed as you add more icons.\nCropping follows the system hard limit dock_max_width 1800dp (%1$.0f : 1).\nCurrent %2$d shortcut apps + App Library, you can only see about %3$d%% of the left side.\nWhen opening apps (up to %4$d recent apps to the right of the library) it will temporarily widen, revealing more.</string>
+    <string name="action_choose_image">Select Image</string>
+    <string name="action_apply_bg">Apply Background</string>
+    <string name="toast_bg_saved">Background cropped and saved: %1$s</string>
+    <string name="toast_save_failed">Save failed: %1$s</string>
+    <string name="toast_decode_failed">Image cannot be decoded</string>
+    <string name="crop_dialog_title">Crop Dock Background</string>
+    <string name="crop_dialog_info">Ratio %1$.0f : 1 (Dock hard limit width) · Original %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Image is left-aligned. Currently with %1$d shortcut apps, only the part to the left of the blue line is visible.</string>
+    <string name="crop_dialog_all_visible_hint">Image is left-aligned, more of the image on the right is revealed as you add more icons</string>
+    <string name="crop_dialog_instruction">Drag to pan · Slider to zoom to a specific area</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_use_region">Use this area</string>
+    <string name="toast_crop_failed">Crop failed: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (cannot decode)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (not available)</string>
 </resources>

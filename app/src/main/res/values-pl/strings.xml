@@ -30,4 +30,25 @@
     <string name="dialog_restart_retry">Uruchom ponownie i ponów</string>
     <string name="debug_app_label">Aplikacja debugująca</string>
     <string name="fit_center_default_label">Fit Center</string>
+    <string name="app_manager_label">Menedżer aplikacji</string>
+    <string name="dock_bg_title">Tło doku</string>
+    <string name="dock_bg_not_set">Brak ustawionego tła · Wybierz obraz, aby wskazać obszar</string>
+    <string name="dock_bg_current">Aktualne tło: %1$s</string>
+    <string name="dock_bg_desc">Wysokość doku jest stała (120dp), szerokość zmienia się wraz z liczbą ikon.\nObraz jest wyrównany do lewej i nieruchomy, więcej prawej strony obrazu odsłania się po dodaniu ikon.\nKadrowanie odbywa się zgodnie z limitem systemowym dock_max_width 1800dp (%1$.0f : 1).\nObecnie %2$d skrótów + Biblioteka, widać tylko ok. %3$d%% lewej strony.\nPo otwarciu aplikacji (do %4$d ostatnich po prawej od biblioteki), dok tymczasowo się rozszerzy.</string>
+    <string name="action_choose_image">Wybierz obraz</string>
+    <string name="action_apply_bg">Zastosuj tło</string>
+    <string name="toast_bg_saved">Tło przycięte i zapisane: %1$s</string>
+    <string name="toast_save_failed">Błąd zapisu: %1$s</string>
+    <string name="toast_decode_failed">Nie można zdekodować obrazu</string>
+    <string name="crop_dialog_title">Kadrowanie tła doku</string>
+    <string name="crop_dialog_info">Proporcje %1$.0f : 1 (Limit szerokości doku) · Oryginał %2$dx%3$d</string>
+    <string name="crop_dialog_visible_hint">Obraz jest wyrównany do lewej. Przy obecnych %1$d skrótach widoczna jest tylko część na lewo od niebieskiej linii.</string>
+    <string name="crop_dialog_all_visible_hint">Obraz jest wyrównany do lewej, więcej tła po prawej odsłania się z większą liczbą ikon</string>
+    <string name="crop_dialog_instruction">Przeciągnij, aby przesunąć · Suwak do powiększenia</string>
+    <string name="action_cancel">Anuluj</string>
+    <string name="action_use_region">Użyj tego obszaru</string>
+    <string name="toast_crop_failed">Błąd przycinania: %1$s</string>
+    <string name="bg_info_cannot_decode">dock_bg.png (nie można zdekodować)</string>
+    <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
+    <string name="bg_info_not_available">dock_bg.png (niedostępne)</string>
 </resources>
