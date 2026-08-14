@@ -668,6 +668,14 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     }
                 )
             }
+
+            if (showBgSettings || showPicker || showLanguageSelector) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.32f))
+                )
+            }
         }
     }
 
@@ -761,6 +769,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        scrimColor = Color.Transparent,
         containerColor = colorResource(id = R.color.main_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
@@ -1716,6 +1725,7 @@ fun AppPicker(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        scrimColor = Color.Transparent,
         containerColor = colorResource(R.color.main_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
@@ -1916,6 +1926,7 @@ fun LanguagePicker(onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
+        scrimColor = Color.Transparent,
         containerColor = colorResource(R.color.main_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
