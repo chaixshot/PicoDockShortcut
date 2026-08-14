@@ -1794,6 +1794,29 @@ fun AppPicker(
                     value = query, onValueChange = { query = it },
                     modifier = Modifier.weight(1f),
                     placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    trailingIcon = {
+                        if (query.isNotEmpty()) {
+                            val view = androidx.compose.ui.platform.LocalView.current
+                            val interactionSource = remember { MutableInteractionSource() }
+                            val isHovered by interactionSource.collectIsHoveredAsState()
+                            LaunchedEffect(isHovered) {
+                                if (isHovered) view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                            }
+                            IconButton(
+                                onClick = {
+                                    view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                                    query = ""
+                                },
+                                interactionSource = interactionSource
+                            ) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    contentDescription = "Clear",
+                                    tint = if (isHovered) Color.White else Color.Gray
+                                )
+                            }
+                        }
+                    },
                     shape = RoundedCornerShape(12.dp),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = colorResource(R.color.content_bg),
