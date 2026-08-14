@@ -50,6 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -704,6 +705,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var bgInfo by remember { mutableStateOf(readBgInfo(context)) }
     var lastUpdate by remember { mutableLongStateOf(0L) }
     var cropUri by remember { mutableStateOf<Uri?>(null) }
+    var editCurrentBg by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val currentBgBitmap by produceState<Bitmap?>(initialValue = null, bgInfo, lastUpdate, viewModel.bgPendingRestore, viewModel.bgPendingBitmap) {
@@ -733,19 +735,24 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
         ActivityResultContracts.GetContent()
     ) { uri -> if (uri != null) cropUri = uri }
 
-    if (cropUri != null) {
+    if (cropUri != null || (editCurrentBg && currentBgBitmap != null)) {
         CropDialog(
-            uri = cropUri!!,
+            uri = cropUri,
+            bitmap = if (editCurrentBg) currentBgBitmap else null,
             aspect = maxRatio,
             visibleAspect = barRatio,
             appCount = viewModel.selectedApps.size,
-            onDismiss = { cropUri = null },
+            onDismiss = { 
+                cropUri = null
+                editCurrentBg = false
+            },
             onConfirm = { cropped ->
                 bgInfo = "Pending application..."
                 viewModel.bgPendingBitmap = cropped
                 viewModel.bgPendingRestore = false
                 viewModel.bgModified = true
                 cropUri = null
+                editCurrentBg = false
                 Toast.makeText(context, "Background staged (click Apply to save)", Toast.LENGTH_SHORT).show()
             }
         )
@@ -772,17 +779,40 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             currentBgBitmap?.let { bmp ->
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.Black)
-                ) {
-                    Image(
-                        bitmap = bmp.asImageBitmap(),
-                        contentDescription = "Current Background",
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(714f / 47f)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color.Black)
+                    ) {
+                        Image(
+                            bitmap = bmp.asImageBitmap(),
+                            contentDescription = "Current Background",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.FillHeight,
+                            alignment = Alignment.CenterStart
+                        )
+                    }
+
+                    if (!bgInfo.isNullOrBlank()) {
+                        Surface(
+                            onClick = { editCurrentBg = true },
+                            modifier = Modifier
+                                .align(Alignment.CenterEnd)
+                                .size(30.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            color = MaterialTheme.colorScheme.tertiaryContainer,
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    Icons.Default.Edit,
+                                    contentDescription = "Edit Current",
+                                )
+                            }
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -828,8 +858,8 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     disabled = bgInfo.isNullOrBlank() && !viewModel.bgModified || viewModel.bgPendingRestore,
                     modifier = Modifier.weight(1f)
                 ) {
-                    viewModel.bgPendingRestore = true;
-                    viewModel.bgModified = false;
+                    viewModel.bgPendingRestore = true
+                    viewModel.bgModified = false
                     onDismiss()
                 }
 
@@ -869,7 +899,7 @@ private const val DOCK_SIDE_DP = 176f + 138f
 private const val DOCK_ICON_DP = 84f
 private const val DOCK_HEIGHT_DP = 120f
 const val MAX_RECENT_APPS = 5
-const val DOCK_MAX_ASPECT = 15f
+const val DOCK_MAX_ASPECT = 714f / 47f
 
 // n = number of shortcut apps (excluding library); library icon always exists
 private fun dockBarAspectFor(appCount: Int, recentCount: Int = 0): Float {
@@ -902,7 +932,8 @@ private fun dockBarAspect(context: Context, appCount: Int): Float {
 // visibleAspect = actual visible ratio under current app count, used to draw "current visible boundary"
 @Composable
 private fun CropDialog(
-    uri: Uri,
+    uri: Uri? = null,
+    bitmap: Bitmap? = null,
     aspect: Float,
     visibleAspect: Float = aspect,
     appCount: Int = 0,
@@ -910,7 +941,9 @@ private fun CropDialog(
     onConfirm: (Bitmap) -> Unit
 ) {
     val context = LocalContext.current
-    val src = remember(uri) { decodeScaled(context, uri, 3000) }
+    val src = remember(uri, bitmap) {
+        bitmap ?: if (uri != null) decodeScaled(context, uri, 3000) else null
+    }
 
     if (src == null) {
         val toastDecodeFailed = stringResource(R.string.toast_decode_failed)
@@ -928,8 +961,6 @@ private fun CropDialog(
     val img = remember(src) { src.asImageBitmap() }
     val iw = src.width.toFloat()
     val ih = src.height.toFloat()
-
-    val toastCropFailed = stringResource(R.string.toast_crop_failed)
 
     // Zoom 1 = the largest area of the same aspect ratio that can be obtained within the image
     val maxCropW: Float
