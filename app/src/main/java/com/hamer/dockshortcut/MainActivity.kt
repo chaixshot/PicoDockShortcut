@@ -778,44 +778,45 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            currentBgBitmap?.let { bmp ->
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(714f / 47f)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color.Black)
-                    ) {
-                        Image(
-                            bitmap = bmp.asImageBitmap(),
-                            contentDescription = "Current Background",
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.FillHeight,
-                            alignment = Alignment.CenterStart
-                        )
-                    }
-
-                    if (!bgInfo.isNullOrBlank()) {
-                        Surface(
-                            onClick = { editCurrentBg = true },
+            if(!viewModel.bgPendingRestore)
+                currentBgBitmap?.let { bmp ->
+                    Box(modifier = Modifier.fillMaxWidth()) {
+                        Box(
                             modifier = Modifier
-                                .align(Alignment.CenterEnd)
-                                .size(30.dp),
-                            shape = RoundedCornerShape(10.dp),
-                            color = MaterialTheme.colorScheme.tertiaryContainer,
+                                .fillMaxWidth()
+                                .aspectRatio(714f / 47f)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(Color.Black)
                         ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.Default.Edit,
-                                    contentDescription = "Edit Current",
-                                )
+                            Image(
+                                bitmap = bmp.asImageBitmap(),
+                                contentDescription = "Current Background",
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.FillHeight,
+                                alignment = Alignment.CenterStart
+                            )
+                        }
+
+                        if (!bgInfo.isNullOrBlank()) {
+                            Surface(
+                                onClick = { editCurrentBg = true },
+                                modifier = Modifier
+                                    .align(Alignment.CenterEnd)
+                                    .size(30.dp),
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Default.Edit,
+                                        contentDescription = "Edit Current",
+                                    )
+                                }
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(16.dp))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
 
             Surface(
                 modifier = Modifier.fillMaxWidth(),
