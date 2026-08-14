@@ -1178,31 +1178,39 @@ private fun Header(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            IconButton(
+            val bgInteractionSource = remember { MutableInteractionSource() }
+            val langInteractionSource = remember { MutableInteractionSource() }
+
+            Surface(
                 onClick = onBgClick,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(colorResource(id = R.color.button_bg))
+                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = colorResource(R.color.button_bg),
+                interactionSource = bgInteractionSource
             ) {
-                Icon(
-                    Icons.Default.Wallpaper,
-                    contentDescription = stringResource(R.string.dock_bg_title),
-                    tint = Color.LightGray
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.Wallpaper,
+                        contentDescription = stringResource(R.string.dock_bg_title),
+                        tint = Color.LightGray
+                    )
+                }
             }
-            IconButton(
+
+            Surface(
                 onClick = onLanguageClick,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(colorResource(id = R.color.button_bg))
+                modifier = Modifier.size(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                color = colorResource(R.color.button_bg),
+                interactionSource = langInteractionSource
             ) {
-                Icon(
-                    Icons.Default.Language,
-                    contentDescription = "Language",
-                    tint = Color.LightGray
-                )
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        Icons.Default.Language,
+                        contentDescription = stringResource(R.string.select_language),
+                        tint = Color.LightGray
+                    )
+                }
             }
             ActionButton(
                 stringResource(R.string.action_restore),
