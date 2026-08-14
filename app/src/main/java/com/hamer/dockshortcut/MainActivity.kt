@@ -659,7 +659,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     }
 
     if (showLanguageSelector) {
-        LanguageSelector(onDismiss = { showLanguageSelector = false })
+        LanguagePicker(onDismiss = { showLanguageSelector = false })
     }
 }
 
@@ -1762,8 +1762,9 @@ fun DefaultPreview() {
     PicoDockShortcutTheme { MainScreen() }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSelector(onDismiss: () -> Unit) {
+fun LanguagePicker(onDismiss: () -> Unit) {
     val supportedLocales = listOf(
         "Auto" to "",
         "English" to "en",
@@ -1796,54 +1797,72 @@ fun LanguageSelector(onDismiss: () -> Unit) {
     )
 
     val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    AlertDialog(
+    ModalBottomSheet(
         onDismissRequest = onDismiss,
-        title = { Text("Select Language", color = Color.White) },
-        text = {
-            LazyColumn(modifier = Modifier
+        sheetState = sheetState,
+        containerColor = colorResource(R.color.main_bg),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(
+            modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 400.dp)) {
+                .fillMaxHeight(0.9f)
+                .padding(bottom = 32.dp)
+        ) {
+            Text(
+                text = stringResource(R.string.select_language),
+                modifier = Modifier.padding(24.dp),
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(supportedLocales) { (name, tag) ->
                     val isSelected = (tag == "" && currentLocale == "") ||
                             (tag != "" && currentLocale.startsWith(tag))
-                    TextButton(
-                        onClick = {
-                            val appLocale: LocaleListCompat = if (tag.isEmpty()) {
-                                LocaleListCompat.getEmptyLocaleList()
-                            } else {
-                                LocaleListCompat.forLanguageTags(tag)
+
+                    val interactionSource = remember { MutableInteractionSource() }
+                    val isHovered by interactionSource.collectIsHoveredAsState()
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
+                            )
+                            .hoverable(interactionSource)
+                            .clickable {
+                                val appLocale: LocaleListCompat = if (tag.isEmpty()) {
+                                    LocaleListCompat.getEmptyLocaleList()
+                                } else {
+                                    LocaleListCompat.forLanguageTags(tag)
+                                }
+                                AppCompatDelegate.setApplicationLocales(appLocale)
+                                onDismiss()
                             }
-                            AppCompatDelegate.setApplicationLocales(appLocale)
-                            onDismiss()
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.textButtonColors(
-                            contentColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-                        )
+                            .padding(horizontal = 24.dp, vertical = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(name, textAlign = TextAlign.Start)
-                            if (isSelected) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp)
-                                )
-                            }
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                        )
+                        if (isSelected) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
                         }
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("Close") }
-        },
-        containerColor = colorResource(id = R.color.main_bg),
-        textContentColor = Color.White
-    )
+        }
+    }
 }
