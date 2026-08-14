@@ -19,6 +19,7 @@ import org.json.JSONArray
 class HookInit : IXposedHookLoadPackage {
     private val jsonPath = "/data/user/0/com.hamer.dockshortcut/dock_fix_apps.json"
     private val imagePath = "/data/user/0/com.hamer.dockshortcut/Image"
+    private val bgImgPath = "/data/user/0/com.hamer.dockshortcut/dock_bg.png"
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == "com.hamer.dockshortcut") {
@@ -70,7 +71,7 @@ class HookInit : IXposedHookLoadPackage {
             @SuppressLint("DiscouragedPrivateApi")
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val fileName = param.args[0] as String
-                
+
                 // Intercept the JSON file
                 if (fileName == "dock_fix_apps.json" || fileName.endsWith("/dock_fix_apps.json")) {
                     XposedBridge.log("PicoDockShortcut: Intercepting dock_fix_apps.json")
@@ -156,35 +157,35 @@ class HookInit : IXposedHookLoadPackage {
     }
 
     // ===== Dock Background Customization =====
-    private val bgImgPath = "/data/user/0/com.hamer.dockshortcut/dock_bg.png"
-
     private fun installDockBackgroundHook(classLoader: ClassLoader?) {
-        try {
-            val svc = XposedHelpers.findClass("com.pvr.shortcut.service.ShortcutViewContainer", classLoader)
-            XposedHelpers.findAndHookMethod(
-                svc, "inflateRootView", android.content.Context::class.java,
-                object : XC_MethodHook() {
-                    override fun afterHookedMethod(param: MethodHookParam) {
-                        try {
-                            val ret = param.result
-                            if (ret is android.view.ViewGroup) applyDockBg(ret)
-                        } catch (t: Throwable) {
-                            XposedBridge.log("PicoDockShortcut: inflateRootView hook err " + t)
+        val img = File(bgImgPath)
+
+        if (img.exists() && img.canRead())
+            try {
+                val svc = XposedHelpers.findClass("com.pvr.shortcut.service.ShortcutViewContainer", classLoader)
+                XposedHelpers.findAndHookMethod(
+                    svc, "inflateRootView", android.content.Context::class.java,
+                    object : XC_MethodHook() {
+                        override fun afterHookedMethod(param: MethodHookParam) {
+                            try {
+                                val ret = param.result
+                                if (ret is android.view.ViewGroup) applyDockBg(ret)
+                            } catch (t: Throwable) {
+                                XposedBridge.log("PicoDockShortcut: inflateRootView hook err " + t)
+                            }
                         }
                     }
-                }
-            )
-            XposedBridge.log("PicoDockShortcut: Dock background hook installed")
-        } catch (e: Throwable) {
-            XposedBridge.log("PicoDockShortcut: Dock background hook err " + e.message)
-        }
+                )
+                XposedBridge.log("PicoDockShortcut: Dock background hook installed")
+            } catch (e: Throwable) {
+                XposedBridge.log("PicoDockShortcut: Dock background hook err " + e.message)
+            }
     }
 
-    // Set background for Dock bar + Guide synchronously (reads user image, otherwise gradient placeholder), each View uses its own corner radius
+    // Set background for Dock bar + Guide synchronously
     private fun applyDockBg(root: android.view.ViewGroup) {
         try {
-            val bmp = loadUserBitmap()
-            if (bmp == null) XposedBridge.log("PicoDockShortcut: no dock_bg.png, using gradient placeholder")
+            val bmp = loadUserBitmap() ?: return
 
             // 1) Dock bar
             val bar = findDockBar(root)
@@ -285,7 +286,6 @@ class HookInit : IXposedHookLoadPackage {
     private fun loadUserBitmap(): Bitmap? {
         return try {
             val img = File(bgImgPath)
-            if (!img.exists() || !img.canRead()) return null
             val bounds = android.graphics.BitmapFactory.Options()
             bounds.inJustDecodeBounds = true
             android.graphics.BitmapFactory.decodeFile(bgImgPath, bounds)
@@ -303,7 +303,7 @@ class HookInit : IXposedHookLoadPackage {
 
     // Rounded corner background drawn according to View's actual size: width/height are still 0 during inflation, must be calculated in onBoundsChange
     private class RoundedBgDrawable(
-        private val bmp: Bitmap?,
+        private val bmp: Bitmap,
         val radii: FloatArray,
         private val onSize: ((Int, Int) -> Unit)? = null
     ) : android.graphics.drawable.Drawable() {
@@ -324,22 +324,18 @@ class HookInit : IXposedHookLoadPackage {
             onSize?.invoke(b.width(), b.height())
             path.reset()
             path.addRoundRect(android.graphics.RectF(0f, 0f, w, h), radii, android.graphics.Path.Direction.CW)
-            paint.shader = if (bmp != null) {
-                // Left aligned + scaled proportionally by height:
-                // Image fixed on the left, only the right side is cropped when Dock narrows; more of the image is revealed on the right when Dock widens.
-                // When image width is not enough, use CLAMP to extend with right edge pixels.
-                val scale = h / bmp.height
-                val m = android.graphics.Matrix()
-                m.setScale(scale, scale)
-                val sh = android.graphics.BitmapShader(bmp,
-                    android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
-                sh.setLocalMatrix(m)
-                sh
-            } else {
-                android.graphics.LinearGradient(0f, 0f, w, h,
-                    intArrayOf(0xFF1E3C78.toInt(), 0xFFB428A0.toInt(), 0xFFF07828.toInt()),
-                    null, android.graphics.Shader.TileMode.CLAMP)
-            }
+            
+            // Left aligned + scaled proportionally by height:
+            // Image fixed on the left, only the right side is cropped when Dock narrows; more of the image is revealed on the right when Dock widens.
+            // When image width is not enough, use CLAMP to extend with right edge pixels.
+            val scale = h / bmp.height
+            val m = android.graphics.Matrix()
+            m.setScale(scale, scale)
+            val sh = android.graphics.BitmapShader(bmp,
+                android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
+            sh.setLocalMatrix(m)
+            paint.shader = sh
+            
             invalidateSelf()
         }
 

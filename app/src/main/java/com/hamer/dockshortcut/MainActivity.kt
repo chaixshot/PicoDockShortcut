@@ -147,6 +147,7 @@ class MainViewModel : ViewModel() {
     var isModuleActive by mutableStateOf(true)
     var isTargetHooked by mutableStateOf(true)
     var hasRoot by mutableStateOf(true)
+    var pendingRestoreBG by mutableStateOf(false)
 
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -269,10 +270,12 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             val default = try {
                 context.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "[]"
             }
             parseApps(context, default, updateSaved = false)
+
+            pendingRestoreBG = true
         }
     }
 
@@ -441,6 +444,17 @@ class MainViewModel : ViewModel() {
             clearIconCache(context)
             savedApps.clear()
             savedApps.addAll(selectedApps)
+
+            // Perform background restore
+            if (pendingRestoreBG) {
+                withContext(Dispatchers.IO) {
+                    val bgFile = File(context.filesDir.parentFile, "dock_bg.png")
+                    if (bgFile.exists())
+                        bgFile.delete()
+                }
+                pendingRestoreBG = false
+            }
+
             restartTargetApp(context)
             if (checkStatus) {
                 delay(2000) // Give more time for the service to start and module to inject
@@ -672,8 +686,9 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     var cropUri by remember { mutableStateOf<Uri?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val currentBgBitmap by produceState<Bitmap?>(initialValue = null, bgInfo, lastUpdate) {
+    val currentBgBitmap by produceState<Bitmap?>(initialValue = null, bgInfo, lastUpdate, viewModel.pendingRestoreBG) {
         value = withContext(Dispatchers.IO) {
+            if (viewModel.pendingRestoreBG) return@withContext null
             try {
                 val f = File(context.filesDir.parentFile, "dock_bg.png")
                 if (f.exists()) BitmapFactory.decodeFile(f.absolutePath) else null
@@ -716,6 +731,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     }
                     bgInfo = readBgInfo(context)
                     lastUpdate = System.currentTimeMillis()
+                    viewModel.pendingRestoreBG = false
                     cropUri = null
                     Toast.makeText(context, "Background saved: $bgInfo", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
