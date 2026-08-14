@@ -54,6 +54,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -599,7 +600,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(24.dp)),
-            color = Color(0xFF292929)
+            color = colorResource(id = R.color.main_bg)
         ) {
             Column(
                 modifier = Modifier
@@ -715,7 +716,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = Color(0xFF292929),
+        containerColor = colorResource(id = R.color.main_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(
@@ -734,7 +735,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                color = colorResource(id = R.color.content_bg)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -742,7 +743,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                             stringResource(R.string.dock_bg_not_set)
                         else stringResource(R.string.dock_bg_current, bgInfo!!),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = if (bgInfo.isNullOrBlank()) Color.Gray else Color(0xFF7EC8FF)
+                        color = if (bgInfo.isNullOrBlank()) Color.Gray else colorResource(id = R.color.colorPrimary)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -766,14 +767,14 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 ActionButton(
                     text = stringResource(R.string.action_choose_image),
                     icon = Icons.Default.Image,
-                    containerColor = Color(0xFF1E3C78),
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     disabled = false,
                     modifier = Modifier.weight(1f)
                 ) { launcher.launch("image/*") }
                 ActionButton(
                     text = stringResource(R.string.action_apply_bg),
                     icon = Icons.Default.Check,
-                    containerColor = Color(0xFF2E7D32),
+                    containerColor = colorResource(id = R.color.colorPrimary),
                     disabled = bgInfo.isNullOrBlank(),
                     modifier = Modifier.weight(1f)
                 ) {
@@ -881,10 +882,13 @@ private fun CropDialog(
     cx = cx.coerceIn(cropW / 2f, iw - cropW / 2f)
     cy = cy.coerceIn(cropH / 2f, ih - cropH / 2f)
 
+    val colorPrimary = colorResource(id = R.color.colorPrimary)
+    val button_bg = colorResource(id = R.color.button_bg)
+
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = Color(0xFF292929),
+            color = colorResource(id = R.color.main_bg),
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
             Column(
@@ -902,7 +906,7 @@ private fun CropDialog(
                 Text(
                     stringResource(R.string.crop_dialog_info, aspect, src.width, src.height),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = colorPrimary
                 )
                 Spacer(modifier = Modifier.height(2.dp))
                 Text(
@@ -910,7 +914,6 @@ private fun CropDialog(
                         stringResource(R.string.crop_dialog_visible_hint, appCount)
                     else stringResource(R.string.crop_dialog_all_visible_hint),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFF7EC8FF)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -963,7 +966,7 @@ private fun CropDialog(
                                 )
                             )
                             drawLine(
-                                color = Color(0xFF7EC8FF),
+                                color = colorPrimary,
                                 start = Offset(vw, 0f),
                                 end = Offset(vw, size.height),
                                 strokeWidth = 3f
@@ -980,7 +983,14 @@ private fun CropDialog(
                         value = zoom,
                         onValueChange = { zoom = it },
                         valueRange = 1f..6f,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
+                        colors = SliderDefaults.colors(
+                            thumbColor = button_bg,
+                            activeTrackColor = button_bg,
+                            inactiveTrackColor = button_bg.copy(alpha = 0.24f),
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent
+                        )
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("${"%.1f".format(zoom)}x", color = Color.LightGray)
@@ -1000,13 +1010,13 @@ private fun CropDialog(
                     ActionButton(
                         text = stringResource(R.string.action_cancel),
                         icon = Icons.Default.Close,
-                        containerColor = Color(0xFF444444),
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                         disabled = false
                     ) { onDismiss() }
                     ActionButton(
                         text = stringResource(R.string.action_use_region),
                         icon = Icons.Default.Check,
-                        containerColor = Color(0xFF2E7D32),
+                        containerColor = colorResource(id = R.color.colorPrimary),
                         disabled = false
                     ) {
                         try {
@@ -1143,7 +1153,7 @@ private fun Header(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .background(colorResource(id = R.color.button_bg))
             ) {
                 Icon(
                     Icons.Default.Wallpaper,
@@ -1156,7 +1166,7 @@ private fun Header(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                    .background(colorResource(id = R.color.button_bg))
             ) {
                 Icon(
                     Icons.Default.Language,
@@ -1183,7 +1193,7 @@ private fun Header(
             ActionButton(
                 stringResource(R.string.action_apply),
                 Icons.Default.Check,
-                MaterialTheme.colorScheme.primary,
+                colorResource(id = R.color.colorPrimary),
                 viewModel.isApplying || !viewModel.isModified,
                 showLoading = viewModel.isApplying
             ) {
@@ -1378,9 +1388,7 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
         interactionSource = interactionSource,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                alpha = 0.8f
-            )
+            containerColor = colorResource(id = R.color.card_bg)
         )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -1412,7 +1420,7 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
                     .align(Alignment.TopEnd)
                     .size(40.dp)
                     .background(
-                        if (isDelHovered) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.errorContainer,
+                        MaterialTheme.colorScheme.tertiaryContainer,
                         RoundedCornerShape(bottomStart = 7.dp)
                     )
                     .hoverable(delInteraction)
@@ -1434,7 +1442,7 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
                     .align(Alignment.TopStart)
                     .size(40.dp)
                     .background(
-                        if (isPickHovered) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.secondaryContainer,
+                        MaterialTheme.colorScheme.secondaryContainer,
                         RoundedCornerShape(bottomEnd = 7.dp)
                     )
                     .hoverable(pickInteraction)
@@ -1461,9 +1469,7 @@ fun AddSlot(onClick: () -> Unit) {
             .height(200.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                alpha = 0.8f
-            )
+            containerColor =  colorResource(id = R.color.card_bg)
         )
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1485,9 +1491,7 @@ fun FixedSlot(app: AppInfo?) {
             .height(200.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(
-                alpha = 0.5f
-            )
+            containerColor = colorResource(id = R.color.card_bg)
         )
     ) {
         Column(
@@ -1561,7 +1565,7 @@ fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
             modifier = Modifier
                 .size(size)
                 .background(
-                    MaterialTheme.colorScheme.surfaceVariant,
+                    colorResource(id = R.color.button_bg),
                     RoundedCornerShape(size * 0.18f)
                 ),
             contentAlignment = Alignment.Center
@@ -1598,7 +1602,7 @@ fun AppPicker(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        containerColor = MaterialTheme.colorScheme.surface,
+        containerColor = colorResource(R.color.main_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxHeight(0.9f)) {
@@ -1610,6 +1614,8 @@ fun AppPicker(
                 placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
+                    focusedContainerColor = colorResource(R.color.content_bg),
+                    unfocusedContainerColor = colorResource(R.color.button_bg),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 )
@@ -1657,9 +1663,7 @@ private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                if (isHovered) MaterialTheme.colorScheme.primaryContainer.copy(
-                    alpha = 0.2f
-                ) else Color.Transparent
+                if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
             )
             .hoverable(interaction)
             .clickable { onAppSelected(app) }
@@ -1839,7 +1843,7 @@ fun LanguageSelector(onDismiss: () -> Unit) {
         confirmButton = {
             TextButton(onClick = onDismiss) { Text("Close") }
         },
-        containerColor = Color(0xFF333333),
+        containerColor = colorResource(id = R.color.main_bg),
         textContentColor = Color.White
     )
 }
