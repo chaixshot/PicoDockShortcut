@@ -89,26 +89,28 @@ private object Shell {
             os.writeBytes("exit\n")
             os.flush()
         }
-        
+
         val output = StringBuilder()
         val outThread = Thread {
             try {
                 process.inputStream.bufferedReader().use { output.append(it.readText()) }
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+            }
         }
         val errThread = Thread {
             try {
                 process.errorStream.bufferedReader().use { it.readText() } // Drain
-            } catch (e: Exception) {}
+            } catch (e: Exception) {
+            }
         }
-        
+
         outThread.start()
         errThread.start()
-        
+
         process.waitFor()
         outThread.join(1000)
         errThread.join(1000)
-        
+
         output.toString()
     } catch (e: Exception) {
         ""
@@ -121,7 +123,8 @@ private object Shell {
     fun isServiceRunning(): Boolean {
         // Dumpsys output for services usually uses format: packageName/.service.ClassName
         // We check for the class name part specifically
-        val shortName = if (TARGET_SERVICE.contains(".")) TARGET_SERVICE.substringAfterLast(".") else TARGET_SERVICE
+        val shortName =
+            if (TARGET_SERVICE.contains(".")) TARGET_SERVICE.substringAfterLast(".") else TARGET_SERVICE
         return exec("dumpsys activity services").contains(shortName)
     }
 }
@@ -131,7 +134,7 @@ private object Shell {
 class MainViewModel : ViewModel() {
     val selectedApps = mutableStateListOf<AppInfo>()
     private val savedApps = mutableStateListOf<AppInfo>()
-    
+
     val isModified by derivedStateOf {
         selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
             !selectedApps[i].isSameAs(savedApps[i])
@@ -159,9 +162,9 @@ class MainViewModel : ViewModel() {
                     echo "HOOKED_OK"
                 fi
             """.trimIndent()
-            
+
             val result = Shell.exec(cmd)
-            
+
             val rootOk = result.contains("uid=0")
             val hookedOk = result.contains("HOOKED_OK")
 
@@ -193,55 +196,66 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private suspend fun parseApps(context: Context, content: String, updateSaved: Boolean) = withContext(Dispatchers.IO) {
-        try {
-            val jsonArray = JSONArray(content)
-            val tempApps = mutableListOf<AppInfo>()
+    private suspend fun parseApps(context: Context, content: String, updateSaved: Boolean) =
+        withContext(Dispatchers.IO) {
+            try {
+                val jsonArray = JSONArray(content)
+                val tempApps = mutableListOf<AppInfo>()
 
-            for (i in 0 until jsonArray.length()) {
-                val obj = jsonArray.getJSONObject(i)
-                val pkg = obj.optString("packageName")
-                if (pkg == "com.pvr.appmanager") continue
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    val pkg = obj.optString("packageName")
+                    if (pkg == "com.pvr.appmanager") continue
 
-                val isFitCenterJson = obj.optBoolean("fitCenter", false)
-                val appInfo = AppManager.getAppInfo(context, if (isFitCenterJson) FIT_CENTER_PACKAGE else pkg)
-
-                if (appInfo != null) {
-                    tempApps.add(
-                        appInfo.copy(
-                            actionName = if (obj.has("actionName")) obj.getString("actionName") else null,
-                            className = if (obj.has("className")) obj.getString("className") else appInfo.className,
-                            fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE,
-                            iconUrl = if (obj.has("iconUrl")) obj.getString("iconUrl") else null
-                        )
+                    val isFitCenterJson = obj.optBoolean("fitCenter", false)
+                    val appInfo = AppManager.getAppInfo(
+                        context,
+                        if (isFitCenterJson) FIT_CENTER_PACKAGE else pkg
                     )
-                } else if (pkg == "com.hamer.debug") {
-                    tempApps.add(AppInfo(pkg, null, context.getString(R.string.debug_app_label), null))
-                }
-                if (tempApps.size >= 11) break
-            }
 
-            if (tempApps.isEmpty()) tempApps.add(
-                AppInfo(
-                    "com.hamer.debug",
-                    null,
-                    context.getString(R.string.debug_app_label),
-                    null
+                    if (appInfo != null) {
+                        tempApps.add(
+                            appInfo.copy(
+                                actionName = if (obj.has("actionName")) obj.getString("actionName") else null,
+                                className = if (obj.has("className")) obj.getString("className") else appInfo.className,
+                                fitCenter = isFitCenterJson || pkg == FIT_CENTER_PACKAGE,
+                                iconUrl = if (obj.has("iconUrl")) obj.getString("iconUrl") else null
+                            )
+                        )
+                    } else if (pkg == "com.hamer.debug") {
+                        tempApps.add(
+                            AppInfo(
+                                pkg,
+                                null,
+                                context.getString(R.string.debug_app_label),
+                                null
+                            )
+                        )
+                    }
+                    if (tempApps.size >= 11) break
+                }
+
+                if (tempApps.isEmpty()) tempApps.add(
+                    AppInfo(
+                        "com.hamer.debug",
+                        null,
+                        context.getString(R.string.debug_app_label),
+                        null
+                    )
                 )
-            )
 
-            withContext(Dispatchers.Main) {
-                selectedApps.clear()
-                selectedApps.addAll(tempApps)
-                if (updateSaved) {
-                    savedApps.clear()
-                    savedApps.addAll(tempApps)
+                withContext(Dispatchers.Main) {
+                    selectedApps.clear()
+                    selectedApps.addAll(tempApps)
+                    if (updateSaved) {
+                        savedApps.clear()
+                        savedApps.addAll(tempApps)
+                    }
                 }
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
-    }
 
     fun reload(context: Context) {
         viewModelScope.launch {
@@ -276,7 +290,8 @@ class MainViewModel : ViewModel() {
         if (index in selectedApps.indices) {
             val app = selectedApps[index]
             // Delete custom icon if exists
-            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            val customFile =
+                File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
             if (customFile.exists()) {
                 customFile.delete()
             }
@@ -319,7 +334,8 @@ class MainViewModel : ViewModel() {
                         val index = selectedApps.indexOfFirst { it.packageName == packageName }
                         if (index != -1) {
                             val app = selectedApps[index]
-                            selectedApps[index] = app.copy(iconUrl = "Image/Custom/custom_icon_$packageName.png?t=${System.currentTimeMillis()}")
+                            selectedApps[index] =
+                                app.copy(iconUrl = "Image/Custom/custom_icon_$packageName.png?t=${System.currentTimeMillis()}")
                         }
                     }
                 }
@@ -341,8 +357,11 @@ class MainViewModel : ViewModel() {
                         put("packageName", app.packageName)
                         app.className?.let { put("className", it) }
                         app.actionName?.let { put("actionName", it) }
-                        
-                        val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+
+                        val customFile = File(
+                            context.filesDir.parentFile,
+                            "Image/Custom/custom_icon_${app.packageName}.png"
+                        )
                         if (customFile.exists()) {
                             put("iconUrl", "Image/Custom/custom_icon_${app.packageName}.png")
                         } else {
@@ -361,7 +380,7 @@ class MainViewModel : ViewModel() {
             writeText(jsonArray.toString(2))
             setReadable(true, false)
         }
-        
+
         saveIconsToDisk(context)
     }
 
@@ -459,7 +478,7 @@ class MainViewModel : ViewModel() {
 
             var processStarted = false
             var serviceStarted = false
-            
+
             // Wait for package process first
             repeat(10) {
                 if (Shell.isProcessRunning()) {
@@ -468,7 +487,7 @@ class MainViewModel : ViewModel() {
                 }
                 delay(1000)
             }
-            
+
             // Wait for specific service
             if (processStarted) {
                 repeat(10) {
@@ -495,7 +514,11 @@ class MainViewModel : ViewModel() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 withContext(Dispatchers.Main) {
                     context.startActivity(intent)
-                    Toast.makeText(context, context.getString(R.string.toast_applied_fallback), Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_applied_fallback),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -657,12 +680,23 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
                     dst.outputStream().use { out ->
                         cropped.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
                     }
-                    try { dst.setReadable(true, false) } catch (_: Throwable) {}
+                    try {
+                        dst.setReadable(true, false)
+                    } catch (_: Throwable) {
+                    }
                     bgInfo = readBgInfo(context)
                     cropUri = null
-                    Toast.makeText(context, context.getString(R.string.toast_bg_saved, bgInfo), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_bg_saved, bgInfo),
+                        Toast.LENGTH_LONG
+                    ).show()
                 } catch (e: Exception) {
-                    Toast.makeText(context, context.getString(R.string.toast_save_failed, e.message), Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        context,
+                        context.getString(R.string.toast_save_failed, e.message),
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         )
@@ -729,7 +763,8 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
 //   Height             = main_view_height 120
 //   Max limit           = dock_max_width 1800  => Max aspect ratio 15 : 1
 const val MAX_DOCK_APPS = 11        // GUI limit for shortcut apps (excluding library)
-const val MAX_RECENT_APPS = 5       // Recent/running apps to the right of library (max 5 when multi-window is on)
+const val MAX_RECENT_APPS =
+    5       // Recent/running apps to the right of library (max 5 when multi-window is on)
 const val DOCK_MAX_ASPECT = 15f     // dock_max_width 1800 / main_view_height 120
 
 private const val DOCK_SIDE_DP = 176f + 138f
@@ -757,7 +792,8 @@ private fun dockBarAspect(context: Context, appCount: Int): Float {
                 if (w > 0f && h > 0f) return w / h
             }
         }
-    } catch (_: Throwable) {}
+    } catch (_: Throwable) {
+    }
     return dockBarAspectFor(appCount)
 }
 
@@ -778,7 +814,11 @@ private fun CropDialog(
 
     if (src == null) {
         LaunchedEffect(Unit) {
-            Toast.makeText(context, context.getString(R.string.toast_decode_failed), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.toast_decode_failed),
+                Toast.LENGTH_LONG
+            ).show()
             onDismiss()
         }
         return
@@ -884,7 +924,10 @@ private fun CropDialog(
                             drawRect(
                                 color = Color.Black.copy(alpha = 0.55f),
                                 topLeft = Offset(vw, 0f),
-                                size = androidx.compose.ui.geometry.Size(size.width - vw, size.height)
+                                size = androidx.compose.ui.geometry.Size(
+                                    size.width - vw,
+                                    size.height
+                                )
                             )
                             drawLine(
                                 color = Color(0xFF7EC8FF),
@@ -949,7 +992,11 @@ private fun CropDialog(
                             }
                             onConfirm(out)
                         } catch (e: Exception) {
-                            Toast.makeText(context, context.getString(R.string.toast_crop_failed, e.message), Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                context,
+                                context.getString(R.string.toast_crop_failed, e.message),
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     }
                 }
@@ -959,7 +1006,11 @@ private fun CropDialog(
 }
 
 // Decode with a limit on the longest side to avoid OOM for large images
-private fun decodeScaled(context: Context, uri: android.net.Uri, maxEdge: Int): android.graphics.Bitmap? {
+private fun decodeScaled(
+    context: Context,
+    uri: android.net.Uri,
+    maxEdge: Int
+): android.graphics.Bitmap? {
     return try {
         val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
         context.contentResolver.openInputStream(uri)?.use {
@@ -993,7 +1044,7 @@ private fun readBgInfo(context: Context): String? {
 @Composable
 private fun Header(viewModel: MainViewModel, context: Context, onLanguageClick: () -> Unit) {
     var iconTapCount by remember { mutableIntStateOf(0) }
-    
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -1197,12 +1248,15 @@ private fun DockGrid(
                                         draggedIndex ?: return@detectDragGesturesAfterLongPress
 
                                     val spacing = with(density) { 8.dp.toPx() }
-                                    
+
                                     // Calculate target column and row based on touch position relative to grid
-                                    val col = (touchPosition.x / (slotSize.x + spacing)).toInt().coerceIn(0, 5)
-                                    val row = (touchPosition.y / (slotSize.y + spacing)).toInt().coerceIn(0, 1)
-                                    
-                                    val targetIdx = (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
+                                    val col = (touchPosition.x / (slotSize.x + spacing)).toInt()
+                                        .coerceIn(0, 5)
+                                    val row = (touchPosition.y / (slotSize.y + spacing)).toInt()
+                                        .coerceIn(0, 1)
+
+                                    val targetIdx =
+                                        (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
 
                                     if (targetIdx != currentIdx) {
                                         viewModel.moveApp(currentIdx, targetIdx)
@@ -1428,9 +1482,15 @@ fun FixedSlot(app: AppInfo?) {
 @Composable
 fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
     val context = LocalContext.current
-    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(null, app.packageName, app.fitCenter, app.iconUrl) {
+    val iconBitmap by produceState<androidx.compose.ui.graphics.ImageBitmap?>(
+        null,
+        app.packageName,
+        app.fitCenter,
+        app.iconUrl
+    ) {
         value = withContext(Dispatchers.IO) {
-            val customFile = File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
+            val customFile =
+                File(context.filesDir.parentFile, "Image/Custom/custom_icon_${app.packageName}.png")
             if (customFile.exists()) {
                 BitmapFactory.decodeFile(customFile.absolutePath)?.asImageBitmap()
             } else {
@@ -1478,8 +1538,8 @@ fun AppPicker(
     val context = LocalContext.current
     val apps by produceState<List<AppInfo>>(emptyList()) {
         value = withContext(Dispatchers.IO) {
-            AppManager.getInstalledApps(context).filter { 
-                it.packageName !in excludedPackages && it.packageName != FIT_CENTER_PACKAGE 
+            AppManager.getInstalledApps(context).filter {
+                it.packageName !in excludedPackages && it.packageName != FIT_CENTER_PACKAGE
             }
         }
     }
@@ -1516,13 +1576,15 @@ fun AppPicker(
                     contentPadding = PaddingValues(bottom = 32.dp)
                 ) {
                     // Only show Fit Center option if the package exists on the system
-                    val fitCenterInfo = if (AppManager.isPackageInstalled(context, FIT_CENTER_PACKAGE)) {
-                        AppManager.getAppInfo(context, FIT_CENTER_PACKAGE)
-                    } else null
+                    val fitCenterInfo =
+                        if (AppManager.isPackageInstalled(context, FIT_CENTER_PACKAGE)) {
+                            AppManager.getAppInfo(context, FIT_CENTER_PACKAGE)
+                        } else null
 
                     if (fitCenterInfo != null &&
                         fitCenterInfo.label.contains(query, true) &&
-                        excludedPackages.none { it == FIT_CENTER_PACKAGE }) {
+                        excludedPackages.none { it == FIT_CENTER_PACKAGE }
+                    ) {
                         item {
                             AppPickerItem(
                                 app = fitCenterInfo,
@@ -1571,18 +1633,32 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
     if (!viewModel.hasRoot) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text(stringResource(R.string.dialog_root_title), color = MaterialTheme.colorScheme.error) },
+            title = {
+                Text(
+                    stringResource(R.string.dialog_root_title),
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
             text = { Text(stringResource(R.string.dialog_root_text)) },
             confirmButton = {
                 TextButton(onClick = { viewModel.checkStatus() }) { Text(stringResource(R.string.dialog_retry)) }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
+                    Text(
+                        stringResource(R.string.dialog_exit)
+                    )
+                }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
     } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text(stringResource(R.string.dialog_warning_title), color = MaterialTheme.colorScheme.error) },
+            title = {
+                Text(
+                    stringResource(R.string.dialog_warning_title),
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
             text = {
                 Column {
                     if (!viewModel.isModuleActive) {
@@ -1617,7 +1693,11 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
                     )
                     else Text(stringResource(R.string.dialog_restart_retry))
                 }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) { Text(stringResource(R.string.dialog_exit)) }
+                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
+                    Text(
+                        stringResource(R.string.dialog_exit)
+                    )
+                }
             },
             containerColor = Color(0xFF333333), textContentColor = Color.White
         )
@@ -1669,10 +1749,12 @@ fun LanguageSelector(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         title = { Text("Select Language", color = Color.White) },
         text = {
-            LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp)) {
+            LazyColumn(modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 400.dp)) {
                 items(supportedLocales) { (name, tag) ->
-                    val isSelected = (tag == "" && currentLocale == "") || 
-                                   (tag != "" && currentLocale.startsWith(tag))
+                    val isSelected = (tag == "" && currentLocale == "") ||
+                            (tag != "" && currentLocale.startsWith(tag))
                     TextButton(
                         onClick = {
                             val appLocale: LocaleListCompat = if (tag.isEmpty()) {
@@ -1695,7 +1777,11 @@ fun LanguageSelector(onDismiss: () -> Unit) {
                         ) {
                             Text(name, textAlign = TextAlign.Start)
                             if (isSelected) {
-                                Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(16.dp))
+                                Icon(
+                                    Icons.Default.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp)
+                                )
                             }
                         }
                     }
