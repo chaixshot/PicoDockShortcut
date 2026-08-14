@@ -668,8 +668,20 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
 private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     val context = LocalContext.current
     var bgInfo by remember { mutableStateOf(readBgInfo(context)) }
+    var lastUpdate by remember { mutableLongStateOf(0L) }
     var cropUri by remember { mutableStateOf<Uri?>(null) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    val currentBgBitmap by produceState<Bitmap?>(initialValue = null, bgInfo, lastUpdate) {
+        value = withContext(Dispatchers.IO) {
+            try {
+                val f = File(context.filesDir.parentFile, "dock_bg.png")
+                if (f.exists()) BitmapFactory.decodeFile(f.absolutePath) else null
+            } catch (e: Exception) {
+                null
+            }
+        }
+    }
 
     // Dock bar aspect ratio. Fixed height, width varies with the number of apps.
     // Cropping follows the "maximum ratio" (11 apps fully loaded), aligned to the left; when there are fewer apps, the right side is invisible.
@@ -703,6 +715,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     } catch (_: Throwable) {
                     }
                     bgInfo = readBgInfo(context)
+                    lastUpdate = System.currentTimeMillis()
                     cropUri = null
                     Toast.makeText(context, "Background saved: $bgInfo", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
@@ -721,9 +734,9 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
     ) {
         Column(
             modifier = Modifier
+                .fillMaxHeight(0.9f)
                 .fillMaxWidth()
-                .padding(24.dp)
-                .padding(bottom = 32.dp)
+                .padding(horizontal = 32.dp)
         ) {
             Text(
                 stringResource(R.string.dock_bg_title),
@@ -732,6 +745,23 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                 color = Color.White
             )
             Spacer(modifier = Modifier.height(16.dp))
+
+            currentBgBitmap?.let { bmp ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.Black)
+                ) {
+                    Image(
+                        bitmap = bmp.asImageBitmap(),
+                        contentDescription = "Current Background",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
