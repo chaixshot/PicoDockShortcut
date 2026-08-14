@@ -1261,105 +1261,106 @@ private fun DockGrid(
     var slotSize by remember { mutableStateOf(Offset.Zero) }
     var gridCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .onGloballyPositioned { gridCoords = it }) {
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(6),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            itemsIndexed(
-                viewModel.selectedApps,
-                key = { _, app -> app.packageName }
-            ) { index, app ->
-                val currentItemIndex by rememberUpdatedState(index)
-                val isDragged = draggedIndex == index
-                var itemCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .onGloballyPositioned { gridCoords = it }) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(6),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                itemsIndexed(
+                    viewModel.selectedApps,
+                    key = { _, app -> app.packageName }
+                ) { index, app ->
+                    val currentItemIndex by rememberUpdatedState(index)
+                    val isDragged = draggedIndex == index
+                    var itemCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
 
-                Box(
-                    modifier = Modifier
-                        .animateItem()
-                        .onGloballyPositioned {
-                            itemCoords = it
-                            if (slotSize == Offset.Zero) slotSize =
-                                Offset(it.size.width.toFloat(), it.size.height.toFloat())
-                        }
-                        .graphicsLayer { alpha = if (isDragged) 0f else 1f }
-                        .pointerInput(Unit) {
-                            detectDragGesturesAfterLongPress(
-                                onDragStart = { offset ->
-                                    val gCoords =
-                                        gridCoords ?: return@detectDragGesturesAfterLongPress
-                                    val iCoords =
-                                        itemCoords ?: return@detectDragGesturesAfterLongPress
-                                    draggedIndex = currentItemIndex
-                                    touchOffsetWithinItem = offset
-                                    touchPosition = gCoords.localPositionOf(iCoords, offset)
-                                },
-                                onDragEnd = { draggedIndex = null },
-                                onDragCancel = { draggedIndex = null },
-                                onDrag = { change, dragAmount ->
-                                    change.consume()
-                                    touchPosition += dragAmount
+                    Box(
+                        modifier = Modifier
+                            .animateItem()
+                            .onGloballyPositioned {
+                                itemCoords = it
+                                if (slotSize == Offset.Zero) slotSize =
+                                    Offset(it.size.width.toFloat(), it.size.height.toFloat())
+                            }
+                            .graphicsLayer { alpha = if (isDragged) 0f else 1f }
+                            .pointerInput(Unit) {
+                                detectDragGesturesAfterLongPress(
+                                    onDragStart = { offset ->
+                                        val gCoords =
+                                            gridCoords ?: return@detectDragGesturesAfterLongPress
+                                        val iCoords =
+                                            itemCoords ?: return@detectDragGesturesAfterLongPress
+                                        draggedIndex = currentItemIndex
+                                        touchOffsetWithinItem = offset
+                                        touchPosition = gCoords.localPositionOf(iCoords, offset)
+                                    },
+                                    onDragEnd = { draggedIndex = null },
+                                    onDragCancel = { draggedIndex = null },
+                                    onDrag = { change, dragAmount ->
+                                        change.consume()
+                                        touchPosition += dragAmount
 
-                                    val currentIdx =
-                                        draggedIndex ?: return@detectDragGesturesAfterLongPress
+                                        val currentIdx =
+                                            draggedIndex ?: return@detectDragGesturesAfterLongPress
 
-                                    val spacing = with(density) { 8.dp.toPx() }
+                                        val spacing = with(density) { 8.dp.toPx() }
 
-                                    // Calculate target column and row based on touch position relative to grid
-                                    val col = (touchPosition.x / (slotSize.x + spacing)).toInt()
-                                        .coerceIn(0, 5)
-                                    val row = (touchPosition.y / (slotSize.y + spacing)).toInt()
-                                        .coerceIn(0, 1)
+                                        // Calculate target column and row based on touch position relative to grid
+                                        val col = (touchPosition.x / (slotSize.x + spacing)).toInt()
+                                            .coerceIn(0, 5)
+                                        val row = (touchPosition.y / (slotSize.y + spacing)).toInt()
+                                            .coerceIn(0, 1)
 
-                                    val targetIdx =
-                                        (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
+                                        val targetIdx =
+                                            (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
 
-                                    if (targetIdx != currentIdx) {
-                                        viewModel.moveApp(currentIdx, targetIdx)
-                                        draggedIndex = targetIdx
+                                        if (targetIdx != currentIdx) {
+                                            viewModel.moveApp(currentIdx, targetIdx)
+                                            draggedIndex = targetIdx
+                                        }
                                     }
-                                }
-                            )
-                        }
-                ) {
-                    DockSlot(
-                        app,
-                        onClick = { onSlotClick(index) },
-                        onDelete = { viewModel.removeApp(context, index) },
-                        onPickIcon = { onPickIcon(index) })
+                                )
+                            }
+                    ) {
+                        DockSlot(
+                            app,
+                            onClick = { onSlotClick(index) },
+                            onDelete = { viewModel.removeApp(context, index) },
+                            onPickIcon = { onPickIcon(index) })
+                    }
                 }
-            }
 
-            if (viewModel.selectedApps.size < 11) {
+                if (viewModel.selectedApps.size < 11) {
+                    item {
+                        Box {
+                            AddSlot(onClick = onAddClick)
+                        }
+                    }
+                }
+
                 item {
+                    val context = LocalContext.current
+                    val appMgrLabel = stringResource(R.string.app_manager_label)
+                    val appMgr = remember(appMgrLabel) {
+                        AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
+                            label = appMgrLabel,
+                            className = "com.pvr.appmanager.AllAppActivity"
+                        )
+                    }
                     Box {
-                        AddSlot(onClick = onAddClick)
+                        FixedSlot(appMgr)
                     }
                 }
             }
-
-            item {
-                val context = LocalContext.current
-                val appMgrLabel = stringResource(R.string.app_manager_label)
-                val appMgr = remember(appMgrLabel) {
-                    AppManager.getAppInfo(context, "com.pvr.appmanager")?.copy(
-                        label = appMgrLabel,
-                        className = "com.pvr.appmanager.AllAppActivity"
-                    )
-                }
-                Box {
-                    FixedSlot(appMgr)
-                }
-            }
         }
-    }
 
-    draggedIndex?.let { idx ->
+        draggedIndex?.let { idx ->
             viewModel.selectedApps.getOrNull(idx)?.let { app ->
                 Box(
                     modifier = Modifier
@@ -1375,6 +1376,7 @@ private fun DockGrid(
                 ) { DockSlot(app, {}, {}, {}) }
             }
         }
+    }
 }
 
 @Composable
