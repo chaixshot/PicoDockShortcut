@@ -570,6 +570,7 @@ class MainActivity : AppCompatActivity() {
 fun MainScreen(viewModel: MainViewModel = viewModel()) {
     val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
+    var showBgSettings by remember { mutableStateOf(false) }
     var showLanguageSelector by remember { mutableStateOf(false) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     var pickingIconIndex by remember { mutableStateOf<Int?>(null) }
@@ -605,7 +606,12 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     .fillMaxSize()
                     .padding(20.dp)
             ) {
-                Header(viewModel, context, onLanguageClick = { showLanguageSelector = true })
+                Header(
+                    viewModel,
+                    context,
+                    onLanguageClick = { showLanguageSelector = true },
+                    onBgClick = { showBgSettings = true }
+                )
                 Spacer(modifier = Modifier.height(24.dp))
                 // Set grid weight(1f): measure bottom background area first, grid takes the remaining height
                 // (Previously LazyVerticalGrid had no weight, it would consume all available height -> bottom buttons were pushed off screen)
@@ -625,10 +631,15 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         imagePickerLauncher.launch("image/*")
                     }
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                DockBgSection(viewModel, context)
             }
         }
+    }
+
+    if (showBgSettings) {
+        DockBgDrawer(
+            viewModel = viewModel,
+            onDismiss = { showBgSettings = false }
+        )
     }
 
     if (showPicker) {
@@ -651,10 +662,13 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DockBgSection(viewModel: MainViewModel, context: Context) {
+private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
+    val context = LocalContext.current
     var bgInfo by remember { mutableStateOf(readBgInfo(context)) }
-    var cropUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    var cropUri by remember { mutableStateOf<Uri?>(null) }
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     // Dock bar aspect ratio. Fixed height, width varies with the number of apps.
     // Cropping follows the "maximum ratio" (11 apps fully loaded), aligned to the left; when there are fewer apps, the right side is invisible.
@@ -667,6 +681,9 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
         ActivityResultContracts.GetContent()
     ) { uri -> if (uri != null) cropUri = uri }
 
+    val toastBgSaved = stringResource(R.string.toast_bg_saved)
+    val toastSaveFailed = stringResource(R.string.toast_save_failed)
+
     if (cropUri != null) {
         CropDialog(
             uri = cropUri!!,
@@ -678,7 +695,7 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
                 try {
                     val dst = File(context.filesDir.parentFile, "dock_bg.png")
                     dst.outputStream().use { out ->
-                        cropped.compress(android.graphics.Bitmap.CompressFormat.PNG, 100, out)
+                        cropped.compress(Bitmap.CompressFormat.PNG, 100, out)
                     }
                     try {
                         dst.setReadable(true, false)
@@ -686,67 +703,83 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
                     }
                     bgInfo = readBgInfo(context)
                     cropUri = null
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.toast_bg_saved, bgInfo),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(context, "Background saved: $bgInfo", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
-                    Toast.makeText(
-                        context,
-                        context.getString(R.string.toast_save_failed, e.message),
-                        Toast.LENGTH_LONG
-                    ).show()
+                    val msg = e.message ?: ""
+                    Toast.makeText(context, "Save failed: $msg", Toast.LENGTH_LONG).show()
                 }
             }
         )
     }
 
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        containerColor = Color(0xFF292929),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(24.dp)
+                .padding(bottom = 32.dp)
+        ) {
             Text(
                 stringResource(R.string.dock_bg_title),
-                style = MaterialTheme.typography.titleSmall,
-                color = Color.LightGray
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
             )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                if (bgInfo.isNullOrBlank())
-                    stringResource(R.string.dock_bg_not_set)
-                else stringResource(R.string.dock_bg_current, bgInfo!!),
-                style = MaterialTheme.typography.bodySmall,
-                color = if (bgInfo.isNullOrBlank()) Color.Gray else Color(0xFF7EC8FF)
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                stringResource(
-                    R.string.dock_bg_desc,
-                    maxRatio,
-                    viewModel.selectedApps.size,
-                    (barRatio / maxRatio * 100).toInt(),
-                    MAX_RECENT_APPS
-                ),
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        if (bgInfo.isNullOrBlank())
+                            stringResource(R.string.dock_bg_not_set)
+                        else stringResource(R.string.dock_bg_current, bgInfo!!),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (bgInfo.isNullOrBlank()) Color.Gray else Color(0xFF7EC8FF)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        stringResource(
+                            R.string.dock_bg_desc,
+                            maxRatio,
+                            viewModel.selectedApps.size,
+                            (barRatio / maxRatio * 100).toInt(),
+                            MAX_RECENT_APPS
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
                 ActionButton(
                     text = stringResource(R.string.action_choose_image),
                     icon = Icons.Default.Image,
                     containerColor = Color(0xFF1E3C78),
-                    disabled = false
+                    disabled = false,
+                    modifier = Modifier.weight(1f)
                 ) { launcher.launch("image/*") }
                 ActionButton(
                     text = stringResource(R.string.action_apply_bg),
                     icon = Icons.Default.Check,
                     containerColor = Color(0xFF2E7D32),
-                    disabled = bgInfo.isNullOrBlank()
-                ) { viewModel.applyChanges(context, false) }
+                    disabled = bgInfo.isNullOrBlank(),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    viewModel.applyChanges(context, false)
+                    onDismiss()
+                }
             }
         }
     }
@@ -762,14 +795,11 @@ private fun DockBgSection(viewModel: MainViewModel, context: Context) {
 //   Each icon         = app_icon_width 76 + app_icon_margin 4*2 = 84
 //   Height             = main_view_height 120
 //   Max limit           = dock_max_width 1800  => Max aspect ratio 15 : 1
-const val MAX_DOCK_APPS = 11        // GUI limit for shortcut apps (excluding library)
-const val MAX_RECENT_APPS =
-    5       // Recent/running apps to the right of library (max 5 when multi-window is on)
-const val DOCK_MAX_ASPECT = 15f     // dock_max_width 1800 / main_view_height 120
-
 private const val DOCK_SIDE_DP = 176f + 138f
 private const val DOCK_ICON_DP = 84f
 private const val DOCK_HEIGHT_DP = 120f
+const val MAX_RECENT_APPS = 5
+const val DOCK_MAX_ASPECT = 15f
 
 // n = number of shortcut apps (excluding library); library icon always exists
 private fun dockBarAspectFor(appCount: Int, recentCount: Int = 0): Float {
@@ -802,21 +832,22 @@ private fun dockBarAspect(context: Context, appCount: Int): Float {
 // visibleAspect = actual visible ratio under current app count, used to draw "current visible boundary"
 @Composable
 private fun CropDialog(
-    uri: android.net.Uri,
+    uri: Uri,
     aspect: Float,
     visibleAspect: Float = aspect,
     appCount: Int = 0,
     onDismiss: () -> Unit,
-    onConfirm: (android.graphics.Bitmap) -> Unit
+    onConfirm: (Bitmap) -> Unit
 ) {
     val context = LocalContext.current
     val src = remember(uri) { decodeScaled(context, uri, 3000) }
 
     if (src == null) {
+        val toastDecodeFailed = stringResource(R.string.toast_decode_failed)
         LaunchedEffect(Unit) {
             Toast.makeText(
                 context,
-                context.getString(R.string.toast_decode_failed),
+                toastDecodeFailed,
                 Toast.LENGTH_LONG
             ).show()
             onDismiss()
@@ -827,6 +858,8 @@ private fun CropDialog(
     val img = remember(src) { src.asImageBitmap() }
     val iw = src.width.toFloat()
     val ih = src.height.toFloat()
+
+    val toastCropFailed = stringResource(R.string.toast_crop_failed)
 
     // Zoom 1 = the largest area of the same aspect ratio that can be obtained within the image
     val maxCropW: Float
@@ -992,11 +1025,8 @@ private fun CropDialog(
                             }
                             onConfirm(out)
                         } catch (e: Exception) {
-                            Toast.makeText(
-                                context,
-                                context.getString(R.string.toast_crop_failed, e.message),
-                                Toast.LENGTH_LONG
-                            ).show()
+                            val msg = e.message ?: ""
+                            Toast.makeText(context, "Crop failed: $msg", Toast.LENGTH_LONG).show()
                         }
                     }
                 }
@@ -1042,7 +1072,12 @@ private fun readBgInfo(context: Context): String? {
 }
 
 @Composable
-private fun Header(viewModel: MainViewModel, context: Context, onLanguageClick: () -> Unit) {
+private fun Header(
+    viewModel: MainViewModel,
+    context: Context,
+    onLanguageClick: () -> Unit,
+    onBgClick: () -> Unit
+) {
     var iconTapCount by remember { mutableIntStateOf(0) }
 
     Row(
@@ -1104,6 +1139,19 @@ private fun Header(viewModel: MainViewModel, context: Context, onLanguageClick: 
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             IconButton(
+                onClick = onBgClick,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Icon(
+                    Icons.Default.Wallpaper,
+                    contentDescription = stringResource(R.string.dock_bg_title),
+                    tint = Color.LightGray
+                )
+            }
+            IconButton(
                 onClick = onLanguageClick,
                 modifier = Modifier
                     .size(48.dp)
@@ -1151,6 +1199,7 @@ private fun ActionButton(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     containerColor: Color,
     disabled: Boolean,
+    modifier: Modifier = Modifier,
     showLoading: Boolean = false,
     onClick: () -> Unit
 ) {
@@ -1161,6 +1210,7 @@ private fun ActionButton(
     Button(
         onClick = onClick,
         enabled = !disabled,
+        modifier = modifier,
         interactionSource = interactionSource,
         colors = ButtonDefaults.buttonColors(
             containerColor = bgColor,
@@ -1213,7 +1263,8 @@ private fun DockGrid(
         ) {
             itemsIndexed(
                 viewModel.selectedApps,
-                key = { _, app -> app.packageName }) { index, app ->
+                key = { _, app -> app.packageName }
+            ) { index, app ->
                 val currentItemIndex by rememberUpdatedState(index)
                 val isDragged = draggedIndex == index
                 var itemCoords by remember { mutableStateOf<LayoutCoordinates?>(null) }
@@ -1275,16 +1326,13 @@ private fun DockGrid(
             }
 
             if (viewModel.selectedApps.size < 11) {
-                val addIndex = viewModel.selectedApps.size
                 item {
-                    Box() {
+                    Box {
                         AddSlot(onClick = onAddClick)
                     }
                 }
             }
 
-            val fixedIndex =
-                viewModel.selectedApps.size + (if (viewModel.selectedApps.size < 11) 1 else 0)
             item {
                 val context = LocalContext.current
                 val appMgrLabel = stringResource(R.string.app_manager_label)
@@ -1294,13 +1342,14 @@ private fun DockGrid(
                         className = "com.pvr.appmanager.AllAppActivity"
                     )
                 }
-                Box() {
+                Box {
                     FixedSlot(appMgr)
                 }
             }
         }
+    }
 
-        draggedIndex?.let { idx ->
+    draggedIndex?.let { idx ->
             viewModel.selectedApps.getOrNull(idx)?.let { app ->
                 Box(
                     modifier = Modifier
@@ -1316,7 +1365,6 @@ private fun DockGrid(
                 ) { DockSlot(app, {}, {}, {}) }
             }
         }
-    }
 }
 
 @Composable
