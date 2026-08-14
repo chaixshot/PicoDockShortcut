@@ -136,18 +136,19 @@ class MainViewModel : ViewModel() {
     val selectedApps = mutableStateListOf<AppInfo>()
     private val savedApps = mutableStateListOf<AppInfo>()
 
-    val isModified by derivedStateOf {
-        selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
-            !selectedApps[i].isSameAs(savedApps[i])
-        }
-    }
-
     var isApplying by mutableStateOf(false)
     var isRetrying by mutableStateOf(false)
     var isModuleActive by mutableStateOf(true)
     var isTargetHooked by mutableStateOf(true)
     var hasRoot by mutableStateOf(true)
     var pendingRestoreBG by mutableStateOf(false)
+    var backgroundModified by mutableStateOf(false)
+
+    val isModified by derivedStateOf {
+        pendingRestoreBG || backgroundModified || selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
+            !selectedApps[i].isSameAs(savedApps[i])
+        }
+    }
 
     fun checkStatus() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -263,6 +264,8 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch {
             val file = getJsonFile(context)
             if (file.exists()) parseApps(context, file.readText(), updateSaved = true)
+            pendingRestoreBG = false
+            backgroundModified = false
         }
     }
 
@@ -276,6 +279,7 @@ class MainViewModel : ViewModel() {
             parseApps(context, default, updateSaved = false)
 
             pendingRestoreBG = true
+            backgroundModified = false
         }
     }
 
@@ -452,8 +456,9 @@ class MainViewModel : ViewModel() {
                     if (bgFile.exists())
                         bgFile.delete()
                 }
-                pendingRestoreBG = false
             }
+            pendingRestoreBG = false
+            backgroundModified = false
 
             restartTargetApp(context)
             if (checkStatus) {
@@ -732,6 +737,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     bgInfo = readBgInfo(context)
                     lastUpdate = System.currentTimeMillis()
                     viewModel.pendingRestoreBG = false
+                    viewModel.backgroundModified = true
                     cropUri = null
                     Toast.makeText(context, "Background saved: $bgInfo", Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
@@ -818,13 +824,12 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     modifier = Modifier.weight(1f)
                 ) { launcher.launch("image/*") }
                 ActionButton(
-                    text = stringResource(R.string.action_apply_bg),
+                    text = stringResource(R.string.action_apply),
                     icon = Icons.Default.Check,
                     containerColor = colorResource(id = R.color.colorPrimary),
                     disabled = bgInfo.isNullOrBlank(),
                     modifier = Modifier.weight(1f)
                 ) {
-                    viewModel.applyChanges(context, false)
                     onDismiss()
                 }
             }
