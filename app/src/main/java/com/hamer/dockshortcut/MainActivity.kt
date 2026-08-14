@@ -146,6 +146,9 @@ class MainViewModel : ViewModel() {
     var bgModified by mutableStateOf(false)
     var bgPendingBitmap by mutableStateOf<Bitmap?>(null)
 
+    var filterUser by mutableStateOf(true)
+    var filterSystem by mutableStateOf(false)
+
     val isModified by derivedStateOf {
         bgPendingRestore || bgModified || selectedApps.size != savedApps.size || selectedApps.indices.any { i ->
             !selectedApps[i].isSameAs(savedApps[i])
@@ -182,8 +185,51 @@ class MainViewModel : ViewModel() {
     }
 
     private fun getJsonFile(context: Context) = File(context.filesDir.parentFile, JSON_FILE_NAME)
+    private fun getSettingsFile(context: Context) = File(context.filesDir, "ui_settings.json")
+
+    fun loadSettings(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val file = getSettingsFile(context)
+            if (file.exists()) {
+                try {
+                    val json = JSONObject(file.readText())
+                    withContext(Dispatchers.Main) {
+                        filterUser = json.optBoolean("filterUser", true)
+                        filterSystem = json.optBoolean("filterSystem", false)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
+    private fun saveSettings(context: Context) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val json = JSONObject().apply {
+                    put("filterUser", filterUser)
+                    put("filterSystem", filterSystem)
+                }
+                getSettingsFile(context).writeText(json.toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun toggleFilterUser(context: Context) {
+        filterUser = !filterUser
+        saveSettings(context)
+    }
+
+    fun toggleFilterSystem(context: Context) {
+        filterSystem = !filterSystem
+        saveSettings(context)
+    }
 
     fun loadApps(context: Context) {
+        loadSettings(context)
         viewModelScope.launch(Dispatchers.IO) {
             val file = getJsonFile(context)
             val content = if (file.exists()) file.readText() else {
@@ -689,6 +735,7 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     if (showPicker) {
         val excluded = viewModel.selectedApps.map { it.packageName }.toSet() + "com.pvr.appmanager"
         AppPicker(
+            viewModel = viewModel,
             onDismiss = { showPicker = false; editingIndex = null },
             excludedPackages = excluded,
             onAppSelected = { app ->
@@ -993,7 +1040,7 @@ private fun CropDialog(
     cy = cy.coerceIn(cropH / 2f, ih - cropH / 2f)
 
     val colorPrimary = colorResource(id = R.color.colorPrimary)
-    val button_bg = colorResource(id = R.color.button_bg)
+    val card_bg = colorResource(id = R.color.card_bg)
 
     androidx.compose.ui.window.Dialog(onDismissRequest = onDismiss) {
         Surface(
@@ -1098,9 +1145,9 @@ private fun CropDialog(
                         valueRange = 1f..6f,
                         modifier = Modifier.weight(1f),
                         colors = SliderDefaults.colors(
-                            thumbColor = button_bg,
-                            activeTrackColor = button_bg,
-                            inactiveTrackColor = button_bg.copy(alpha = 0.24f),
+                            thumbColor = card_bg,
+                            activeTrackColor = card_bg,
+                            inactiveTrackColor = card_bg.copy(alpha = 0.24f),
                             activeTickColor = Color.Transparent,
                             inactiveTickColor = Color.Transparent
                         )
@@ -1268,7 +1315,7 @@ private fun Header(
                 onClick = onBgClick,
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = colorResource(R.color.button_bg),
+                color = colorResource(R.color.card_bg),
                 interactionSource = bgInteractionSource
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -1284,7 +1331,7 @@ private fun Header(
                 onClick = onLanguageClick,
                 modifier = Modifier.size(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                color = colorResource(R.color.button_bg),
+                color = colorResource(R.color.card_bg),
                 interactionSource = langInteractionSource
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -1688,7 +1735,7 @@ fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
             modifier = Modifier
                 .size(size)
                 .background(
-                    colorResource(id = R.color.button_bg),
+                    colorResource(id = R.color.card_bg),
                     RoundedCornerShape(size * 0.18f)
                 ),
             contentAlignment = Alignment.Center
@@ -1706,6 +1753,7 @@ fun AppIcon(app: AppInfo, size: androidx.compose.ui.unit.Dp = 84.dp) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppPicker(
+    viewModel: MainViewModel,
     onDismiss: () -> Unit,
     excludedPackages: Set<String>,
     onAppSelected: (AppInfo) -> Unit
@@ -1719,7 +1767,12 @@ fun AppPicker(
         }
     }
     var query by remember { mutableStateOf("") }
-    val filtered = remember(query, apps) { apps.filter { it.label.contains(query, true) } }
+    val filtered = remember(query, apps, viewModel.filterUser, viewModel.filterSystem) {
+        apps.filter {
+            it.label.contains(query, true) &&
+                    ((viewModel.filterUser && !it.isSystem) || (viewModel.filterSystem && it.isSystem))
+        }
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     ModalBottomSheet(
@@ -1730,20 +1783,39 @@ fun AppPicker(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxHeight(0.9f)) {
-            TextField(
-                value = query, onValueChange = { query = it },
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                placeholder = { Text(stringResource(R.string.search_placeholder)) },
-                shape = RoundedCornerShape(12.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = colorResource(R.color.content_bg),
-                    unfocusedContainerColor = colorResource(R.color.button_bg),
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                TextField(
+                    value = query, onValueChange = { query = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text(stringResource(R.string.search_placeholder)) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = colorResource(R.color.content_bg),
+                        unfocusedContainerColor = colorResource(R.color.card_bg),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    )
                 )
-            )
+
+                FilterToggleButton(
+                    text = "User",
+                    isActive = viewModel.filterUser,
+                    onClick = { viewModel.toggleFilterUser(context) }
+                )
+
+                FilterToggleButton(
+                    text = "System",
+                    isActive = viewModel.filterSystem,
+                    onClick = { viewModel.toggleFilterSystem(context) }
+                )
+            }
+
             if (apps.isEmpty()) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
@@ -1775,6 +1847,31 @@ fun AppPicker(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun FilterToggleButton(
+    text: String,
+    isActive: Boolean,
+    onClick: () -> Unit
+) {
+    val view = androidx.compose.ui.platform.LocalView.current
+    Surface(
+        onClick = {
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onClick()
+        },
+        shape = RoundedCornerShape(12.dp),
+        color = if (isActive) colorResource(R.color.colorPrimary) else colorResource(R.color.card_bg),
+        contentColor = if (isActive) Color.Black else Color.White
+    ) {
+        Box(
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = text, style = MaterialTheme.typography.labelLarge)
         }
     }
 }

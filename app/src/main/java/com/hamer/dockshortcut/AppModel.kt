@@ -12,7 +12,8 @@ data class AppInfo(
     val icon: Drawable? = null,
     val actionName: String? = null,
     val fitCenter: Boolean = false,
-    val iconUrl: String? = null
+    val iconUrl: String? = null,
+    val isSystem: Boolean = false
 ) {
     fun isSameAs(other: AppInfo): Boolean {
         return packageName == other.packageName &&
@@ -41,11 +42,13 @@ object AppManager {
         }
         val resolveInfos = pm.queryIntentActivities(intent, 0)
         return resolveInfos.map {
+            val isSystem = (it.activityInfo.applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
             AppInfo(
                 packageName = it.activityInfo.packageName,
                 className = it.activityInfo.name,
                 label = it.loadLabel(pm)?.toString() ?: it.activityInfo.packageName,
-                icon = null // Don't load icons here, they are heavy
+                icon = null, // Don't load icons here, they are heavy
+                isSystem = isSystem
             )
         }.sortedBy { it.label.lowercase() }
     }
@@ -78,11 +81,13 @@ object AppManager {
         val pm = context.packageManager
         return try {
             val appInfo = pm.getApplicationInfo(packageName, 0)
+            val isSystem = (appInfo.flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0
             AppInfo(
                 packageName = packageName,
                 className = null,
                 label = pm.getApplicationLabel(appInfo)?.toString() ?: packageName,
-                icon = null // Do not load icon here to speed up startup
+                icon = null, // Do not load icon here to speed up startup
+                isSystem = isSystem
             )
         } catch (e: PackageManager.NameNotFoundException) {
             null
