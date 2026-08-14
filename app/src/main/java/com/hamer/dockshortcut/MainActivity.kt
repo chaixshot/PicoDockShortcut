@@ -1026,11 +1026,14 @@ private fun CropDialog(
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color.Black)
                         .pointerInput(src, aspect) {
-                            detectDragGestures { _, drag ->
-                                val kx = cropW / frameW.coerceAtLeast(1f)
-                                val ky = cropH / frameH.coerceAtLeast(1f)
-                                cx = (cx - drag.x * kx).coerceIn(cropW / 2f, iw - cropW / 2f)
-                                cy = (cy - drag.y * ky).coerceIn(cropH / 2f, ih - cropH / 2f)
+                            detectDragGestures { change, drag ->
+                                change.consume()
+                                val currentCropW = maxCropW / zoom
+                                val currentCropH = maxCropH / zoom
+                                val kx = currentCropW / frameW.coerceAtLeast(1f)
+                                val ky = currentCropH / frameH.coerceAtLeast(1f)
+                                cx = (cx - drag.x * kx).coerceIn(currentCropW / 2f, iw - currentCropW / 2f)
+                                cy = (cy - drag.y * ky).coerceIn(currentCropH / 2f, ih - currentCropH / 2f)
                             }
                         }
                 ) {
