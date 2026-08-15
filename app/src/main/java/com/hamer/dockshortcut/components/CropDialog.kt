@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Brightness4
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ZoomIn
@@ -81,6 +82,7 @@ fun CropDialog(
     }
 
     var zoom by remember { mutableFloatStateOf(1f) }
+    var dim by remember { mutableFloatStateOf(0f) }
     var cx by remember { mutableFloatStateOf(iw / 2f) }
     var cy by remember { mutableFloatStateOf(ih / 2f) }
     var frameW by remember { mutableFloatStateOf(1f) }
@@ -166,6 +168,12 @@ fun CropDialog(
                             ),
                             filterQuality = FilterQuality.High
                         )
+                        if (dim > 0f) {
+                            drawRect(
+                                color = Color.Black.copy(alpha = dim),
+                                size = size
+                            )
+                        }
                         // Visible boundary for the current number of apps: darkened right side + a dividing line
                         if (visibleAspect < aspect) {
                             val vw = size.width * (visibleAspect / aspect)
@@ -207,6 +215,25 @@ fun CropDialog(
                     Spacer(modifier = Modifier.width(8.dp))
                     Text("${"%.1f".format(zoom)}x", color = Color.LightGray)
                 }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Brightness4, null, tint = Color.LightGray)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Slider(
+                        value = dim,
+                        onValueChange = { dim = it },
+                        valueRange = 0f..1f,
+                        modifier = Modifier.weight(1f),
+                        colors = SliderDefaults.colors(
+                            thumbColor = card_bg,
+                            activeTrackColor = card_bg,
+                            inactiveTrackColor = card_bg.copy(alpha = 0.24f),
+                            activeTickColor = Color.Transparent,
+                            inactiveTickColor = Color.Transparent
+                        )
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("${(dim * 100).toInt()}%", color = Color.LightGray)
+                }
                 Text(
                     stringResource(R.string.crop_dialog_instruction),
                     style = MaterialTheme.typography.bodySmall,
@@ -244,6 +271,12 @@ fun CropDialog(
                                 out = Bitmap.createScaledBitmap(
                                     out, targetW, targetH, true
                                 )
+                            }
+                            if (dim > 0f) {
+                                val mutableOut = out.copy(Bitmap.Config.ARGB_8888, true)
+                                val canvas = android.graphics.Canvas(mutableOut)
+                                canvas.drawColor(android.graphics.Color.argb((dim * 255).toInt(), 0, 0, 0))
+                                out = mutableOut
                             }
                             onConfirm(out)
                         } catch (e: Exception) {
