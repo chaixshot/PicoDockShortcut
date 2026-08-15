@@ -546,11 +546,21 @@ class MainViewModel : ViewModel() {
     }
 
     private fun restartSelf(context: Context) {
-        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-        context.startActivity(intent)
-        // Ensure the process is killed as requested in MainActivity.kt
-        android.os.Process.killProcess(android.os.Process.myPid())
+        val packageName = context.packageName
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        val component = intent?.component?.flattenToShortString() ?: "$packageName/.MainActivity"
+
+        if (hasRoot) {
+            viewModelScope.launch(Dispatchers.IO) {
+                // Background shell script: ensure it continues after this process is killed
+                // Force-stop ensures LSPosed re-injects on next start
+                Shell.exec("(sleep 0.5; am force-stop $packageName; am start -n $component) &")
+            }
+        } else {
+            intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+            context.startActivity(intent)
+            Runtime.getRuntime().exit(0)
+        }
     }
 
     private suspend fun restartTargetApp(context: Context) = withContext(Dispatchers.IO) {
