@@ -51,4 +51,5 @@
     <string name="bg_info_cannot_decode">dock_bg.png (kan ikke afkodes)</string>
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (ikke tilgængelig)</string>
+    <string name="toast_permission_denied">Tilladelse nægtet. Kan ikke vælge billeder.</string>
 </resources>

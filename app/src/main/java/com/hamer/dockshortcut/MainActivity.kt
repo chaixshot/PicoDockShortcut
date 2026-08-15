@@ -1,5 +1,7 @@
 package com.hamer.dockshortcut
 
+import android.content.ContentUris
+import android.provider.MediaStore
 import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
@@ -33,6 +35,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -55,6 +58,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -145,6 +149,16 @@ class MainViewModel : ViewModel() {
     var bgPendingRestore by mutableStateOf(false)
     var bgModified by mutableStateOf(false)
     var bgPendingBitmap by mutableStateOf<Bitmap?>(null)
+
+    var pickedImageUri by mutableStateOf<Uri?>(null)
+
+    fun onImagePicked(uri: Uri) {
+        pickedImageUri = uri
+    }
+
+    fun clearPickedImage() {
+        pickedImageUri = null
+    }
 
     var filterUser by mutableStateOf(true)
     var filterSystem by mutableStateOf(false)
@@ -664,19 +678,37 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     var showPicker by remember { mutableStateOf(false) }
     var showBgSettings by remember { mutableStateOf(false) }
     var showLanguageSelector by remember { mutableStateOf(false) }
+    var showImagePicker by remember { mutableStateOf(false) }
+    var imagePickerTarget by remember { mutableStateOf<PickerTarget>(PickerTarget.None) }
     var editingIndex by remember { mutableStateOf<Int?>(null) }
     var pickingIconIndex by remember { mutableStateOf<Int?>(null) }
 
-    val imagePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri: Uri? ->
-        uri?.let {
-            pickingIconIndex?.let { index ->
-                val app = viewModel.selectedApps[index]
-                viewModel.saveCustomIcon(context, it, app.packageName)
-            }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { results ->
+        if (results.values.any { it }) {
+            showImagePicker = true
+        } else {
+            Toast.makeText(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show()
         }
-        pickingIconIndex = null
+    }
+
+    fun requestImagePermission() {
+        val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        val allGranted = permissions.all {
+            androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allGranted) {
+            showImagePicker = true
+        } else {
+            permissionLauncher.launch(permissions)
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -720,12 +752,13 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                     },
                     onPickIcon = { index ->
                         pickingIconIndex = index
-                        imagePickerLauncher.launch("image/*")
+                        imagePickerTarget = PickerTarget.Icon(index)
+                        requestImagePermission()
                     }
                 )
             }
 
-            if (showBgSettings || showPicker || showLanguageSelector || showStatusOverlay) {
+            if (showBgSettings || showPicker || showLanguageSelector || showStatusOverlay || showImagePicker) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -747,7 +780,11 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     if (showBgSettings) {
         DockBgDrawer(
             viewModel = viewModel,
-            onDismiss = { showBgSettings = false }
+            onDismiss = { showBgSettings = false },
+            onPickImage = {
+                imagePickerTarget = PickerTarget.Background
+                requestImagePermission()
+            }
         )
     }
 
@@ -770,16 +807,59 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
     if (showLanguageSelector) {
         LanguagePicker(onDismiss = { showLanguageSelector = false })
     }
+
+    if (showImagePicker) {
+        ImageFilePicker(
+            onDismiss = {
+                showImagePicker = false
+                imagePickerTarget = PickerTarget.None
+            },
+            onImageSelected = { uri ->
+                when (val target = imagePickerTarget) {
+                    is PickerTarget.Icon -> {
+                        val app = viewModel.selectedApps[target.index]
+                        viewModel.saveCustomIcon(context, uri, app.packageName)
+                    }
+                    is PickerTarget.Background -> {
+                        // This will be handled by DockBgDrawer if we pass the state
+                        // Or we can use a SharedFlow/Event in ViewModel
+                        viewModel.onImagePicked(uri)
+                    }
+                    else -> {}
+                }
+                showImagePicker = false
+                imagePickerTarget = PickerTarget.None
+            }
+        )
+    }
+}
+
+sealed class PickerTarget {
+    object None : PickerTarget()
+    data class Icon(val index: Int) : PickerTarget()
+    object Background : PickerTarget()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
+private fun DockBgDrawer(
+    viewModel: MainViewModel,
+    onDismiss: () -> Unit,
+    onPickImage: () -> Unit
+) {
     val context = LocalContext.current
     var bgInfo by remember { mutableStateOf(readBgInfo(context)) }
     var lastUpdate by remember { mutableLongStateOf(0L) }
     var cropUri by remember { mutableStateOf<Uri?>(null) }
     var editCurrentBg by remember { mutableStateOf(false) }
+
+    // Observe global image picker results
+    LaunchedEffect(viewModel.pickedImageUri) {
+        if (viewModel.pickedImageUri != null) {
+            cropUri = viewModel.pickedImageUri
+            viewModel.clearPickedImage()
+        }
+    }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val currentBgBitmap by produceState<Bitmap?>(initialValue = null, bgInfo, lastUpdate, viewModel.bgPendingRestore, viewModel.bgPendingBitmap) {
@@ -804,10 +884,6 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
         dockBarAspect(context, viewModel.selectedApps.size)
     }
     val maxRatio = remember { DOCK_MAX_ASPECT }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.GetContent()
-    ) { uri -> if (uri != null) cropUri = uri }
 
     if (cropUri != null || (editCurrentBg && currentBgBitmap != null)) {
         CropDialog(
@@ -945,7 +1021,7 @@ private fun DockBgDrawer(viewModel: MainViewModel, onDismiss: () -> Unit) {
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     disabled = false,
                     modifier = Modifier.weight(1f)
-                ) { launcher.launch("image/*") }
+                ) { onPickImage() }
 
                 ActionButton(
                     text = stringResource(R.string.action_apply),
@@ -1625,7 +1701,6 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
             }
 
             val pickInteraction = remember { MutableInteractionSource() }
-            val isPickHovered by pickInteraction.collectIsHoveredAsState()
             Box(
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -2031,6 +2106,166 @@ private fun WarningOverlay(viewModel: MainViewModel, context: Context) {
                     }
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ImageFilePicker(
+    onDismiss: () -> Unit,
+    onImageSelected: (Uri) -> Unit
+) {
+    val context = LocalContext.current
+    var refreshCount by remember { mutableIntStateOf(0) }
+    val images by produceState<List<Uri>>(emptyList(), refreshCount) {
+        value = emptyList() // Clear current list to show refreshing state
+        value = withContext(Dispatchers.IO) {
+            val list = mutableListOf<Uri>()
+            val projection = arrayOf(MediaStore.Images.Media._ID)
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            
+            val volumes = mutableListOf<Uri>()
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                try {
+                    MediaStore.getExternalVolumeNames(context).forEach { volumeName ->
+                        volumes.add(MediaStore.Images.Media.getContentUri(volumeName))
+                    }
+                } catch (e: Exception) {
+                    volumes.add(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                }
+            } else {
+                volumes.add(MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+            }
+            volumes.add(MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+
+            volumes.distinct().forEach { volumeUri ->
+                try {
+                    context.contentResolver.query(
+                        volumeUri,
+                        projection,
+                        null,
+                        null,
+                        sortOrder
+                    )?.use { cursor ->
+                        val idColumn = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID)
+                        while (cursor.moveToNext()) {
+                            val id = cursor.getLong(idColumn)
+                            val contentUri = ContentUris.withAppendedId(volumeUri, id)
+                            list.add(contentUri)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            list
+        }
+    }
+
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        scrimColor = Color.Transparent,
+        containerColor = colorResource(R.color.main_bg),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        Column(modifier = Modifier.fillMaxHeight(0.9f)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.action_choose_image),
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+
+                val view = LocalView.current
+                IconButton(onClick = {
+                    view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+                    refreshCount++
+                }) {
+                    Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
+                }
+            }
+
+            if (images.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No images found", color = Color.Gray)
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(4),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(images) { uri ->
+                        ImagePickerItem(uri = uri, onClick = { onImageSelected(uri) })
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ImagePickerItem(uri: Uri, onClick: () -> Unit) {
+    val context = LocalContext.current
+    val interaction = remember { MutableInteractionSource() }
+    val isHovered by interaction.collectIsHoveredAsState()
+    val view = LocalView.current
+
+    LaunchedEffect(isHovered) {
+        if (isHovered) view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+    }
+
+    Surface(
+        onClick = {
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
+            onClick()
+        },
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(8.dp)),
+        color = if (isHovered) colorResource(R.color.card_bg) else Color.Black,
+        interactionSource = interaction
+    ) {
+        val bitmap by produceState<Bitmap?>(null) {
+            value = withContext(Dispatchers.IO) {
+                try {
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                        context.contentResolver.loadThumbnail(uri, android.util.Size(200, 200), null)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        MediaStore.Images.Thumbnails.getThumbnail(
+                            context.contentResolver,
+                            ContentUris.parseId(uri),
+                            MediaStore.Images.Thumbnails.MINI_KIND,
+                            null
+                        )
+                    }
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        }
+
+        if (bitmap != null) {
+            Image(
+                bitmap = bitmap!!.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }

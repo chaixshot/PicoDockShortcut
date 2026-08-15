@@ -51,4 +51,5 @@
     <string name="bg_info_cannot_decode">dock_bg.png (デコード不能)</string>
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (利用不可)</string>
+    <string name="toast_permission_denied">権限が拒否されました。画像を選択できません。</string>
 </resources>
