@@ -20,13 +20,45 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.hamer.dockshortcut.R
+import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguagePicker(onDismiss: () -> Unit) {
+    val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
+    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        scrimColor = Color.Transparent,
+        containerColor = colorResource(R.color.main_bg),
+        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    ) {
+        LanguagePickerContent(
+            currentLocale = currentLocale,
+            onLanguageSelected = { tag ->
+                val appLocale: LocaleListCompat = if (tag.isEmpty()) {
+                    LocaleListCompat.getEmptyLocaleList()
+                } else {
+                    LocaleListCompat.forLanguageTags(tag)
+                }
+                AppCompatDelegate.setApplicationLocales(appLocale)
+                onDismiss()
+            }
+        )
+    }
+}
+
+@Composable
+fun LanguagePickerContent(
+    currentLocale: String,
+    onLanguageSelected: (String) -> Unit
+) {
     val supportedLocales = listOf(
         "Auto" to "",
         "English" to "en",
@@ -58,74 +90,68 @@ fun LanguagePicker(onDismiss: () -> Unit) {
         "Svenska" to "sv"
     )
 
-    val currentLocale = AppCompatDelegate.getApplicationLocales().toLanguageTags()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        scrimColor = Color.Transparent,
-        containerColor = colorResource(R.color.main_bg),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(0.9f)
+            .padding(bottom = 32.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.9f)
-                .padding(bottom = 32.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.select_language),
-                modifier = Modifier.padding(24.dp),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = Color.White
-            )
+        Text(
+            text = stringResource(R.string.select_language),
+            modifier = Modifier.padding(24.dp),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(supportedLocales) { (name, tag) ->
-                    val isSelected = (tag == "" && currentLocale == "") ||
-                            (tag != "" && currentLocale.startsWith(tag))
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(supportedLocales) { (name, tag) ->
+                val isSelected = (tag == "" && currentLocale == "") ||
+                        (tag != "" && currentLocale.startsWith(tag))
 
-                    val interactionSource = remember { MutableInteractionSource() }
-                    val isHovered by interactionSource.collectIsHoveredAsState()
+                val interactionSource = remember { MutableInteractionSource() }
+                val isHovered by interactionSource.collectIsHoveredAsState()
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(
-                                if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
-                            )
-                            .hoverable(interactionSource)
-                            .clickable {
-                                val appLocale: LocaleListCompat = if (tag.isEmpty()) {
-                                    LocaleListCompat.getEmptyLocaleList()
-                                } else {
-                                    LocaleListCompat.forLanguageTags(tag)
-                                }
-                                AppCompatDelegate.setApplicationLocales(appLocale)
-                                onDismiss()
-                            }
-                            .padding(horizontal = 24.dp, vertical = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
                         )
-                        if (isSelected) {
-                            Icon(
-                                Icons.Default.Check,
-                                contentDescription = null,
-                                modifier = Modifier.size(20.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        .hoverable(interactionSource)
+                        .clickable { onLanguageSelected(tag) }
+                        .padding(horizontal = 24.dp, vertical = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                    )
+                    if (isSelected) {
+                        Icon(
+                            Icons.Default.Check,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LanguagePickerPreview() {
+    PicoDockShortcutTheme {
+        Surface(color = colorResource(R.color.main_bg)) {
+            LanguagePickerContent(
+                currentLocale = "en",
+                onLanguageSelected = {}
+            )
         }
     }
 }
