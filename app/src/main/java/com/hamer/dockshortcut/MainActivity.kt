@@ -674,8 +674,6 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         viewModel.checkStatus()
     }
 
-    StatusDialogs(viewModel, context)
-
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Surface(
             modifier = Modifier
@@ -683,6 +681,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 .clip(RoundedCornerShape(24.dp)),
             color = colorResource(id = R.color.main_bg)
         ) {
+            val showStatusOverlay = !viewModel.hasRoot || !viewModel.isModuleActive || !viewModel.isTargetHooked
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -715,12 +715,21 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 )
             }
 
-            if (showBgSettings || showPicker || showLanguageSelector) {
+            if (showBgSettings || showPicker || showLanguageSelector || showStatusOverlay) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(Color.Black.copy(alpha = 0.32f))
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = {}
+                        ) // Block interactions
                 )
+            }
+
+            if (showStatusOverlay) {
+                WarningOverlay(viewModel, context)
             }
         }
     }
@@ -1925,78 +1934,94 @@ private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
 }
 
 @Composable
-private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
-    if (!viewModel.hasRoot) {
-        AlertDialog(
-            onDismissRequest = {},
-            title = {
-                Text(
-                    stringResource(R.string.dialog_root_title),
-                    color = MaterialTheme.colorScheme.error
-                )
-            },
-            text = { Text(stringResource(R.string.dialog_root_text)) },
-            confirmButton = {
-                TextButton(onClick = { viewModel.checkStatus() }) { Text(stringResource(R.string.dialog_retry)) }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
-                    Text(
-                        stringResource(R.string.dialog_exit)
-                    )
+private fun WarningOverlay(viewModel: MainViewModel, context: Context) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(0.8f),
+            shape = RoundedCornerShape(24.dp),
+            color = Color(0xFF333333),
+            contentColor = Color.White,
+            tonalElevation = 8.dp
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                val title = if (!viewModel.hasRoot) {
+                    stringResource(R.string.dialog_root_title)
+                } else {
+                    stringResource(R.string.dialog_warning_title)
                 }
-            },
-            containerColor = Color(0xFF333333), textContentColor = Color.White
-        )
-    } else if (!viewModel.isModuleActive || !viewModel.isTargetHooked) {
-        AlertDialog(
-            onDismissRequest = {},
-            title = {
+
                 Text(
-                    stringResource(R.string.dialog_warning_title),
-                    color = MaterialTheme.colorScheme.error
+                    title,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.error,
+                    fontWeight = FontWeight.Bold
                 )
-            },
-            text = {
-                Column {
-                    if (!viewModel.isModuleActive) {
-                        Text(stringResource(R.string.dialog_warning_lsposed_inactive))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            stringResource(R.string.dialog_warning_lsposed_enable),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    } else if (!viewModel.isTargetHooked) {
-                        Text(stringResource(R.string.dialog_warning_target_not_hooked))
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            stringResource(R.string.dialog_warning_scope_select),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                        Text(
-                            stringResource(R.string.dialog_warning_reboot),
-                            style = MaterialTheme.typography.bodySmall
-                        )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (!viewModel.hasRoot) {
+                    Text(stringResource(R.string.dialog_root_text))
+                } else {
+                    Column {
+                        if (!viewModel.isModuleActive) {
+                            Text(stringResource(R.string.dialog_warning_lsposed_inactive))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.dialog_warning_lsposed_enable),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        } else if (!viewModel.isTargetHooked) {
+                            Text(stringResource(R.string.dialog_warning_target_not_hooked))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.dialog_warning_scope_select),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                            Text(
+                                stringResource(R.string.dialog_warning_reboot),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
                     }
                 }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = { viewModel.restartAndRetry(context) },
-                    enabled = !viewModel.isRetrying
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    if (viewModel.isRetrying) CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp
-                    )
-                    else Text(stringResource(R.string.dialog_restart_retry))
+                    TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
+                        Text(stringResource(R.string.dialog_exit))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    if (!viewModel.hasRoot) {
+                        Button(
+                            onClick = { viewModel.checkStatus() },
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(stringResource(R.string.dialog_retry))
+                        }
+                    } else {
+                        Button(
+                            onClick = { viewModel.restartAndRetry(context) },
+                            enabled = !viewModel.isRetrying,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            if (viewModel.isRetrying) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(18.dp),
+                                    strokeWidth = 2.dp,
+                                    color = Color.White
+                                )
+                            } else {
+                                Text(stringResource(R.string.dialog_restart_retry))
+                            }
+                        }
+                    }
                 }
-                TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
-                    Text(
-                        stringResource(R.string.dialog_exit)
-                    )
-                }
-            },
-            containerColor = Color(0xFF333333), textContentColor = Color.White
-        )
+            }
+        }
     }
 }
 
@@ -2005,6 +2030,7 @@ private fun StatusDialogs(viewModel: MainViewModel, context: Context) {
 fun DefaultPreview() {
     PicoDockShortcutTheme { MainScreen() }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
