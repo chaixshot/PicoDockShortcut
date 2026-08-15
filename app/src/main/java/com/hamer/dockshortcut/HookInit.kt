@@ -21,6 +21,12 @@ class HookInit : IXposedHookLoadPackage {
     private val imagePath = "/data/user/0/com.hamer.dockshortcut/Image"
     private val bgImgPath = "/data/user/0/com.hamer.dockshortcut/dock_bg.png"
 
+    private val targetJsonName = if (
+        android.os.Build.MODEL.contains("Enterprise", ignoreCase = true) ||
+        android.os.Build.MODEL.contains("A8EX0") ||
+        android.os.Build.MODEL.contains("A9210")
+    ) "dock_fix_apps_overseas_to_b.json" else "dock_fix_apps.json"
+
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == "com.hamer.dockshortcut") {
             XposedHelpers.findAndHookMethod(
@@ -73,8 +79,8 @@ class HookInit : IXposedHookLoadPackage {
                 val fileName = param.args[0] as String
 
                 // Intercept the JSON file
-                if (fileName == "dock_fix_apps.json" || fileName.endsWith("/dock_fix_apps.json")) {
-                    XposedBridge.log("PicoDockShortcut: Intercepting dock_fix_apps.json")
+                if (fileName == targetJsonName || fileName.endsWith("/$targetJsonName")) {
+                    XposedBridge.log("PicoDockShortcut: Intercepting $targetJsonName")
                     try {
                         val file = File(jsonPath)
                         if (file.exists() && file.canRead()) {

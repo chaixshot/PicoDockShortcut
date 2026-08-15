@@ -26,7 +26,12 @@ import java.io.File
 
 // --- Constants & Shell Utils ---
 
-private const val JSON_FILE_NAME = "dock_fix_apps.json"
+private const val LOCAL_JSON_FILE_NAME = "dock_fix_apps.json"
+private val TARGET_JSON_FILE_NAME = if (
+    android.os.Build.MODEL.contains("Enterprise", ignoreCase = true) ||
+    android.os.Build.MODEL.contains("A8EX0") ||
+    android.os.Build.MODEL.contains("A9210")
+) "dock_fix_apps_overseas_to_b.json" else "dock_fix_apps.json"
 private const val TARGET_PACKAGE = "com.pvr.shortcut"
 private const val TARGET_SERVICE = "com.pvr.shortcut.service.ShortcutService"
 private const val TARGET_ACTION = "pvr.intent.shortcut"
@@ -138,14 +143,14 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun getJsonFile(context: Context) = File(context.filesDir.parentFile, JSON_FILE_NAME)
+    private fun getJsonFile(context: Context) = File(context.filesDir.parentFile, LOCAL_JSON_FILE_NAME)
     private fun getSettingsFile(context: Context) = File(context.filesDir, "ui_settings.json")
 
     private fun getDefaultJsonFromTarget(context: Context): String {
         return try {
             val targetContext =
                 context.createPackageContext(TARGET_PACKAGE, Context.CONTEXT_IGNORE_SECURITY)
-            targetContext.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
+            targetContext.assets.open(TARGET_JSON_FILE_NAME).bufferedReader().use { it.readText() }
         } catch (e: Exception) {
             e.printStackTrace()
             "[]"
