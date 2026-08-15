@@ -6,15 +6,15 @@
 </div>
 
 ## 👓 Screenshot
-<image src="Resource/Android_Pico2Dock.jpeg" width="400"/>
+<image src="Resource/NEW_Android_Pico2Dock.jpeg" width="800"/>
   
 ## 🌟 Key Features
 *   **🤌 Drag to Reorder:** Easily organize your dock shortcuts with intuitive long-press and drag gestures.
-*   **🖼️ Custom App Icons:** Pick your own images from device storage to customize the look of any shortcut.
+*   **🖼�?Custom App Icons:** Pick your own images from device storage to customize the look of any shortcut.
 *   **🚀 App Icon Cache:** Optimized icon caching ensures significantly faster dock loading times.
 *   **🌐 Language Support:** Fully supports 26+ languages with an in-app selector to override system defaults.
 *   **🔄 Auto Restart:** Automatically restarts the Dock service after applying changes to ensure they take effect immediately.
-*   **🛡️ System Health Check:** Built-in diagnostics detect Root access and LSPosed status, providing clear warning popups if requirements aren't met.
+*   **🛡�?System Health Check:** Built-in diagnostics detect Root access and LSPosed status, providing clear warning popups if requirements aren't met.
 
 ## ⛏️ Prerequisites
 *   **Device:** Pico 4 Headset (Phoenix/China firmware supported).
@@ -46,9 +46,6 @@ The app saves your chosen images to `/data/user/0/com.hamer.dockshortcut/Image/C
 
 ## 🔃 Language Support
 The app supports multiple languages including English, Chinese (Simplified/Traditional), Thai, German, French, and more. You can override the system language using the **Language Selector** (globe icon) in the top-right corner.
-
-## 🖼️ Custom Dock Background
-You can set a custom image for the Dock bar, with built-in fixed-ratio cropping and a shared background for the onboarding guide bar.
 
 ## 🙏 Special thanks to:
 *   [LSPosed Framework](https://github.com/LSPosed/LSPosed) - For providing the powerful hooking engine.
