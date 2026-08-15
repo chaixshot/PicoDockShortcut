@@ -28,11 +28,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.hamer.dockshortcut.R
+import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
 import com.hamer.dockshortcut.utils.decodeScaled
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -251,6 +253,34 @@ fun CropDialog(
                     }
                 }
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun CropDialogPreview() {
+    val bitmap = remember {
+        Bitmap.createBitmap(500, 500, Bitmap.Config.ARGB_8888).apply {
+            val canvas = android.graphics.Canvas(this)
+            val paint = android.graphics.Paint()
+            paint.color = android.graphics.Color.BLUE
+            canvas.drawRect(0f, 0f, 500f, 500f, paint)
+            paint.color = android.graphics.Color.WHITE
+            paint.textSize = 40f
+            canvas.drawText("Sample Image", 100f, 250f, paint)
+        }
+    }
+
+    PicoDockShortcutTheme {
+        Box(modifier = Modifier.fillMaxSize()) {
+            CropDialog(
+                bitmap = bitmap,
+                aspect = 1.5f,
+                appCount = 4,
+                onDismiss = {},
+                onConfirm = {}
+            )
         }
     }
 }
