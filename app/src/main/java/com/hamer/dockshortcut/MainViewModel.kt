@@ -141,6 +141,17 @@ class MainViewModel : ViewModel() {
     private fun getJsonFile(context: Context) = File(context.filesDir.parentFile, JSON_FILE_NAME)
     private fun getSettingsFile(context: Context) = File(context.filesDir, "ui_settings.json")
 
+    private fun getDefaultJsonFromTarget(context: Context): String {
+        return try {
+            val targetContext =
+                context.createPackageContext(TARGET_PACKAGE, Context.CONTEXT_IGNORE_SECURITY)
+            targetContext.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "[]"
+        }
+    }
+
     fun loadSettings(context: Context) {
         viewModelScope.launch(Dispatchers.IO) {
             val file = getSettingsFile(context)
@@ -187,11 +198,7 @@ class MainViewModel : ViewModel() {
         viewModelScope.launch(Dispatchers.IO) {
             val file = getJsonFile(context)
             val content = if (file.exists()) file.readText() else {
-                val default = try {
-                    context.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
-                } catch (e: Exception) {
-                    "[]"
-                }
+                val default = getDefaultJsonFromTarget(context)
                 file.writeText(default)
                 file.setReadable(true, false)
                 context.filesDir.parentFile?.setExecutable(true, false)
@@ -273,17 +280,15 @@ class MainViewModel : ViewModel() {
     }
 
     fun restoreDefault(context: Context) {
-        viewModelScope.launch {
-            val default = try {
-                context.assets.open(JSON_FILE_NAME).bufferedReader().use { it.readText() }
-            } catch (_: Exception) {
-                "[]"
-            }
+        viewModelScope.launch(Dispatchers.IO) {
+            val default = getDefaultJsonFromTarget(context)
             parseApps(context, default, updateSaved = false)
 
-            bgPendingRestore = true
-            bgModified = false
-            bgPendingBitmap = null
+            withContext(Dispatchers.Main) {
+                bgPendingRestore = true
+                bgModified = false
+                bgPendingBitmap = null
+            }
         }
     }
 
