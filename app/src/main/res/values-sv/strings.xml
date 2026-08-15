@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Förhållande %1$.0f : 1 (Dock-breddgräns) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Bilden är vänsterjusterad. Med nuvarande %1$d genvägar syns bara delen till vänster om den blå linjen.</string>
     <string name="crop_dialog_all_visible_hint">Bilden är vänsterjusterad, mer bakgrund till höger visas med fler ikoner</string>
-    <string name="crop_dialog_instruction">Dra för att flytta · Skjutreglage för zoom</string>
+    <string name="crop_dialog_instruction">Dra för att panorera · Skjutreglage för att zooma och dämpa bilden</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_use_region">Använd detta område</string>
     <string name="toast_crop_failed">Beskärning misslyckades: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (ej tillgänglig)</string>
     <string name="toast_permission_denied">Tillstånd nekat. Kan inte välja bilder.</string>
+    <string name="select_language">Välj språk</string>
 </resources>

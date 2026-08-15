@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Proporção %1$.0f : 1 (Limite de largura da Dock) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">A imagem é alinhada à esquerda. Com %1$d atalhos, apenas a parte à esquerda da linha azul é visível.</string>
     <string name="crop_dialog_all_visible_hint">A imagem é alinhada à esquerda, mais fundo à direita é revelado com mais ícones</string>
-    <string name="crop_dialog_instruction">Arraste para mover · Controle deslizante para zoom</string>
+    <string name="crop_dialog_instruction">Arraste para mover · Controles deslizantes para zoom e escurecer a imagem</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_use_region">Usar esta área</string>
     <string name="toast_crop_failed">Falha ao recortar: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (não disponível)</string>
     <string name="toast_permission_denied">Permissão negada. Não é possível escolher imagens.</string>
+    <string name="select_language">Selecionar idioma</string>
 </resources>

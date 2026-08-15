@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Verhältnis %1$.0f : 1 (Dock-Breitenlimit) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Das Bild ist linksbündig. Bei aktuell %1$d Verknüpfungen ist nur der Teil links der blauen Linie sichtbar.</string>
     <string name="crop_dialog_all_visible_hint">Das Bild ist linksbündig, mehr vom rechten Bildbereich wird sichtbar, wenn Symbole hinzugefügt werden</string>
-    <string name="crop_dialog_instruction">Ziehen zum Verschieben · Schieberegler zum Zoomen</string>
+    <string name="crop_dialog_instruction">Ziehen zum Schwenken · Schieberegler zum Zoomen und Abdunkeln des Bildes</string>
     <string name="action_cancel">Abbrechen</string>
     <string name="action_use_region">Diesen Bereich verwenden</string>
     <string name="toast_crop_failed">Zuschneiden fehlgeschlagen: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (nicht verfügbar)</string>
     <string name="toast_permission_denied">Berechtigung verweigert. Bilder können nicht ausgewählt werden.</string>
+    <string name="select_language">Sprache wählen</string>
 </resources>

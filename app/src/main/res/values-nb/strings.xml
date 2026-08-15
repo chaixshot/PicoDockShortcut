@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Forhold %1$.0f : 1 (Dock-breddegrense) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Bildet er venstrejustert. Med nåværende %1$d snarveier ses bare delen til venstre for den blå linjen.</string>
     <string name="crop_dialog_all_visible_hint">Bildet er venstrejustert, mer bakgrunn til høyre avsløres med flere ikoner</string>
-    <string name="crop_dialog_instruction">Dra for å flytte · Skyveknapp for zoom</string>
+    <string name="crop_dialog_instruction">Dra for å panorere · Glidebrytere for å zoome og dimme bildet</string>
     <string name="action_cancel">Avbryt</string>
     <string name="action_use_region">Bruk dette området</string>
     <string name="toast_crop_failed">Beskjæring feilet: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (ikke tilgjengelig)</string>
     <string name="toast_permission_denied">Tillatelse avslått. Kan ikke velge bilder.</string>
+    <string name="select_language">Velg språk</string>
 </resources>

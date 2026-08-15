@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">อัตราส่วน %1$.0f : 1 (จำกัดความกว้างด็อก) · ขนาดจริง %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">รูปภาพจัดชิดซ้าย ด้วย %1$d ทางลัดในปัจจุบัน จะเห็นเฉพาะส่วนที่อยู่ทางซ้ายของเส้นสีฟ้า</string>
     <string name="crop_dialog_all_visible_hint">รูปภาพจัดชิดซ้าย พื้นที่ด้านขวาจะแสดงออกมามากขึ้นเมื่อเพิ่มไอคอน</string>
-    <string name="crop_dialog_instruction">ลากเพื่อย้าย · ใช้แถบเลื่อนเพื่อซูม</string>
+    <string name="crop_dialog_instruction">ลากเพื่อแพน · แถบเลื่อนเพื่อซูมและหรี่ภาพ</string>
     <string name="action_cancel">ยกเลิก</string>
     <string name="action_use_region">ใช้พื้นที่นี้</string>
     <string name="toast_crop_failed">ครอปไม่สำเร็จ: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (ไม่พร้อมใช้งาน)</string>
     <string name="toast_permission_denied">การอนุญาตถูกปฏิเสธ ไม่สามารถเลือกรูปภาพได้</string>
+    <string name="select_language">เลือกภาษา</string>
 </resources>

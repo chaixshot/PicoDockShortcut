@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Proporcje %1$.0f : 1 (Limit szerokości doku) · Oryginał %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Obraz jest wyrównany do lewej. Przy obecnych %1$d skrótach widoczna jest tylko część na lewo od niebieskiej linii.</string>
     <string name="crop_dialog_all_visible_hint">Obraz jest wyrównany do lewej, więcej tła po prawej odsłania się z większą liczbą ikon</string>
-    <string name="crop_dialog_instruction">Przeciągnij, aby przesunąć · Suwak do powiększenia</string>
+    <string name="crop_dialog_instruction">Przeciągnij, aby przesunąć · Suwaki do powiększania i przyciemniania obrazu</string>
     <string name="action_cancel">Anuluj</string>
     <string name="action_use_region">Użyj tego obszaru</string>
     <string name="toast_crop_failed">Błąd przycinania: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (niedostępne)</string>
     <string name="toast_permission_denied">Odmowa uprawnień. Nie można wybrać obrazów.</string>
+    <string name="select_language">Wybierz język</string>
 </resources>

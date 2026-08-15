@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">比例 %1$.0f : 1 (Dock 硬上限寬度) · 原圖 %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">圖片左側對齊。當前有 %1$d 個快捷應用，只能看到藍線左側部分。</string>
     <string name="crop_dialog_all_visible_hint">圖片左側對齊，圖標越多右側露出的畫面越多</string>
-    <string name="crop_dialog_instruction">拖動畫面調整取景 · 使用滑塊縮放特定區域</string>
+    <string name="crop_dialog_instruction">拖動畫面調整取景 · 使用滑塊縮放和調節亮度</string>
     <string name="action_cancel">取消</string>
     <string name="action_use_region">使用此區域</string>
     <string name="toast_crop_failed">裁剪失敗: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (不可用)</string>
     <string name="toast_permission_denied">權限被拒絕。無法選擇圖片。</string>
+    <string name="select_language">選擇語言</string>
 </resources>

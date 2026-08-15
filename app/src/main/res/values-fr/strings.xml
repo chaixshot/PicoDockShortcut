@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Ratio %1$.0f : 1 (Limite de largeur du Dock) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">L\'image est alignée à gauche. Avec %1$d raccourcis, seule la partie à gauche de la ligne bleue est visible.</string>
     <string name="crop_dialog_all_visible_hint">L\'image est alignée à gauche, plus d\'image à droite est révélée avec plus d\'icônes</string>
-    <string name="crop_dialog_instruction">Faire glisser pour déplacer · Curseur pour zoomer</string>
+    <string name="crop_dialog_instruction">Faites glisser pour déplacer · Curseurs pour zoomer et assombrir l\'image</string>
     <string name="action_cancel">Annuler</string>
     <string name="action_use_region">Utiliser cette zone</string>
     <string name="toast_crop_failed">Échec du recadrage : %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (non disponible)</string>
     <string name="toast_permission_denied">Autorisation refusée. Impossible de choisir des images.</string>
+    <string name="select_language">Choisir la langue</string>
 </resources>

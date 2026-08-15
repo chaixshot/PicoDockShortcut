@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Suhde %1$.0f : 1 (Telakan leveysraja) · Alkuperäinen %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Kuva on vasemmalle tasattu. Nykyisillä %1$d pikakuvakkeella vain sinisen viivan vasen puoli näkyy.</string>
     <string name="crop_dialog_all_visible_hint">Kuva on vasemmalle tasattu, oikeaa reunaa paljastuu lisää kuvakkeiden myötä</string>
-    <string name="crop_dialog_instruction">Siirrä vetämällä · Zoomaa liukusäätimellä</string>
+    <string name="crop_dialog_instruction">Vedä panoroidaksesi · Liukusäätimet kuvan zoomaamiseen ja himmentämiseen</string>
     <string name="action_cancel">Peruuta</string>
     <string name="action_use_region">Käytä tätä aluetta</string>
     <string name="toast_crop_failed">Rajaus epäonnistui: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (ei saatavilla)</string>
     <string name="toast_permission_denied">Lupa evätty. Kuvia ei voi valita.</string>
+    <string name="select_language">Valitse kieli</string>
 </resources>

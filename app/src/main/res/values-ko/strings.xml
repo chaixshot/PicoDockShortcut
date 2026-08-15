@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">비율 %1$.0f : 1 (독 너비 제한) · 원본 %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">이미지는 왼쪽 정렬됩니다. 현재 %1$d개의 단축키로는 파란색 선 왼쪽만 보입니다.</string>
     <string name="crop_dialog_all_visible_hint">이미지는 왼쪽 정렬되며, 아이콘이 늘어날수록 오른쪽이 더 많이 보입니다</string>
-    <string name="crop_dialog_instruction">드래그하여 이동 · 슬라이더로 확대/축소</string>
+    <string name="crop_dialog_instruction">드래그하여 이동 · 슬라이더로 확대 및 이미지 어둡게 하기</string>
     <string name="action_cancel">취소</string>
     <string name="action_use_region">이 영역 사용</string>
     <string name="toast_crop_failed">크롭 실패: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (사용 불가)</string>
     <string name="toast_permission_denied">권한이 거부되었습니다. 이미지를 선택할 수 없습니다.</string>
+    <string name="select_language">언어 선택</string>
 </resources>

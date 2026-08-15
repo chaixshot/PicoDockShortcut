@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Соотношение %1$.0f : 1 (Лимит ширины дока) · Оригинал %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Изображение выровнено по левому краю. При %1$d ярлыках видна только часть слева от синей линии.</string>
     <string name="crop_dialog_all_visible_hint">Изображение выровнено по левому краю, при добавлении иконок открывается больше фона справа</string>
-    <string name="crop_dialog_instruction">Перетащите для перемещения · Ползунок для масштаба</string>
+    <string name="crop_dialog_instruction">Перетаскивайте для перемещения · Ползунки для масштабирования и затемнения</string>
     <string name="action_cancel">Отмена</string>
     <string name="action_use_region">Использовать эту область</string>
     <string name="toast_crop_failed">Ошибка обрезки: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (недоступно)</string>
     <string name="toast_permission_denied">Доступ запрещен. Невозможно выбрать изображения.</string>
+    <string name="select_language">Выбрать язык</string>
 </resources>

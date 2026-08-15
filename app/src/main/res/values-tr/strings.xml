@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Oran %1$.0f : 1 (Dock genişlik sınırı) · Orijinal %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Resim sola hizalıdır. Şu anki %1$d kısayolla sadece mavi çizginin solundaki kısım görünür.</string>
     <string name="crop_dialog_all_visible_hint">Resim sola hizalıdır, simge ekledikçe sağdaki alan ortaya çıkar</string>
-    <string name="crop_dialog_instruction">Taşımak için sürükleyin · Yakınlaştırmak için kaydırıcıyı kullanın</string>
+    <string name="crop_dialog_instruction">Kaydırmak için sürükleyin · Yakınlaştırmak ve resmi karartmak için sürgüler</string>
     <string name="action_cancel">İptal</string>
     <string name="action_use_region">Bu alanı kullan</string>
     <string name="toast_crop_failed">Kırpma başarısız: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (kullanılamıyor)</string>
     <string name="toast_permission_denied">İzin reddedildi. Resim seçilemiyor.</string>
+    <string name="select_language">Dil Seçin</string>
 </resources>

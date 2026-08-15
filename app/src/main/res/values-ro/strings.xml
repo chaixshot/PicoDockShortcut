@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Raport %1$.0f : 1 (Limită lățime Dock) · Original %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Imaginea este aliniată la stânga. Cu actualele %1$d comenzi rapide, este vizibilă doar partea din stânga liniei albastre.</string>
     <string name="crop_dialog_all_visible_hint">Imaginea este aliniată la stânga, mai mult fundal la dreapta este dezvăluit cu mai multe pictograme</string>
-    <string name="crop_dialog_instruction">Trageți pentru a muta · Glisor pentru zoom</string>
+    <string name="crop_dialog_instruction">Trageți pentru a panorama · Glisoare pentru zoom și întunecarea imaginii</string>
     <string name="action_cancel">Anulare</string>
     <string name="action_use_region">Utilizați această zonă</string>
     <string name="toast_crop_failed">Decupare eșuată: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (indisponibil)</string>
     <string name="toast_permission_denied">Permisiune refuzată. Nu se pot alege imagini.</string>
+    <string name="select_language">Selectați limba</string>
 </resources>

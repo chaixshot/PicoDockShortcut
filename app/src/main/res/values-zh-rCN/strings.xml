@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">比例 %1$.0f : 1 (Dock 硬上限宽度) · 原图 %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">图片左侧对齐。当前有 %1$d 个快捷应用，只能看到蓝线左侧部分。</string>
     <string name="crop_dialog_all_visible_hint">图片左侧对齐，图标越多右侧露出的画面越多</string>
-    <string name="crop_dialog_instruction">拖动画面调整取景 · 使用滑块缩放特定区域</string>
+    <string name="crop_dialog_instruction">拖动画面调整取景 · 使用滑块缩放和调节亮度</string>
     <string name="action_cancel">取消</string>
     <string name="action_use_region">使用此区域</string>
     <string name="toast_crop_failed">裁剪失败: %1$s</string>

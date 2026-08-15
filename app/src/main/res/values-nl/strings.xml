@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Ratio %1$.0f : 1 (Dock-breedtelimiet) · Origineel %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Afbeelding is links uitgelijnd. Met de huidige %1$d snelkoppelingen is alleen het deel links van de blauwe lijn zichtbaar.</string>
     <string name="crop_dialog_all_visible_hint">Afbeelding is links uitgelijnd, meer van de achtergrond aan de rechterkant wordt onthuld met meer iconen</string>
-    <string name="crop_dialog_instruction">Sleep om te verplaatsen · Schuifregelaar voor zoom</string>
+    <string name="crop_dialog_instruction">Sleep om te pannen · Schuifregelaars om te zoomen en de afbeelding te dimmen</string>
     <string name="action_cancel">Annuleren</string>
     <string name="action_use_region">Dit gebied gebruiken</string>
     <string name="toast_crop_failed">Bijsnijden mislukt: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (niet beschikbaar)</string>
     <string name="toast_permission_denied">Toestemming geweigerd. Kan geen afbeeldingen kiezen.</string>
+    <string name="select_language">Taal selecteren</string>
 </resources>

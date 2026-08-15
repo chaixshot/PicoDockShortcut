@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">比率 %1$.0f : 1 (Dock上限幅) · 元のサイズ %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">画像は左揃えです。現在の %1$d 個のアプリでは、青線の左側のみが表示されます。</string>
     <string name="crop_dialog_all_visible_hint">画像は左揃えです。アイコンが増えるほど右側が表示されます。</string>
-    <string name="crop_dialog_instruction">ドラッグで移動 · スライダーで拡大縮小</string>
+    <string name="crop_dialog_instruction">ドラッグで移動 · スライダーでズームと画像の減光</string>
     <string name="action_cancel">キャンセル</string>
     <string name="action_use_region">この範囲を使用</string>
     <string name="toast_crop_failed">切り抜き失敗: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (利用不可)</string>
     <string name="toast_permission_denied">権限が拒否されました。画像を選択できません。</string>
+    <string name="select_language">言語を選択</string>
 </resources>

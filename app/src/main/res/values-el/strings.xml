@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Αναλογία %1$.0f : 1 (Όριο πλάτους Dock) · Αρχικό %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Η εικόνα είναι αριστερά ευθυγραμμισμένη. Με τις τρέχουσες %1$d συντομεύσεις, μόνο το τμήμα αριστερά της μπλε γραμμής είναι ορατό.</string>
     <string name="crop_dialog_all_visible_hint">Η εικόνα είναι αριστερά ευθυγραμμισμένη, περισσότερο φόντο στα δεξιά αποκαλύπτεται με περισσότερα εικονίδια</string>
-    <string name="crop_dialog_instruction">Σύρετε για μετακίνηση · Ρυθμιστικό για ζουμ</string>
+    <string name="crop_dialog_instruction">Σύρετε για μετατόπιση · Ρυθμιστικά για ζουμ και μείωση φωτεινότητας της εικόνας</string>
     <string name="action_cancel">Ακύρωση</string>
     <string name="action_use_region">Χρήση αυτής της περιοχής</string>
     <string name="toast_crop_failed">Η περικοπή απέτυχε: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (μη διαθέσιμο)</string>
     <string name="toast_permission_denied">Η άδεια απορρίφθηκε. Δεν είναι δυνατή η επιλογή εικόνων.</string>
+    <string name="select_language">Επιλογή γλώσσας</string>
 </resources>

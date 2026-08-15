@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Poměr %1$.0f : 1 (Limit šířky doku) · Originál %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Obrázek je zarovnán doleva. Při současných %1$d zástupcích je vidět jen část vlevo od modré čáry.</string>
     <string name="crop_dialog_all_visible_hint">Obrázek je zarovnán doleva, více pozadí vpravo se odkryje s více ikonami</string>
-    <string name="crop_dialog_instruction">Tažením posunete · Posuvník pro zoom</string>
+    <string name="crop_dialog_instruction">Tažením posunete · Posuvníky pro přiblížení a ztmavení obrazu</string>
     <string name="action_cancel">Zrušit</string>
     <string name="action_use_region">Použít tuto oblast</string>
     <string name="toast_crop_failed">Ořez selhal: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (není k dispozici)</string>
     <string name="toast_permission_denied">Přístup odepřen. Nelze vybrat obrázky.</string>
+    <string name="select_language">Vybrat jazyk</string>
 </resources>

@@ -44,7 +44,7 @@
     <string name="crop_dialog_info">Nisbah %1$.0f : 1 (Had lebar Dok) · Asal %2$dx%3$d</string>
     <string name="crop_dialog_visible_hint">Imej dijajarkan ke kiri. Dengan %1$d pintasan semasa, hanya bahagian kiri garisan biru yang kelihatan.</string>
     <string name="crop_dialog_all_visible_hint">Imej dijajarkan ke kiri, lebih banyak latar belakang di sebelah kanan didedahkan dengan lebih banyak ikon</string>
-    <string name="crop_dialog_instruction">Seret untuk gerak · Gelangsar untuk zum</string>
+    <string name="crop_dialog_instruction">Seret untuk menyorot · Gelangsar untuk zum dan malapkan imej</string>
     <string name="action_cancel">Batal</string>
     <string name="action_use_region">Gunakan kawasan ini</string>
     <string name="toast_crop_failed">Gagal memotong: %1$s</string>
@@ -52,4 +52,5 @@
     <string name="bg_info_resolution">dock_bg.png · %1$dx%2$d</string>
     <string name="bg_info_not_available">dock_bg.png (tidak tersedia)</string>
     <string name="toast_permission_denied">Keizinan dinafikan. Tidak dapat memilih imej.</string>
+    <string name="select_language">Pilih Bahasa</string>
 </resources>
