@@ -60,34 +60,34 @@ fun LanguagePickerContent(
     onLanguageSelected: (String) -> Unit
 ) {
     val supportedLocales = listOf(
-        "Auto" to "",
-        "English" to "en",
-        "English (UK)" to "en-GB",
-        "简体中文" to "zh-CN",
-        "繁體中文 (台灣)" to "zh-TW",
-        "繁體中文 (香港)" to "zh-HK",
-        "Deutsch" to "de",
-        "Français" to "fr",
-        "Español" to "es",
-        "Español (US)" to "es-US",
-        "Italiano" to "it",
-        "日本語" to "ja",
-        "한국어" to "ko",
-        "Русский" to "ru",
-        "ไทย" to "th",
-        "Türkçe" to "tr",
-        "Čeština" to "cs",
-        "Dansk" to "da",
-        "Nederlands" to "nl",
-        "Suomi" to "fi",
-        "Eλληνικά" to "el",
-        "Bahasa Melayu" to "ms",
-        "Norsk Bokmål" to "nb",
-        "Polski" to "pl",
-        "Português (Brasil)" to "pt-BR",
-        "Português (Portugal)" to "pt-PT",
-        "Română" to "ro",
-        "Svenska" to "sv"
+        Triple("🌐", "Auto", ""),
+        Triple("🇺🇸", "English", "en"),
+        Triple("🇬🇧", "English (UK)", "en-GB"),
+        Triple("🇨🇳", "简体中文", "zh-CN"),
+        Triple("🇹🇼", "繁體中文 (台灣)", "zh-TW"),
+        Triple("🇭🇰", "繁體中文 (香港)", "zh-HK"),
+        Triple("🇩🇪", "Deutsch", "de"),
+        Triple("🇫🇷", "Français", "fr"),
+        Triple("🇪🇸", "Español", "es"),
+        Triple("🇺🇸", "Español (US)", "es-US"),
+        Triple("🇮🇹", "Italiano", "it"),
+        Triple("🇯🇵", "日本語", "ja"),
+        Triple("🇰🇷", "한국어", "ko"),
+        Triple("🇷🇺", "Русский", "ru"),
+        Triple("🇹🇭", "ไทย", "th"),
+        Triple("🇹🇷", "Türkçe", "tr"),
+        Triple("🇨🇿", "Čeština", "cs"),
+        Triple("🇩🇰", "Dansk", "da"),
+        Triple("🇳🇱", "Nederlands", "nl"),
+        Triple("🇫🇮", "Suomi", "fi"),
+        Triple("🇬🇷", "Eλληνικά", "el"),
+        Triple("🇲🇾", "Bahasa Melayu", "ms"),
+        Triple("🇳🇴", "Norsk Bokmål", "nb"),
+        Triple("🇵🇱", "Polski", "pl"),
+        Triple("🇧🇷", "Português (Brasil)", "pt-BR"),
+        Triple("🇵🇹", "Português (Portugal)", "pt-PT"),
+        Triple("🇷🇴", "Română", "ro"),
+        Triple("🇸🇪", "Svenska", "sv")
     )
 
     Column(
@@ -105,7 +105,7 @@ fun LanguagePickerContent(
         )
 
         LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(supportedLocales) { (name, tag) ->
+            items(supportedLocales) { (flag, name, tag) ->
                 val isSelected = (tag == "" && currentLocale == "") ||
                         (tag != "" && currentLocale.startsWith(tag))
 
@@ -121,14 +121,23 @@ fun LanguagePickerContent(
                         .hoverable(interactionSource)
                         .clickable { onLanguageSelected(tag) }
                         .padding(horizontal = 24.dp, vertical = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = name,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = flag,
+                            style = MaterialTheme.typography.headlineSmall,
+                            modifier = Modifier.padding(end = 16.dp)
+                        )
+                        Text(
+                            text = name,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (isSelected) MaterialTheme.colorScheme.primary else Color.LightGray
+                        )
+                    }
                     if (isSelected) {
                         Icon(
                             Icons.Default.Check,
