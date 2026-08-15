@@ -58,7 +58,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -1890,15 +1889,10 @@ fun AppPicker(
                     placeholder = { Text(stringResource(R.string.search_placeholder)) },
                     trailingIcon = {
                         if (query.isNotEmpty()) {
-                            val view = androidx.compose.ui.platform.LocalView.current
                             val interactionSource = remember { MutableInteractionSource() }
                             val isHovered by interactionSource.collectIsHoveredAsState()
-                            LaunchedEffect(isHovered) {
-                                if (isHovered) view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
-                            }
                             IconButton(
                                 onClick = {
-                                    view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                                     query = ""
                                 },
                                 interactionSource = interactionSource
@@ -1974,10 +1968,8 @@ private fun FilterToggleButton(
     isActive: Boolean,
     onClick: () -> Unit
 ) {
-    val view = androidx.compose.ui.platform.LocalView.current
     Surface(
         onClick = {
-            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             onClick()
         },
         shape = RoundedCornerShape(12.dp),
@@ -2187,9 +2179,7 @@ fun ImageFilePicker(
                     color = Color.White
                 )
 
-                val view = LocalView.current
                 IconButton(onClick = {
-                    view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
                     refreshCount++
                 }) {
                     Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
@@ -2222,15 +2212,9 @@ private fun ImagePickerItem(uri: Uri, onClick: () -> Unit) {
     val context = LocalContext.current
     val interaction = remember { MutableInteractionSource() }
     val isHovered by interaction.collectIsHoveredAsState()
-    val view = LocalView.current
-
-    LaunchedEffect(isHovered) {
-        if (isHovered) view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
-    }
 
     Surface(
         onClick = {
-            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY)
             onClick()
         },
         modifier = Modifier
