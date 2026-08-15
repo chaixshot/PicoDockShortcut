@@ -19,13 +19,27 @@ import org.json.JSONArray
 class HookInit : IXposedHookLoadPackage {
     private val jsonPath = "/data/user/0/com.hamer.dockshortcut/dock_fix_apps.json"
     private val imagePath = "/data/user/0/com.hamer.dockshortcut/Image"
-    private val bgImgPath = "/data/user/0/com.hamer.dockshortcut/dock_bg.png"
 
-    private val targetJsonName = if (
-        android.os.Build.MODEL.contains("Enterprise", ignoreCase = true) ||
-        android.os.Build.MODEL.contains("A8EX0") ||
-        android.os.Build.MODEL.contains("A9210")
-    ) "dock_fix_apps_overseas_to_b.json" else "dock_fix_apps.json"
+    // True when the user wants the Fit Center shown, i.e. the JSON contains an entry
+    // with packageName == com.pvr.fitcenter OR "fitCenter": true.
+    private fun fitCenterEnabledInJson(): Boolean {
+        return try {
+            val file = File(jsonPath)
+            if (file.exists() && file.canRead()) {
+                val content = file.readText()
+                val jsonArray = JSONArray(content)
+                for (i in 0 until jsonArray.length()) {
+                    val obj = jsonArray.getJSONObject(i)
+                    if (obj.optBoolean("fitCenter", false) || obj.optString("packageName") == "com.pvr.fitcenter") {
+                        return true
+                    }
+                }
+            }
+            false
+        } catch (e: Exception) {
+            false
+        }
+    }
 
     override fun handleLoadPackage(lpparam: XC_LoadPackage.LoadPackageParam) {
         if (lpparam.packageName == "com.hamer.dockshortcut") {
@@ -51,19 +65,20 @@ class HookInit : IXposedHookLoadPackage {
         // addRemoveFitCenterApp(List, List) scans the fix app list and re-inserts
         // AppList.FitCenter when DockUtils.isUserCenterNoFit() is true (China/Phoenix).
         // We neutralize it UNLESS the user enabled Fit Center in the JSON
-        // (via an entry with "fitCenter": true) — then we let the system keep it.
+        // (via an entry with "fitCenter": true) �?then we let the system keep it.
         try {
             XposedHelpers.findAndHookMethod(
                 "com.pvr.shortcut.dock.datamanager.FixAppDataManager",
                 lpparam.classLoader,
                 "addRemoveFitCenterApp",
-                // MUST pass the exact parameter types here, otherwise Vector resolves
-                // addRemoveFitCenterApp() (zero-arg) and fails with #exact mismatch.
                 java.util.List::class.java,
                 java.util.List::class.java,
                 object : XC_MethodHook() {
                     override fun beforeHookedMethod(param: MethodHookParam) {
-                        if (!fitCenterEnabledInJson()) {
+                        if (fitCenterEnabledInJson()) {
+                            XposedBridge.log("PicoDockShortcut: Fit Center enabled, allowing addRemoveFitCenterApp")
+                        } else {
+                            XposedBridge.log("PicoDockShortcut: Blocking addRemoveFitCenterApp (remove Fit Center)")
                             param.result = null
                         }
                     }
@@ -77,10 +92,10 @@ class HookInit : IXposedHookLoadPackage {
             @SuppressLint("DiscouragedPrivateApi")
             override fun beforeHookedMethod(param: MethodHookParam) {
                 val fileName = param.args[0] as String
-
+                
                 // Intercept the JSON file
-                if (fileName == targetJsonName || fileName.endsWith("/$targetJsonName")) {
-                    XposedBridge.log("PicoDockShortcut: Intercepting $targetJsonName")
+                if (fileName == "dock_fix_apps.json" || fileName.endsWith("/dock_fix_apps.json")) {
+                    XposedBridge.log("PicoDockShortcut: Intercepting dock_fix_apps.json")
                     try {
                         val file = File(jsonPath)
                         if (file.exists() && file.canRead()) {
@@ -136,7 +151,7 @@ class HookInit : IXposedHookLoadPackage {
         // addRemoveFitCenterApp(List, List) scans the fix app list and re-inserts
         // AppList.FitCenter when DockUtils.isUserCenterNoFit() is true (China/Phoenix).
         // We neutralize it UNLESS the user enabled Fit Center in the JSON
-        // (via an entry with "fitCenter": true) — then we let the system keep it.
+        // (via an entry with "fitCenter": true) �?then we let the system keep it.
         try {
             XposedHelpers.findAndHookMethod(
                 "com.pvr.shortcut.dock.datamanager.FixAppDataManager",
@@ -162,39 +177,38 @@ class HookInit : IXposedHookLoadPackage {
         installDockBackgroundHook(lpparam.classLoader)
     }
 
-    // ===== Dock Background Customization =====
-    private fun installDockBackgroundHook(classLoader: ClassLoader?) {
-        val img = File(bgImgPath)
+    // ===== Dock 背景定制 =====
+    private val bgImgPath = "/data/user/0/com.hamer.dockshortcut/dock_bg.png"
 
-        if (img.exists() && img.canRead())
-            try {
-                val svc = XposedHelpers.findClass("com.pvr.shortcut.service.ShortcutViewContainer", classLoader)
-                XposedHelpers.findAndHookMethod(
-                    svc, "inflateRootView", android.content.Context::class.java,
-                    object : XC_MethodHook() {
-                        override fun afterHookedMethod(param: MethodHookParam) {
-                            try {
-                                val ret = param.result
-                                if (ret is android.view.ViewGroup) applyDockBg(ret)
-                            } catch (t: Throwable) {
-                                XposedBridge.log("PicoDockShortcut: inflateRootView hook err " + t)
-                            }
+    private fun installDockBackgroundHook(classLoader: ClassLoader?) {
+        try {
+            val svc = XposedHelpers.findClass("com.pvr.shortcut.service.ShortcutViewContainer", classLoader)
+            XposedHelpers.findAndHookMethod(
+                svc, "inflateRootView", android.content.Context::class.java,
+                object : XC_MethodHook() {
+                    override fun afterHookedMethod(param: MethodHookParam) {
+                        try {
+                            val ret = param.result
+                            if (ret is android.view.ViewGroup) applyDockBg(ret)
+                        } catch (t: Throwable) {
+                            XposedBridge.log("PicoDockShortcut: inflateRootView hook err " + t)
                         }
                     }
-                )
-                XposedBridge.log("PicoDockShortcut: Dock background hook installed")
-            } catch (e: Throwable) {
-                XposedBridge.log("PicoDockShortcut: Dock background hook err " + e.message)
-            }
+                }
+            )
+            XposedBridge.log("PicoDockShortcut: Dock background hook installed")
+        } catch (e: Throwable) {
+            XposedBridge.log("PicoDockShortcut: Dock background hook err " + e.message)
+        }
     }
 
-    // Set background for Dock bar + Guide synchronously
+    // �?Dock �?+ 新手引导(Guide)同步设背�?读用户图�? 无则渐变占位), 每个 View 用自己的圆角
     private fun applyDockBg(root: android.view.ViewGroup) {
         try {
-            val bmp = loadUserBitmap() ?: return
+            val bmp = loadUserBitmap()
+            if (bmp == null) XposedBridge.log("PicoDockShortcut: no dock_bg.png, using gradient placeholder")
 
-            // 1) Dock bar
-            val bar = findDockBar(root)
+            // 1) Dock �?            val bar = findDockBar(root)
             if (bar != null) {
                 val radii = radiiOf(bar)
                 bar.background = RoundedBgDrawable(bmp, radii) { w, h -> writeBarSize(w, h) }
@@ -204,7 +218,7 @@ class HookInit : IXposedHookLoadPackage {
                 XposedBridge.log("PicoDockShortcut: Dock bar NOT found")
             }
 
-            // 2) Guide (id=0x7f09005b) uses the same image synchronously
+            // 2) 新手引导 Guide (id=0x7f09005b) 同步同一张图
             val guide = root.findViewById<android.view.View>(0x7f09005b)
             if (guide != null) {
                 val radii2 = radiiOf(guide)
@@ -216,19 +230,16 @@ class HookInit : IXposedHookLoadPackage {
         }
     }
 
-    // Dock bar original corner radius (px). If the background has been replaced during inflation, it cannot be read; fallback to original value 38.
-    private val defaultCornerPx = 38f
+    // Dock 条原生圆�?px)。inflate 时若背景已被替换过读不到, 退回原生�?38�?    private val defaultCornerPx = 38f
 
-    // Report the actual width and height of the Dock bar to the GUI (for cropping frame ratio).
-    // Using Settings.Global: com.pvr.shortcut is uid 1000 (system) and can write, module App can read; more reliable than writing files.
-    private val barSizeKey = "pico_dock_bar_size"
+    // Dock 条实际宽高上报给 GUI(裁剪框比例用)�?    // �?Settings.Global: com.pvr.shortcut �?uid 1000 可写, 模块 App 可读; 比写文件可靠�?    private val barSizeKey = "pico_dock_bar_size"
     private var lastBarSize: String? = null
     private var barCtx: android.content.Context? = null
 
     private fun reportBarSize(bar: android.view.View) {
         try {
             barCtx = bar.context.applicationContext ?: bar.context
-            // Report after real layout (triggered when user opens Dock in VR)
+            // 真实布局后上�?用户�?VR 里开�?Dock 就会触发)
             bar.viewTreeObserver.addOnGlobalLayoutListener {
                 try { writeBarSize(bar.width, bar.height) } catch (t: Throwable) {}
             }
@@ -273,8 +284,8 @@ class HookInit : IXposedHookLoadPackage {
         return radii
     }
 
-    // LinearLayout child of dock_container (0x7f09009c) = Dock bar (Guide is FrameLayout)
-    // This way it can be found even if the background has been replaced, and will never mistakenly modify dock_container itself
+    // dock_container(0x7f09009c) �?LinearLayout 子节�?= Dock �?(Guide �?FrameLayout)
+    // 这样即使背景已被替换过也能找�? 且绝不会误改 dock_container 本身
     private fun findDockBar(root: android.view.ViewGroup): android.view.View? {
         try {
             val container = root.findViewById<android.view.View>(0x7f09009c)
@@ -288,10 +299,11 @@ class HookInit : IXposedHookLoadPackage {
         return findVisibleDarkBar(root)
     }
 
-    // Decode user image (limit to <=2048 side length, saves memory)
+    // 用户图片解码(限制�?<=2048 边长, 省内�?
     private fun loadUserBitmap(): Bitmap? {
         return try {
             val img = File(bgImgPath)
+            if (!img.exists() || !img.canRead()) return null
             val bounds = android.graphics.BitmapFactory.Options()
             bounds.inJustDecodeBounds = true
             android.graphics.BitmapFactory.decodeFile(bgImgPath, bounds)
@@ -307,9 +319,9 @@ class HookInit : IXposedHookLoadPackage {
         }
     }
 
-    // Rounded corner background drawn according to View's actual size: width/height are still 0 during inflation, must be calculated in onBoundsChange
+    // �?View 实际尺寸绘制的圆角背�? inflate �?width/height 还是 0, 必须�?onBoundsChange 里算
     private class RoundedBgDrawable(
-        private val bmp: Bitmap,
+        private val bmp: Bitmap?,
         val radii: FloatArray,
         private val onSize: ((Int, Int) -> Unit)? = null
     ) : android.graphics.drawable.Drawable() {
@@ -330,24 +342,25 @@ class HookInit : IXposedHookLoadPackage {
             onSize?.invoke(b.width(), b.height())
             path.reset()
             path.addRoundRect(android.graphics.RectF(0f, 0f, w, h), radii, android.graphics.Path.Direction.CW)
-            
-            // Left aligned + scaled proportionally by height:
-            // Image fixed on the left, only the right side is cropped when Dock narrows; more of the image is revealed on the right when Dock widens.
-            // When image width is not enough, use CLAMP to extend with right edge pixels.
-            val scale = h / bmp.height
-            val m = android.graphics.Matrix()
-            m.setScale(scale, scale)
-            val sh = android.graphics.BitmapShader(bmp,
-                android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
-            sh.setLocalMatrix(m)
-            paint.shader = sh
-            
+            paint.shader = if (bmp != null) {
+                // 左对�?+ 按高度等比缩�?
+                // 图片左侧固定, Dock 变窄时只截掉右侧; Dock 变宽时右侧露出更多画面�?                // 图宽不够时靠 CLAMP 用右边缘像素延展�?                val scale = h / bmp.height
+                val m = android.graphics.Matrix()
+                m.setScale(scale, scale)
+                val sh = android.graphics.BitmapShader(bmp,
+                    android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP)
+                sh.setLocalMatrix(m)
+                sh
+            } else {
+                android.graphics.LinearGradient(0f, 0f, w, h,
+                    intArrayOf(0xFF1E3C78.toInt(), 0xFFB428A0.toInt(), 0xFFF07828.toInt()),
+                    null, android.graphics.Shader.TileMode.CLAMP)
+            }
             invalidateSelf()
         }
 
         override fun draw(canvas: Canvas) {
-            // Fallback: if onBoundsChange was not triggered (first setBounds size is 0 and doesn't callback), calculate during drawing
-            if (!built) build(bounds)
+            // 兜底: �?onBoundsChange 未触�?首次 setBounds 尺寸�?0 不回�?, 绘制时现�?            if (!built) build(bounds)
             if (paint.shader == null) return
             canvas.drawPath(path, paint)
         }
@@ -358,7 +371,7 @@ class HookInit : IXposedHookLoadPackage {
         override fun getOpacity(): Int = android.graphics.PixelFormat.TRANSLUCENT
     }
 
-    // Find the first LinearLayout with GradientDrawable background = real Dock bar (fallback solution)
+    // 找第一�?bg �?GradientDrawable �?LinearLayout = 真正�?Dock �?(兜底方案)
     private fun findVisibleDarkBar(v: android.view.View): android.view.View? {
         if (v.id != 0x7f09009c
             && v.background is android.graphics.drawable.GradientDrawable
@@ -373,24 +386,6 @@ class HookInit : IXposedHookLoadPackage {
             }
         }
         return null
-    }
-
-    // True when the user wants the Fit Center shown, i.e. the JSON contains an entry
-    // with packageName == com.pvr.fitcenter OR "fitCenter": true.
-    private fun fitCenterEnabledInJson(): Boolean {
-        return try {
-            val file = File(jsonPath)
-            if (!file.exists() || !file.canRead()) return false
-            val json = org.json.JSONArray(file.readText())
-            for (i in 0 until json.length()) {
-                val o = json.getJSONObject(i)
-                if (o.optBoolean("fitCenter", false)) return true
-                if (o.optString("packageName") == "com.pvr.fitcenter") return true
-            }
-            false
-        } catch (e: Exception) {
-            false
-        }
     }
 
     private fun drawableToBitmap(drawable: Drawable): Bitmap {
