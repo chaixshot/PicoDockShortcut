@@ -446,8 +446,8 @@ class MainViewModel : ViewModel() {
     fun applyChanges(context: Context, checkStatus: Boolean) {
         viewModelScope.launch {
             isApplying = true
-            saveToJson(context)
             clearIconCache(context)
+            saveToJson(context)
             savedApps.clear()
             savedApps.addAll(selectedApps)
 
