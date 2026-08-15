@@ -6,6 +6,8 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
+import android.graphics.Path
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.net.Uri
@@ -436,9 +438,18 @@ class MainViewModel : ViewModel() {
 
         val bitmap = Bitmap.createBitmap(bitmapW, bitmapH, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        val left = (bitmapW - srcW) / 2
-        val top = (bitmapH - srcH) / 2
-        drawable.setBounds(left, top, left + srcW, top + srcH)
+        val left = (bitmapW - srcW) / 2f
+        val top = (bitmapH - srcH) / 2f
+
+        val path = Path()
+        val radius = minOf(srcW, srcH) * 0.12f
+        path.addRoundRect(
+            RectF(left, top, left + srcW, top + srcH),
+            radius, radius, Path.Direction.CW
+        )
+        canvas.clipPath(path)
+
+        drawable.setBounds(left.toInt(), top.toInt(), (left + srcW).toInt(), (top + srcH).toInt())
         drawable.draw(canvas)
         return bitmap
     }
