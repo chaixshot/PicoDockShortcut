@@ -12,6 +12,9 @@
 *   **🤌 Drag to Reorder:** Easily organize your dock shortcuts with intuitive long-press and drag gestures.
 *   **🖼️ Custom App Icons:** Pick your own images from device storage to customize the look of any shortcut.
 *   **🚀 App Icon Cache:** Optimized icon caching ensures significantly faster dock loading times.
+*   **🎯 Custom Dock App List:** Intercept and rewrite `dock_fix_apps.json` to pin the apps you want.
+*   **🧩 Fit Center Control:** Toggle the hard-coded Fit Center Dock entry from the GUI.
+*   **🖼️ Dock Background:** Set a custom image for the Dock bar, with fixed-ratio cropping.
 *   **🌐 Language Support:** Fully supports 26+ languages with an in-app selector to override system defaults.
 *   **🔄 Auto Restart:** Automatically restarts the Dock service after applying changes to ensure they take effect immediately.
 *   **🛡️ System Health Check:** Built-in diagnostics detect Root access and LSPosed status, providing clear warning popups if requirements aren't met.
@@ -46,6 +49,15 @@ The app saves your chosen images to `/data/user/0/com.hamer.dockshortcut/Image/C
 
 ## 🔃 Language Support
 The app supports multiple languages including English, Chinese (Simplified/Traditional), Thai, German, French, and more. You can override the system language using the **Language Selector** (globe icon) in the top-right corner.
+
+## 🎯 Custom Dock App List
+The app intercepts `com.pvr.shortcut`'s `dock_fix_apps.json`, letting you configure the pinned Dock apps through the GUI instead of editing files by hand.
+
+## 🧩 Fit Center Control
+Fit Center is a hard-coded Dock entry in Chinese/Phoenix firmware. This version turns it into a GUI toggle so it can be removed or kept explicitly.
+
+## 🖼️ Custom Dock Background
+You can set a custom image for the Dock bar, with built-in fixed-ratio cropping and a shared background for the onboarding guide bar.
 
 ## 🙏 Special thanks to:
 *   [LSPosed Framework](https://github.com/LSPosed/LSPosed) - For providing the powerful hooking engine.
