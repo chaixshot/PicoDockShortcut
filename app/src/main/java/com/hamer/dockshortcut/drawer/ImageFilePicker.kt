@@ -90,7 +90,7 @@ fun ImageFilePicker(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         scrimColor = Color.Transparent,
-        containerColor = colorResource(R.color.main_bg),
+        containerColor = colorResource(R.color.content_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         Column(modifier = Modifier.fillMaxHeight(0.9f)) {

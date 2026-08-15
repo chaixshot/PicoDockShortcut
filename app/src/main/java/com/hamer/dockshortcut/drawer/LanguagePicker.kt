@@ -36,7 +36,7 @@ fun LanguagePicker(onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         scrimColor = Color.Transparent,
-        containerColor = colorResource(R.color.main_bg),
+        containerColor = colorResource(R.color.content_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         LanguagePickerContent(
@@ -116,7 +116,7 @@ fun LanguagePickerContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
+                            if (isHovered) colorResource(R.color.card_bg) else Color.Transparent
                         )
                         .hoverable(interactionSource)
                         .clickable { onLanguageSelected(tag) }
@@ -147,7 +147,7 @@ fun LanguagePickerContent(
 @Composable
 fun LanguagePickerPreview() {
     PicoDockShortcutTheme {
-        Surface(color = colorResource(R.color.main_bg)) {
+        Surface(color = colorResource(R.color.content_bg)) {
             LanguagePickerContent(
                 currentLocale = "en",
                 onLanguageSelected = {}

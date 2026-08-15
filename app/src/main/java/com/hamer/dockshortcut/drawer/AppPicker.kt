@@ -86,7 +86,7 @@ private fun AppPickerContent(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         scrimColor = Color.Transparent,
-        containerColor = colorResource(R.color.main_bg),
+        containerColor = colorResource(R.color.content_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         AppPickerSheetContent(
@@ -153,7 +153,7 @@ private fun AppPickerSheetContent(
                 },
                 shape = RoundedCornerShape(12.dp),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = colorResource(R.color.content_bg),
+                    focusedContainerColor = colorResource(R.color.dropdown_bg),
                     unfocusedContainerColor = colorResource(R.color.card_bg),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
@@ -213,7 +213,7 @@ private fun FilterToggleButton(
         },
         shape = RoundedCornerShape(12.dp),
         color = if (isActive) colorResource(R.color.colorPrimary) else colorResource(R.color.card_bg),
-        contentColor = if (isActive) Color.Black else Color.White
+        contentColor = Color.White
     ) {
         Box(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
@@ -232,7 +232,7 @@ private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                if (isHovered) colorResource(R.color.content_bg) else Color.Transparent
+                if (isHovered) colorResource(R.color.card_bg) else Color.Transparent
             )
             .hoverable(interaction)
             .clickable { onAppSelected(app) }
@@ -267,7 +267,7 @@ fun AppPickerPreview() {
     )
 
     PicoDockShortcutTheme {
-        Surface(color = colorResource(R.color.main_bg)) {
+        Surface(color = colorResource(R.color.content_bg)) {
             AppPickerSheetContent(
                 apps = sampleApps,
                 filterUser = true,

@@ -107,7 +107,7 @@ fun DockBgDrawer(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         scrimColor = Color.Transparent,
-        containerColor = colorResource(id = R.color.main_bg),
+        containerColor = colorResource(id = R.color.content_bg),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
     ) {
         DockBgDrawerContent(
