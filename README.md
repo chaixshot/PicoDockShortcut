@@ -2,6 +2,8 @@
 <img src="Resource/icon.webp" width="128" height="128"/>
 
 # PicoDockShortcut
+[English](README.md) | [中文](README_zh.md) | [Русский](README_ru.md)
+
 ### Manage your Pico 4 dock pinned shortcuts with ease.<br>Companion project for customizing your VR experience.
 </div>
 
