@@ -116,7 +116,7 @@ private fun AppPickerSheetContent(
     var query by remember { mutableStateOf("") }
     val filtered = remember(query, apps, filterUser, filterSystem) {
         apps.filter {
-            it.label.contains(query, true) &&
+            (it.label.contains(query, true) || it.packageName.contains(query, true)) &&
                     ((filterUser && !it.isSystem) || (filterSystem && it.isSystem))
         }
     }
@@ -183,7 +183,7 @@ private fun AppPickerSheetContent(
                 contentPadding = PaddingValues(bottom = 32.dp)
             ) {
                 if (fitCenterInfo != null &&
-                    fitCenterInfo.label.contains(query, true) &&
+                    (fitCenterInfo.label.contains(query, true) || fitCenterInfo.packageName.contains(query, true)) &&
                     excludedPackages.none { it == FIT_CENTER_PACKAGE }
                 ) {
                     item {
