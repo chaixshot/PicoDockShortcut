@@ -189,13 +189,17 @@ class MainViewModel : ViewModel() {
     }
 
     fun toggleFilterUser(context: Context) {
-        filterUser = !filterUser
-        saveSettings(context)
+        if (filterSystem) {
+            filterUser = !filterUser
+            saveSettings(context)
+        }
     }
 
     fun toggleFilterSystem(context: Context) {
-        filterSystem = !filterSystem
-        saveSettings(context)
+        if (filterUser) {
+            filterSystem = !filterSystem
+            saveSettings(context)
+        }
     }
 
     fun loadApps(context: Context) {
