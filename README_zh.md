@@ -24,6 +24,7 @@
 ## ⛏️ 必备条件
 *   **设备：** Pico 4 头戴设备（支持海外版和中国版固件）。
 *   **权限：** 需要 **[Root 权限](https://pico4.wiki/guides/root/01-root/)** 以修改系统文件。
+    * 推荐使用 [picounlock](https://github.com/chaixshot/more-picohaxx)
 *   **环境：** 必须安装并激活 **[LSPosed 框架](https://github.com/JingMatrix/Vector/releases/tag/v2.0)**。
 *   **作用域：** 确保在 LSPosed 模块作用域中勾选了 `Dock` (`com.pvr.shortcut`)。
 
