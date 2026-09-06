@@ -126,19 +126,27 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
         if (results.values.any { it }) {
             showImagePicker = true
         } else {
-            Toast.makeText(context, context.getString(R.string.toast_permission_denied), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.toast_permission_denied),
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     fun requestImagePermission() {
-        val permissions = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
-        } else {
-            arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
+        val permissions =
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES)
+            } else {
+                arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
 
         val allGranted = permissions.all {
-            androidx.core.content.ContextCompat.checkSelfPermission(context, it) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            androidx.core.content.ContextCompat.checkSelfPermission(
+                context,
+                it
+            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
         }
 
         if (allGranted) {
@@ -160,7 +168,8 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                 .clip(RoundedCornerShape(24.dp)),
             color = colorResource(id = R.color.main_bg)
         ) {
-            val showStatusOverlay = !viewModel.hasRoot || !viewModel.isModuleActive || !viewModel.isTargetHooked
+            val showStatusOverlay =
+                !viewModel.hasRoot || !viewModel.isModuleActive || !viewModel.isTargetHooked
 
             Column(
                 modifier = Modifier
@@ -257,11 +266,13 @@ fun MainScreen(viewModel: MainViewModel = viewModel()) {
                         val app = viewModel.selectedApps[target.index]
                         viewModel.saveCustomIcon(context, uri, app.packageName)
                     }
+
                     is PickerTarget.Background -> {
                         // This will be handled by DockBgDrawer if we pass the state
                         // Or we can use a SharedFlow/Event in ViewModel
                         viewModel.onImagePicked(uri)
                     }
+
                     else -> {}
                 }
                 showImagePicker = false
@@ -288,10 +299,12 @@ private fun Header(
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(
+            modifier = Modifier.weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             Box(
                 modifier = Modifier
                     .size(70.dp)
@@ -323,85 +336,113 @@ private fun Header(
                     stringResource(R.string.header_title),
                     style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     stringResource(R.string.header_desc),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     stringResource(R.string.header_instruction_reorder),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
                 Text(
                     stringResource(R.string.header_instruction_change),
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.LightGray
+                    color = Color.LightGray,
+                    maxLines = 1,
+                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                 )
             }
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            val bgInteractionSource = remember { MutableInteractionSource() }
-            val langInteractionSource = remember { MutableInteractionSource() }
+        Spacer(modifier = Modifier.width(16.dp))
 
-            Surface(
-                onClick = onBgClick,
-                modifier = Modifier.size(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = colorResource(R.color.card_bg),
-                interactionSource = bgInteractionSource
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.End
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        Icons.Default.Wallpaper,
-                        contentDescription = stringResource(R.string.dock_bg_title),
-                        tint = Color.LightGray
-                    )
+                ActionButton(
+                    stringResource(R.string.action_restore),
+                    Icons.Default.SettingsBackupRestore,
+                    MaterialTheme.colorScheme.secondaryContainer,
+                    viewModel.isApplying,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    viewModel.restoreDefault(context)
+                }
+                ActionButton(
+                    stringResource(R.string.action_reload),
+                    Icons.Default.Refresh,
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                    viewModel.isApplying,
+                    modifier = Modifier.weight(1f, fill = false)
+                ) {
+                    viewModel.reload(context)
+                }
+                ActionButton(
+                    stringResource(R.string.action_apply),
+                    Icons.Default.Check,
+                    colorResource(id = R.color.colorPrimary),
+                    viewModel.isApplying || !viewModel.isModified,
+                    modifier = Modifier.weight(1f, fill = false),
+                    showLoading = viewModel.isApplying
+                ) {
+                    viewModel.applyChanges(context, false)
                 }
             }
 
-            Surface(
-                onClick = onLanguageClick,
-                modifier = Modifier.size(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                color = colorResource(R.color.card_bg),
-                interactionSource = langInteractionSource
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        Icons.Default.Language,
-                        contentDescription = stringResource(R.string.select_language),
-                        tint = Color.LightGray
-                    )
+                val bgInteractionSource = remember { MutableInteractionSource() }
+                val langInteractionSource = remember { MutableInteractionSource() }
+
+                Surface(
+                    onClick = onBgClick,
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = colorResource(R.color.card_bg),
+                    interactionSource = bgInteractionSource
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Default.Wallpaper,
+                            contentDescription = stringResource(R.string.dock_bg_title),
+                            tint = Color.LightGray
+                        )
+                    }
                 }
-            }
-            ActionButton(
-                stringResource(R.string.action_restore),
-                Icons.Default.SettingsBackupRestore,
-                MaterialTheme.colorScheme.secondaryContainer,
-                viewModel.isApplying
-            ) {
-                viewModel.restoreDefault(context)
-            }
-            ActionButton(
-                stringResource(R.string.action_reload),
-                Icons.Default.Refresh,
-                MaterialTheme.colorScheme.tertiaryContainer,
-                viewModel.isApplying
-            ) {
-                viewModel.reload(context)
-            }
-            ActionButton(
-                stringResource(R.string.action_apply),
-                Icons.Default.Check,
-                colorResource(id = R.color.colorPrimary),
-                viewModel.isApplying || !viewModel.isModified,
-                showLoading = viewModel.isApplying
-            ) {
-                viewModel.applyChanges(context, false)
+
+                Surface(
+                    onClick = onLanguageClick,
+                    modifier = Modifier.size(48.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = colorResource(R.color.card_bg),
+                    interactionSource = langInteractionSource
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Default.Language,
+                            contentDescription = stringResource(R.string.select_language),
+                            tint = Color.LightGray
+                        )
+                    }
+                }
             }
         }
     }
@@ -480,7 +521,10 @@ private fun DockGrid(
                                             .coerceIn(0, 1)
 
                                         val targetIdx =
-                                            (row * 6 + col).coerceIn(0, viewModel.selectedApps.size - 1)
+                                            (row * 6 + col).coerceIn(
+                                                0,
+                                                viewModel.selectedApps.size - 1
+                                            )
 
                                         if (targetIdx != currentIdx) {
                                             viewModel.moveApp(currentIdx, targetIdx)
@@ -631,7 +675,7 @@ fun AddSlot(onClick: () -> Unit) {
             .height(200.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor =  colorResource(id = R.color.card_bg)
+            containerColor = colorResource(id = R.color.card_bg)
         )
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
