@@ -119,6 +119,15 @@ class MainViewModel : ViewModel() {
             val isActive = XposedStatus.isActive()
             val cmd = """
                 id
+                
+                # LSPosed Auto-fix
+                if id | grep -q "uid=0"; then
+                    if ! (/data/adb/lspd/cli scope ls com.hamer.dockshortcut 2>/dev/null || /data/adb/modules/zygisk_vector/cli scope ls com.hamer.dockshortcut 2>/dev/null) | grep -q "$TARGET_PACKAGE"; then
+                         /data/adb/lspd/cli modules enable com.hamer.dockshortcut 2>/dev/null || /data/adb/modules/zygisk_vector/cli modules enable com.hamer.dockshortcut 2>/dev/null
+                         /data/adb/lspd/cli scope add com.hamer.dockshortcut $TARGET_PACKAGE 2>/dev/null || /data/adb/modules/zygisk_vector/cli scope add com.hamer.dockshortcut $TARGET_PACKAGE 2>/dev/null
+                    fi
+                fi
+
                 # running = target process alive
                 if ps -A -o NAME 2>/dev/null | grep -q "$TARGET_PACKAGE"; then
                     echo "TARGET_RUNNING"
