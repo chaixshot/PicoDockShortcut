@@ -21,8 +21,8 @@ android {
         applicationId = "com.hamer.dockshortcut"
         minSdk = 29
         targetSdk = 37
-        versionCode = 12
-        versionName = "1.2"
+        versionCode = 121
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
