@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.hamer.dockshortcut.R
+import com.hamer.dockshortcut.utils.picoHapticHover
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -108,9 +109,12 @@ fun ImageFilePicker(
                     color = Color.White
                 )
 
-                IconButton(onClick = {
-                    refreshCount++
-                }) {
+                IconButton(
+                    onClick = {
+                        refreshCount++
+                    },
+                    modifier = Modifier.picoHapticHover()
+                ) {
                     Icon(Icons.Default.Refresh, contentDescription = "Refresh", tint = Color.White)
                 }
             }
@@ -148,7 +152,8 @@ private fun ImagePickerItem(uri: Uri, onClick: () -> Unit) {
         },
         modifier = Modifier
             .aspectRatio(1f)
-            .clip(RoundedCornerShape(8.dp)),
+            .clip(RoundedCornerShape(8.dp))
+            .picoHapticHover(),
         color = if (isHovered) colorResource(R.color.card_bg) else Color.Black,
         interactionSource = interaction
     ) {

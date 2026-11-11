@@ -28,6 +28,8 @@ import com.hamer.dockshortcut.MainViewModel
 import com.hamer.dockshortcut.R
 import com.hamer.dockshortcut.components.AppIcon
 import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
+import com.hamer.dockshortcut.utils.picoHapticHover
+import com.hamer.dockshortcut.utils.triggerHaptic
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -121,6 +123,7 @@ private fun AppPickerSheetContent(
         }
     }
 
+    val context = LocalContext.current
     Column(modifier = Modifier.fillMaxHeight(0.9f)) {
         Row(
             modifier = Modifier
@@ -130,8 +133,16 @@ private fun AppPickerSheetContent(
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             TextField(
-                value = query, onValueChange = { query = it },
-                modifier = Modifier.weight(1f),
+                value = query,
+                onValueChange = {
+                    if (it != query) {
+                        query = it
+                        triggerHaptic(context, isHover = false)
+                    }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .picoHapticHover(),
                 placeholder = { Text(stringResource(R.string.search_placeholder)) },
                 trailingIcon = {
                     if (query.isNotEmpty()) {
@@ -141,6 +152,7 @@ private fun AppPickerSheetContent(
                             onClick = {
                                 query = ""
                             },
+                            modifier = Modifier.picoHapticHover(),
                             interactionSource = interactionSource
                         ) {
                             Icon(
@@ -211,6 +223,7 @@ private fun FilterToggleButton(
         onClick = {
             onClick()
         },
+        modifier = Modifier.picoHapticHover(),
         shape = RoundedCornerShape(12.dp),
         color = if (isActive) colorResource(R.color.colorPrimary) else colorResource(R.color.card_bg),
         contentColor = Color.White
@@ -235,6 +248,7 @@ private fun AppPickerItem(app: AppInfo, onAppSelected: (AppInfo) -> Unit) {
                 if (isHovered) colorResource(R.color.card_bg) else Color.Transparent
             )
             .hoverable(interaction)
+            .picoHapticHover()
             .clickable { onAppSelected(app) }
             .padding(horizontal = 24.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically

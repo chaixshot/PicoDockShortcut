@@ -37,6 +37,7 @@ import androidx.compose.ui.window.Dialog
 import com.hamer.dockshortcut.R
 import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
 import com.hamer.dockshortcut.utils.decodeScaled
+import com.hamer.dockshortcut.utils.picoHapticHover
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -203,7 +204,9 @@ fun CropDialog(
                         value = zoom,
                         onValueChange = { zoom = it },
                         valueRange = 1f..6f,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .picoHapticHover(),
                         colors = SliderDefaults.colors(
                             thumbColor = card_bg,
                             activeTrackColor = card_bg,
@@ -222,7 +225,9 @@ fun CropDialog(
                         value = dim,
                         onValueChange = { dim = it },
                         valueRange = 0f..1f,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .picoHapticHover(),
                         colors = SliderDefaults.colors(
                             thumbColor = card_bg,
                             activeTrackColor = card_bg,

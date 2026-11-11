@@ -310,6 +310,7 @@ private fun Header(
                     .size(70.dp)
                     .clip(RoundedCornerShape(12.dp))
                     .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                    .picoHapticHover()
                     .clickable(
                         interactionSource = remember { MutableInteractionSource() },
                         indication = null
@@ -414,7 +415,9 @@ private fun Header(
 
                 Surface(
                     onClick = onBgClick,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .picoHapticHover(),
                     shape = RoundedCornerShape(12.dp),
                     color = colorResource(R.color.card_bg),
                     interactionSource = bgInteractionSource
@@ -430,7 +433,9 @@ private fun Header(
 
                 Surface(
                     onClick = onLanguageClick,
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .picoHapticHover(),
                     shape = RoundedCornerShape(12.dp),
                     color = colorResource(R.color.card_bg),
                     interactionSource = langInteractionSource
@@ -592,7 +597,8 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(200.dp)
+            .picoHapticHover(),
         interactionSource = interactionSource,
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
@@ -631,6 +637,7 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
                         RoundedCornerShape(bottomStart = 7.dp)
                     )
                     .hoverable(delInteraction)
+                    .picoHapticHover()
                     .clickable(onClick = onDelete),
                 contentAlignment = Alignment.Center
             ) {
@@ -652,6 +659,7 @@ fun DockSlot(app: AppInfo, onClick: () -> Unit, onDelete: () -> Unit, onPickIcon
                         RoundedCornerShape(bottomEnd = 7.dp)
                     )
                     .hoverable(pickInteraction)
+                    .picoHapticHover()
                     .clickable(onClick = onPickIcon),
                 contentAlignment = Alignment.Center
             ) {
@@ -672,7 +680,8 @@ fun AddSlot(onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .height(200.dp),
+            .height(200.dp)
+            .picoHapticHover(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = colorResource(id = R.color.card_bg)
@@ -795,13 +804,17 @@ private fun WarningOverlay(viewModel: MainViewModel, context: Context) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    TextButton(onClick = { (context as? android.app.Activity)?.finish() }) {
+                    TextButton(
+                        onClick = { (context as? android.app.Activity)?.finish() },
+                        modifier = Modifier.picoHapticHover()
+                    ) {
                         Text(stringResource(R.string.dialog_exit))
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                     if (!viewModel.hasRoot) {
                         Button(
                             onClick = { viewModel.checkStatus() },
+                            modifier = Modifier.picoHapticHover(),
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             Text(stringResource(R.string.dialog_retry))
@@ -809,6 +822,7 @@ private fun WarningOverlay(viewModel: MainViewModel, context: Context) {
                     } else {
                         Button(
                             onClick = { viewModel.restartAndRetry(context) },
+                            modifier = Modifier.picoHapticHover(),
                             enabled = !viewModel.isRetrying,
                             shape = RoundedCornerShape(12.dp)
                         ) {

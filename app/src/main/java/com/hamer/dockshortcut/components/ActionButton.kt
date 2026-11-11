@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.hamer.dockshortcut.R
+import com.hamer.dockshortcut.utils.picoHapticHover
 
 @Composable
 fun ActionButton(
@@ -32,7 +33,7 @@ fun ActionButton(
     Button(
         onClick = onClick,
         enabled = !disabled,
-        modifier = modifier,
+        modifier = modifier.picoHapticHover(),
         interactionSource = interactionSource,
         colors = ButtonDefaults.buttonColors(
             containerColor = bgColor,

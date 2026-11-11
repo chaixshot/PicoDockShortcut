@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.LocaleListCompat
 import com.hamer.dockshortcut.R
 import com.hamer.dockshortcut.ui.theme.PicoDockShortcutTheme
+import com.hamer.dockshortcut.utils.picoHapticHover
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -119,6 +120,7 @@ fun LanguagePickerContent(
                             if (isHovered) colorResource(R.color.card_bg) else Color.Transparent
                         )
                         .hoverable(interactionSource)
+                        .picoHapticHover()
                         .clickable { onLanguageSelected(tag) }
                         .padding(horizontal = 24.dp, vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically

@@ -186,7 +186,8 @@ private fun DockBgDrawerContent(
                             onClick = { onEditCurrentBg() },
                             modifier = Modifier
                                 .align(Alignment.CenterEnd)
-                                .size(30.dp),
+                                .size(30.dp)
+                                .picoHapticHover(),
                             shape = RoundedCornerShape(10.dp),
                             color = MaterialTheme.colorScheme.tertiaryContainer,
                         ) {
